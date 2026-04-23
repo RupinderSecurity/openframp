@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Required meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <style>
+        .read-more {color: #00f;}
+
+        .bg-success-custom {background-color: #98dea7 !important;}
+
+        .bg-danger {background-color: #f28484 !important;}
+    </style>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <!-- https://datatables.net/download/index with jQuery, DataTables, Buttons, SearchPanes, and Select //-->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.10.25/b-1.7.1/sp-1.4.0/sl-1.3.3/datatables.min.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <style>
+        .show-read-more .more-text {display: none;}
+
+        .dataTable {font-size: 14px;}
+
+        .container-fluid {font-size: 14px;}
+
+        .float-left { float: left !important; max-width: 100%; }
+    </style>
+    <title>Prowler - The Handy Cloud Security Tool</title>
+    </head>
+    <body>
+    <div class="container-fluid">
+        <div class="row mt-3">
+        <div class="col-md-4">
+            <a href="https://github.com/prowler-cloud/prowler/"><img class="float-left card-img-left mt-4 mr-4 ml-4"
+                        src=https://raw.githubusercontent.com/prowler-cloud/prowler/dc7d2d5aeb92fdf12e8604f42ef6472cd3e8e889/docs/img/prowler-logo-black.png
+                        alt="prowler-logo"
+                        style="width: 15rem; height:auto;"/></a>
+            <div class="card">
+            <div class="card-header">
+                Report Information
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-auto">
+                    <b>Version:</b> 5.24.0
+                    </div>
+                </div>
+                </li>
+                <li class="list-group-item">
+                <b>Parameters used:</b> aws --check iam_no_root_access_key
+                </li>
+                <li class="list-group-item">
+                <b>Date:</b> 2026-04-23T17:00:20.743782
+                </li>
+            </ul>
+            </div>
+        </div>
+                <div class="col-md-2">
+                    <div class="card">
+                        <div class="card-header">
+                            AWS Assessment Summary
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <b>AWS Account:</b> 025950698642
+                            </li>
+                            <li class="list-group-item">
+                                <b>AWS-CLI Profile:</b> default
+                            </li>
+                            <li class="list-group-item">
+                                <b>Audited Regions:</b> All Regions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        AWS Credentials
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <b>User Id:</b> AIDAQMCWIHSJCWQJ3QAST
+                            </li>
+                            <li class="list-group-item">
+                                <b>Caller Identity ARN:</b> arn:aws:iam::025950698642:user/openframp-scanner
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    Assessment Overview
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <b>Total Findings:</b> 1
+                    </li>
+                    <li class="list-group-item">
+                        <b>Passed:</b> 1
+                    </li>
+                    <li class="list-group-item">
+                        <b>Passed (Muted):</b> 0
+                    </li>
+                    <li class="list-group-item">
+                        <b>Failed:</b> 0
+                    </li>
+                    <li class="list-group-item">
+                        <b>Failed (Muted):</b> 0
+                    </li>
+                    <li class="list-group-item">
+                        <b>Total Resources:</b> 1
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </div>
+        </div>
+        <div class="row-mt-3">
+        <div class="col-md-12">
+            <table class="table compact stripe row-border ordering" id="findingsTable" data-order='[[ 5, "asc" ]]' data-page-length='100'>
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Status</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Service Name</th>
+                    <th scope="col">Region</th>
+                    <th style="width:20%" scope="col">Check ID</th>
+                    <th style="width:20%" scope="col">Check Title</th>
+                    <th scope="col">Resource ID</th>
+                    <th scope="col">Resource Tags</th>
+                    <th scope="col">Status Extended</th>
+                    <th scope="col">Risk</th>
+                    <th scope="col">Recommendation</th>
+                    <th scope="col">Compliance</th>
+                </tr>
+            </thead>
+            <tbody>
+                        <tr class="p-3 mb-2 bg-success-custom">
+                            <td>PASS</td>
+                            <td>critical</td>
+                            <td>iam</td>
+                            <td>us-west-2</td>
+                            <td>iam<wbr />_no<wbr />_root<wbr />_access<wbr />_key</td>
+                            <td>Root account has no active access keys</td>
+                            <td>arn:aws:iam::025950698642:root</td>
+                            <td></td>
+                            <td>Root account does not have access keys.</td>
+                            <td><p class="show-read-more"><strong>Root access keys</strong> provide unrestricted API access. If exposed or misused, attackers can:<br />
+- Turn off logging and alter policies (<strong>integrity</strong>)<br />
+- Read or export data (<strong>confidentiality</strong>)<br />
+- Delete resources and lock out admins (<strong>availability</strong>)<br />
+Long-lived keys can persist and may bypass console-only MFA.</p></td>
+                            <td><p class="show-read-more">Delete and prohibit <strong>root access keys</strong>. Use <strong>IAM roles</strong> and temporary credentials with <strong>least privilege</strong> for all automation. Enable <strong>MFA on root</strong>, limit root to break-glass use, and continuously monitor for any new root keys. <em>Where applicable</em>, apply organization-wide controls to enforce this.</p> <a class="read-more" href="https://hub.prowler.com/check/iam_no_root_access_key"><i class="fas fa-external-link-alt"></i></a></td>
+                            <td><p class="show-read-more">
+&#x2022;CISA: your-systems-3, your-surroundings-3
+
+&#x2022;CIS-1.4: 1.4
+
+&#x2022;CIS-1.5: 1.4
+
+&#x2022;MITRE-ATTACK: T1078, T1550
+
+&#x2022;GDPR: article_25
+
+&#x2022;AWS-Foundational-Security-Best-Practices: IAM.4
+
+&#x2022;ISO27001-2013: A.9.2.N, A.9.4.N
+
+&#x2022;KISA-ISMS-P-2023: 2.5.5, 2.7.2, 2.10.2
+
+&#x2022;C5-2025: IAM-03.01B, IAM-03.03B, IAM-06.02B, IAM-10.01B, CRY-03.01B
+
+&#x2022;HIPAA: 164_308_a_1_ii_b, 164_308_a_3_i, 164_308_a_3_ii_b, 164_308_a_4_ii_c, 164_312_a_2_i
+
+&#x2022;CIS-2.0: 1.4
+
+&#x2022;KISA-ISMS-P-2023-korean: 2.5.5, 2.7.2, 2.10.2
+
+&#x2022;GxP-21-CFR-Part-11: 11.10-d, 11.10-g, 11.200
+
+&#x2022;AWS-Well-Architected-Framework-Security-Pillar: SEC01-BP02
+
+&#x2022;NIST-CSF-2.0: ac_1, ac_6
+
+&#x2022;CIS-5.0: 1.3
+
+&#x2022;NIST-800-171-Revision-2: 3_1_1, 3_1_2, 3_1_4, 3_1_5, 3_1_6, 3_1_7, 3_4_6
+
+&#x2022;CSA-CCM-4.0: IAM-09, IAM-10
+
+&#x2022;PCI-4.0: 7.2.1.17, 7.2.2.17, 7.2.3.8, 8.2.1.4, 8.2.2.6, 8.2.4.4, 8.2.5.4, 8.3.11.4
+
+&#x2022;NIST-800-53-Revision-4: ac_2, ac_3, ac_6_10, ac_6
+
+&#x2022;NIST-800-53-Revision-5: ac_2_1, ac_2_6, ac_3_3, ac_3_3_a, ac_3_3_b_1, ac_3_3_b_2, ac_3_3_b_3, ac_3_3_b_4, ac_3_3_b_5, ac_3_3_c, ac_3_4, ac_3_4_a, ac_3_4_b, ac_3_4_c, ac_3_4_d, ac_3_4_e, ac_3_7, ac_3_8, ac_3_12_a, ac_3_13, ac_3_15_a, ac_3_15_b, ac_4_28, ac_6, ac_6_2, ac_6_10, ac_24, cm_5_1_a, cm_6_a, cm_9_b, ia_2, ia_4_b, ia_4_4, ia_4_8, ia_5_8, mp_2, sc_23_3, sc_25
+
+&#x2022;AWS-Account-Security-Onboarding: Block root user
+
+&#x2022;CIS-3.0: 1.4
+
+&#x2022;ENS-RD2022: op.acc.4.aws.iam.7
+
+&#x2022;CIS-6.0: 2.3
+
+&#x2022;AWS-Foundational-Technical-Review: ARC-004
+
+&#x2022;NIST-CSF-1.1: ac_1, ac_4, pt_3
+
+&#x2022;CCC-v2025.10: CCC.Core.CN03.AR02, CCC.Core.CN03.AR04, CCC.Core.CN05.AR06, CCC.IAM.CN01.AR01, CCC.IAM.CN01.AR02
+
+&#x2022;SecNumCloud-3.2: 9.6
+
+&#x2022;RBI-Cyber-Security-Framework: annex_i_7_1
+
+&#x2022;FFIEC: d3-pc-am-b-1, d3-pc-am-b-3, d3-pc-am-b-8
+
+&#x2022;ProwlerThreatScore-1.0: 1.1.13
+
+&#x2022;ISO27001-2022: A.5.15
+
+&#x2022;FedRamp-Moderate-Revision-4: ac-2-1, ac-2-f, ac-2-j, ac-3, ac-5-c, ac-6-10, ac-6, ia-2
+
+&#x2022;FedRAMP-Low-Revision-4: ac-2, ac-3, ia-2
+
+&#x2022;CIS-4.0.1: 1.4
+
+&#x2022;NIS2: 9.2.c
+
+&#x2022;FedRAMP-20x-KSI-Low-25.05C: ksi-iam, ksi-iam-07
+</p></td>
+                        </tr>
+                        
+            </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Table search and paginator -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"
+        integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd"
+        crossorigin="anonymous"></script>
+    <!-- https://datatables.net/download/index with jQuery, DataTables, Buttons, SearchPanes, and Select //-->
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.10.25/b-1.7.1/sp-1.4.0/sl-1.3.3/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialise the table with 50 rows, and some search/filtering panes
+            $('#findingsTable').DataTable({
+                responsive: true,
+                // Show 25, 50, 100 and All records
+                lengthChange: true,
+                lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                searchPanes: {
+                    cascadePanes: true,
+                    viewTotal: true,
+                },
+                dom: 'Blfrtip',
+                language: {
+                    // To enable a filter button instead of the filter row
+                    searchPanes: {
+                        clearMessage: 'Clear Filters',
+                        collapse: { 0: 'Filters', _: 'Filters (%d)' },
+                        initCollapsed: true
+
+                    }
+                },
+                buttons: [
+                    {
+                        extend: 'searchPanes',
+                        config: {
+                            cascadePanes: true,
+                            viewTotal: true,
+                            orderable: false
+                        }
+                    }
+                ],
+                columnDefs: [
+                    {
+                        searchPanes: {
+                            show: true,
+                            pagingType: 'numbers',
+                            searching: true
+                        },
+                        // Show all filters
+                        targets: [0, 1, 2, 3, 5, 7]
+                    }
+                ]
+            });
+            var maxLength = 30;
+            // ReadMore ReadLess
+            $(".show-read-more").each(function () {
+                var myStr = $(this).html();
+                var textLength = $(this).text().length;
+                if (textLength > maxLength) {
+                    // Find the position where to cut while preserving HTML tags and breaking at word boundaries
+                    var cutPosition = 0;
+                    var currentLength = 0;
+                    var inTag = false;
+                    var lastWordBoundary = 0;
+                    var tagStack = [];
+
+                    for (var i = 0; i < myStr.length; i++) {
+                        if (myStr[i] === '<') {
+                            inTag = true;
+                            // Track opening tags
+                            if (myStr[i + 1] !== '/') {
+                                var tagEnd = myStr.indexOf('>', i);
+                                if (tagEnd !== -1) {
+                                    var tagName = myStr.substring(i + 1, tagEnd).split(' ')[0];
+                                    tagStack.push(tagName);
+                                }
+                            } else {
+                                // Closing tag
+                                var tagEnd = myStr.indexOf('>', i);
+                                if (tagEnd !== -1) {
+                                    var tagName = myStr.substring(i + 2, tagEnd).split(' ')[0];
+                                    if (tagStack.length > 0) {
+                                        tagStack.pop();
+                                    }
+                                }
+                            }
+                        } else if (myStr[i] === '>') {
+                            inTag = false;
+                        } else if (!inTag) {
+                            currentLength++;
+                            // Only consider word boundaries if we're not inside any HTML tags
+                            if (tagStack.length === 0 && (myStr[i] === ' ' || myStr[i] === '.' || myStr[i] === ',' || myStr[i] === ';' || myStr[i] === ':' || myStr[i] === '!' || myStr[i] === '?')) {
+                                lastWordBoundary = i + 1;
+                            }
+
+                            if (currentLength >= maxLength) {
+                                // If we're inside HTML tags, find the next closing tag
+                                if (tagStack.length > 0) {
+                                    // Find the next closing tag for the current open tag
+                                    var nextClosingTag = '</' + tagStack[tagStack.length - 1] + '>';
+                                    var closingTagPos = myStr.indexOf(nextClosingTag, i);
+                                    if (closingTagPos !== -1) {
+                                        cutPosition = closingTagPos + nextClosingTag.length;
+                                    } else {
+                                        // If no closing tag found, use current position
+                                        cutPosition = i + 1;
+                                    }
+                                } else {
+                                    // Use the last word boundary if available, otherwise use current position
+                                    cutPosition = lastWordBoundary > 0 ? lastWordBoundary : i + 1;
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    var newStr = myStr.substring(0, cutPosition);
+                    var removedStr = myStr.substring(cutPosition);
+                    $(this).empty().html(newStr);
+                    $(this).append(' <a href="javascript:void(0);" class="read-more">read more...</a>');
+                    $(this).append('<span class="more-text">' + removedStr + '</span>');
+                }
+            });
+            $(".read-more").click(function () {
+                $(this).siblings(".more-text").contents().unwrap();
+                $(this).remove();
+            });
+        });
+    </script>
+</body>
+
+</html>
