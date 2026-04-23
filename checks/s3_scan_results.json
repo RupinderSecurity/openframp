@@ -1,0 +1,41 @@
+{
+ "columns": [
+  {
+   "name": "name",
+   "data_type": "text"
+  },
+  {
+   "name": "block_public_acls",
+   "data_type": "bool"
+  },
+  {
+   "name": "block_public_policy",
+   "data_type": "bool"
+  },
+  {
+   "name": "restrict_public_buckets",
+   "data_type": "bool"
+  },
+  {
+   "name": "ignore_public_acls",
+   "data_type": "bool"
+  }
+ ],
+ "rows": [
+  {
+   "block_public_acls": false,
+   "block_public_policy": false,
+   "ignore_public_acls": false,
+   "name": "openframp-test-insecure-140903bc",
+   "restrict_public_buckets": false
+  },
+  {
+   "block_public_acls": true,
+   "block_public_policy": true,
+   "ignore_public_acls": true,
+   "name": "openframp-test-secure-140903bc",
+   "restrict_public_buckets": true
+  }
+ ]
+}
+
