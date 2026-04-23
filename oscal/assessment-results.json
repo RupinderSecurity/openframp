@@ -1,0 +1,122 @@
+{
+  "assessment-results": {
+    "uuid": "04339387-c15d-4312-9ade-43d7337d26fe",
+    "metadata": {
+      "title": "OpenFRAMP Automated Assessment Results",
+      "last-modified": "2026-04-23T23:42:44Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "#placeholder-assessment-plan"
+    },
+    "results": [
+      {
+        "uuid": "ba11cfd8-24b0-47eb-8ec2-07288620394d",
+        "title": "S3 Public Access Assessment",
+        "description": "Automated scan of S3 bucket public access controls",
+        "start": "2026-04-23T23:42:44Z",
+        "findings": [
+          {
+            "uuid": "cb1c6f89-5f82-47cb-8d52-7906d7aff223",
+            "title": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
+            "description": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-3",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "a71dd1b2-9bcc-440b-80e0-16bdd2189f7b",
+            "title": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
+            "description": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-3",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "edff959a-2e0f-470e-87e7-00769d50c20a",
+            "title": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
+            "description": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-3",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "d7ea4f7b-64b7-4cdd-97fb-ed42d8ddd478",
+            "title": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
+            "description": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-3",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ],
+        "observations": [
+          {
+            "uuid": "c7f67881-dcca-4e16-9c23-61a68055d1d5",
+            "description": "Raw Steampipe scan data for S3 buckets",
+            "methods": [
+              "TEST"
+            ],
+            "collected": "2026-04-23T23:42:44Z",
+            "subjects": [
+              {
+                "subject-uuid": "2fa0b093-62ef-4802-8f50-2c43c05d6534",
+                "type": "component",
+                "title": "openframp-test-insecure-140903bc",
+                "props": [
+                  {
+                    "name": "block_public_acls",
+                    "value": "False"
+                  },
+                  {
+                    "name": "block_public_policy",
+                    "value": "False"
+                  },
+                  {
+                    "name": "restrict_public_buckets",
+                    "value": "False"
+                  }
+                ]
+              },
+              {
+                "subject-uuid": "a2f421ea-ea4d-4dc8-92a8-25e6416fe558",
+                "type": "component",
+                "title": "openframp-test-secure-140903bc",
+                "props": [
+                  {
+                    "name": "block_public_acls",
+                    "value": "True"
+                  },
+                  {
+                    "name": "block_public_policy",
+                    "value": "True"
+                  },
+                  {
+                    "name": "restrict_public_buckets",
+                    "value": "True"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
