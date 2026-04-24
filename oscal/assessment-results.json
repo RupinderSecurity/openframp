@@ -1,9 +1,9 @@
 {
   "assessment-results": {
-    "uuid": "04339387-c15d-4312-9ade-43d7337d26fe",
+    "uuid": "e568f204-2689-4b12-9d57-084e08dba088",
     "metadata": {
       "title": "OpenFRAMP Automated Assessment Results",
-      "last-modified": "2026-04-23T23:42:44Z",
+      "last-modified": "2026-04-24T06:07:30Z",
       "version": "1.0.0",
       "oscal-version": "1.1.2"
     },
@@ -12,13 +12,13 @@
     },
     "results": [
       {
-        "uuid": "ba11cfd8-24b0-47eb-8ec2-07288620394d",
+        "uuid": "d5ab66ee-46f3-489e-ba8c-ff802af50ce6",
         "title": "S3 Public Access Assessment",
-        "description": "Automated scan of S3 bucket public access controls",
-        "start": "2026-04-23T23:42:44Z",
+        "description": "Check S3 buckets for public access controls (FedRAMP AC-3, PCI DSS 1.3)",
+        "start": "2026-04-24T06:07:30Z",
         "findings": [
           {
-            "uuid": "cb1c6f89-5f82-47cb-8d52-7906d7aff223",
+            "uuid": "525fc042-b7a1-4ac6-afdf-452b1055d992",
             "title": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
             "description": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
             "target": {
@@ -30,7 +30,7 @@
             }
           },
           {
-            "uuid": "a71dd1b2-9bcc-440b-80e0-16bdd2189f7b",
+            "uuid": "e6bff2f4-e338-4a91-ab81-6c372da5df21",
             "title": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
             "description": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
             "target": {
@@ -42,7 +42,7 @@
             }
           },
           {
-            "uuid": "edff959a-2e0f-470e-87e7-00769d50c20a",
+            "uuid": "f96dfb47-31a4-4ede-b808-6286e84fd69b",
             "title": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
             "description": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
             "target": {
@@ -54,7 +54,7 @@
             }
           },
           {
-            "uuid": "d7ea4f7b-64b7-4cdd-97fb-ed42d8ddd478",
+            "uuid": "d40ab9d7-8dfa-4abe-868b-8f071cf89ae5",
             "title": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
             "description": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
             "target": {
@@ -68,15 +68,15 @@
         ],
         "observations": [
           {
-            "uuid": "c7f67881-dcca-4e16-9c23-61a68055d1d5",
-            "description": "Raw Steampipe scan data for S3 buckets",
+            "uuid": "9f85ab4b-e63a-4118-bb6a-55c1124c4cad",
+            "description": "Raw scan data for S3 Public Access Assessment",
             "methods": [
               "TEST"
             ],
-            "collected": "2026-04-23T23:42:44Z",
+            "collected": "2026-04-24T06:07:30Z",
             "subjects": [
               {
-                "subject-uuid": "2fa0b093-62ef-4802-8f50-2c43c05d6534",
+                "subject-uuid": "e0c51fde-f6ab-4949-9a3f-1c2e4901a735",
                 "type": "component",
                 "title": "openframp-test-insecure-140903bc",
                 "props": [
@@ -89,13 +89,17 @@
                     "value": "False"
                   },
                   {
+                    "name": "ignore_public_acls",
+                    "value": "False"
+                  },
+                  {
                     "name": "restrict_public_buckets",
                     "value": "False"
                   }
                 ]
               },
               {
-                "subject-uuid": "a2f421ea-ea4d-4dc8-92a8-25e6416fe558",
+                "subject-uuid": "71147831-58af-43e4-9c86-6f2c00e86046",
                 "type": "component",
                 "title": "openframp-test-secure-140903bc",
                 "props": [
@@ -108,8 +112,129 @@
                     "value": "True"
                   },
                   {
+                    "name": "ignore_public_acls",
+                    "value": "True"
+                  },
+                  {
                     "name": "restrict_public_buckets",
                     "value": "True"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uuid": "7593074f-0f11-4d84-90be-845e252d4b9c",
+        "title": "IAM MFA Assessment",
+        "description": "Check IAM users for MFA enforcement (FedRAMP IA-2, PCI DSS 8.3.1)",
+        "start": "2026-04-24T06:07:30Z",
+        "findings": [
+          {
+            "uuid": "159bf936-ed12-4f90-bfbb-b721c128bfbc",
+            "title": "FAIL: IAM user 'openframp-scanner' has no MFA enabled (FedRAMP IA-2, PCI DSS 8.3.1)",
+            "description": "FAIL: IAM user 'openframp-scanner' has no MFA enabled (FedRAMP IA-2, PCI DSS 8.3.1)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ia-2",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          }
+        ],
+        "observations": [
+          {
+            "uuid": "b2e96b8a-0534-445e-8808-8792c7d3b83c",
+            "description": "Raw scan data for IAM MFA Assessment",
+            "methods": [
+              "TEST"
+            ],
+            "collected": "2026-04-24T06:07:30Z",
+            "subjects": [
+              {
+                "subject-uuid": "223876f5-0aec-4235-a831-a3bfb8ceeb09",
+                "type": "component",
+                "title": "openframp-scanner",
+                "props": [
+                  {
+                    "name": "create_date",
+                    "value": "2026-04-23T22:35:45Z"
+                  },
+                  {
+                    "name": "mfa_enabled",
+                    "value": "False"
+                  },
+                  {
+                    "name": "password_last_used",
+                    "value": "None"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uuid": "3df04468-9d00-4c16-adcf-eede3bcdf81b",
+        "title": "S3 Encryption Assessment",
+        "description": "Check S3 buckets for encryption at rest (FedRAMP SC-28)",
+        "start": "2026-04-24T06:07:30Z",
+        "findings": [
+          {
+            "uuid": "b75a45f5-914b-4b3b-8f32-5d68375f4bb9",
+            "title": "PASS: S3 bucket 'openframp-test-insecure-140903bc' has encryption configured",
+            "description": "PASS: S3 bucket 'openframp-test-insecure-140903bc' has encryption configured",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-28",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "8401d3c3-a2ec-470e-bc77-497d73932207",
+            "title": "PASS: S3 bucket 'openframp-test-secure-140903bc' has encryption configured",
+            "description": "PASS: S3 bucket 'openframp-test-secure-140903bc' has encryption configured",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-28",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ],
+        "observations": [
+          {
+            "uuid": "b80567a5-fd83-4cfe-aa0c-a8827110a761",
+            "description": "Raw scan data for S3 Encryption Assessment",
+            "methods": [
+              "TEST"
+            ],
+            "collected": "2026-04-24T06:07:30Z",
+            "subjects": [
+              {
+                "subject-uuid": "a197c69d-f893-48c5-a473-0fd31c327e9a",
+                "type": "component",
+                "title": "openframp-test-insecure-140903bc",
+                "props": [
+                  {
+                    "name": "server_side_encryption_configuration",
+                    "value": "{'Rules': [{'ApplyServerSideEncryptionByDefault': {'KMSMasterKeyID': None, 'SSEAlgorithm': 'AES256'}, 'BucketKeyEnabled': False}]}"
+                  }
+                ]
+              },
+              {
+                "subject-uuid": "88e19f57-874c-4877-9860-5a0c8239b8c2",
+                "type": "component",
+                "title": "openframp-test-secure-140903bc",
+                "props": [
+                  {
+                    "name": "server_side_encryption_configuration",
+                    "value": "{'Rules': [{'ApplyServerSideEncryptionByDefault': {'KMSMasterKeyID': None, 'SSEAlgorithm': 'aws:kms'}, 'BucketKeyEnabled': False}]}"
                   }
                 ]
               }
