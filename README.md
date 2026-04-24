@@ -26,7 +26,7 @@ Pre-alpha. Core pipeline is functional:
 
 - `bootstrap/scanner-iam/` — OpenTofu module that provisions a read-only IAM scanner user with the AWS-managed SecurityAudit policy
 - `lab-environment/` — OpenTofu module that creates intentionally compliant and non-compliant S3 buckets for testing
-- `checks/` — Steampipe queries and OPA/Rego policies for S3 public access controls (FedRAMP AC-3, PCI DSS 1.3)
+- `checks/` — Steampipe queries and OPA/Rego policies for S3 public access controls, IAM MFA enforcement (IA-2), and S3 encryption at rest (SC-28)
 - `oscal/` — Python script that runs the full pipeline and generates OSCAL Assessment Results JSON
 
 ## Quick Start
@@ -67,7 +67,9 @@ steampipe query --output json \
 
 ## Roadmap
 
-- [ ] Additional control families (IA-2, AU-2, SC-28, SC-12, SC-13)
+- [x] IA-2 (Identification and Authentication) — IAM user MFA checks
+- [x] SC-28 (Protection of Information at Rest) — S3 encryption checks
+- [ ] Additional control families (AU-2, SC-7, AC-6, SC-12, SC-13)
 - [ ] Prowler integration for CIS Benchmark checks
 - [ ] OSCAL SSP (System Security Plan) parser
 - [ ] OSCAL Viewer — React dashboard for navigating assessment results
