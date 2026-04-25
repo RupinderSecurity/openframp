@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate
+*.tfstate.backup
+.git/
+bootstrap/
+lab-environment/
+.DS_Store
