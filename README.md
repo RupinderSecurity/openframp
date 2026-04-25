@@ -69,13 +69,10 @@ steampipe query --output json \
 
 - [x] IA-2 (Identification and Authentication) — IAM user MFA checks
 - [x] SC-28 (Protection of Information at Rest) — S3 encryption checks
-- [ ] Additional control families (AU-2, SC-7, AC-6, SC-12, SC-13)
-- [ ] Prowler integration for CIS Benchmark checks
-- [ ] OSCAL SSP (System Security Plan) parser
-- [ ] OSCAL Viewer — React dashboard for navigating assessment results
-- [ ] Containerized deployment (Docker) for single-command scanning
-- [ ] Multi-cloud support (Azure, GCP)
-- [ ] CI/CD integration for scheduled compliance scans
+- [x] AU-2 (Audit Events) — CloudTrail logging checks
+- [x] SC-7 (Boundary Protection) — Security group internet exposure checks
+- [x] AC-6 (Least Privilege) — Overly broad IAM policy checks
+- [ ] Additional control families (SC-12, SC-13, CM-6, AU-9)
 
 ## Why OSCAL Matters
 
