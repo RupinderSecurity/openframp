@@ -56,6 +56,15 @@ python3 oscal/generate_ar.py
 
 This runs Steampipe → OPA → OSCAL generation in one command. Output is written to `oscal/assessment-results.json`.
 
+### Run with Docker (no installation required)
+
+```bash
+docker build -t openframp .
+docker run --rm -v ~/.aws:/home/scanner/.aws:ro openframp
+```
+
+That's it. No dependencies to install. The container includes Steampipe, OPA, and all policies.
+
 ### Run individual checks
 
 ```bash
