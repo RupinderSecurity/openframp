@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 import uuid
 
 def run_check(name, query, rego_file, rego_path):
-    """Run a Steampipe query and evaluate with OPA."""
     print(f"  Scanning: {name}...")
     
     steampipe = subprocess.run(
@@ -14,7 +13,7 @@ def run_check(name, query, rego_file, rego_path):
     )
     
     if steampipe.returncode != 0:
-        print(f"  WARNING: Steampipe query failed for {name}: {steampipe.stderr}")
+        print(f"  WARNING: Steampipe failed for {name}: {steampipe.stderr}")
         return {"deny": [], "pass": []}, {"rows": []}
     
     scan_data = json.loads(steampipe.stdout)
@@ -26,7 +25,7 @@ def run_check(name, query, rego_file, rego_path):
     )
     
     if opa.returncode != 0:
-        print(f"  WARNING: OPA eval failed for {name}: {opa.stderr}")
+        print(f"  WARNING: OPA failed for {name}: {opa.stderr}")
         return {"deny": [], "pass": []}, scan_data
     
     opa_data = json.loads(opa.stdout)
@@ -39,7 +38,6 @@ def run_check(name, query, rego_file, rego_path):
     return findings, scan_data
 
 def build_oscal(all_results):
-    """Build OSCAL Assessment Results from all check results."""
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     
     oscal_ar = {
@@ -68,9 +66,7 @@ def build_oscal(all_results):
             "observations": []
         }
         
-        # Add findings
         for denial in check["findings"].get("deny", []):
-            status = "not-satisfied"
             result["findings"].append({
                 "uuid": str(uuid.uuid4()),
                 "title": denial,
@@ -78,7 +74,7 @@ def build_oscal(all_results):
                 "target": {
                     "type": "objective-id",
                     "target-id": check["control_id"],
-                    "status": {"state": status}
+                    "status": {"state": "not-satisfied"}
                 }
             })
         
@@ -94,15 +90,14 @@ def build_oscal(all_results):
                 }
             })
         
-        # Add observation with raw scan data
         if check["scan_data"].get("rows"):
             subjects = []
             for row in check["scan_data"]["rows"]:
-                name_field = row.get("name", row.get("id", "unknown"))
+                name_field = row.get("name", row.get("group_id", row.get("id", "unknown")))
                 props = [
                     {"name": k, "value": str(v)}
                     for k, v in row.items()
-                    if k != "name"
+                    if k not in ("name", "group_id", "id")
                 ]
                 subjects.append({
                     "subject-uuid": str(uuid.uuid4()),
@@ -132,7 +127,7 @@ def main():
     checks = [
         {
             "title": "S3 Public Access Assessment",
-            "description": "Check S3 buckets for public access controls (FedRAMP AC-3, PCI DSS 1.3)",
+            "description": "Check S3 buckets for public access controls",
             "control_id": "ac-3",
             "query": "select name, block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_bucket",
             "rego_file": "checks/s3_public_access.rego",
@@ -140,7 +135,7 @@ def main():
         },
         {
             "title": "IAM MFA Assessment",
-            "description": "Check IAM users for MFA enforcement (FedRAMP IA-2, PCI DSS 8.3.1)",
+            "description": "Check IAM users for MFA enforcement",
             "control_id": "ia-2",
             "query": "select name, mfa_enabled, password_last_used, create_date from aws_iam_user",
             "rego_file": "checks/iam_mfa.rego",
@@ -148,11 +143,35 @@ def main():
         },
         {
             "title": "S3 Encryption Assessment",
-            "description": "Check S3 buckets for encryption at rest (FedRAMP SC-28)",
+            "description": "Check S3 buckets for encryption at rest",
             "control_id": "sc-28",
             "query": "select name, server_side_encryption_configuration from aws_s3_bucket",
             "rego_file": "checks/encryption.rego",
             "rego_path": "data.openframp.encryption"
+        },
+        {
+            "title": "CloudTrail Logging Assessment",
+            "description": "Check for active CloudTrail with multi-region and log validation",
+            "control_id": "au-2",
+            "query": "select name, is_logging, is_multi_region_trail, log_file_validation_enabled from aws_cloudtrail_trail",
+            "rego_file": "checks/cloudtrail.rego",
+            "rego_path": "data.openframp.cloudtrail"
+        },
+        {
+            "title": "Security Group Assessment",
+            "description": "Check for security groups open to the internet",
+            "control_id": "sc-7",
+            "query": "select group_id, from_port, to_port, cidr_ipv4, ip_protocol, type from aws_vpc_security_group_rule where type = 'ingress'",
+            "rego_file": "checks/security_groups.rego",
+            "rego_path": "data.openframp.securitygroups"
+        },
+        {
+            "title": "Least Privilege Assessment",
+            "description": "Check IAM users for overly broad policies",
+            "control_id": "ac-6",
+            "query": "select name, attached_policy_arns from aws_iam_user",
+            "rego_file": "checks/least_privilege.rego",
+            "rego_path": "data.openframp.leastprivilege"
         }
     ]
     
@@ -181,19 +200,17 @@ def main():
             "scan_data": scan_data
         })
     
-    # Build and write OSCAL
     oscal_ar = build_oscal(all_results)
     
     output_path = "oscal/assessment-results.json"
     with open(output_path, "w") as f:
         json.dump(oscal_ar, f, indent=2)
     
-    # Summary
     print()
     print("=" * 60)
     print(f"TOTAL: {total_pass} passed, {total_fail} failed")
+    print(f"Controls covered: AC-3, IA-2, SC-28, AU-2, SC-7, AC-6")
     print(f"OSCAL Assessment Results written to {output_path}")
-    print(f"Controls covered: AC-3, IA-2, SC-28")
     print("=" * 60)
 
 if __name__ == "__main__":
