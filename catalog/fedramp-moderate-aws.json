@@ -1,0 +1,380 @@
+{
+  "catalog_version": "1.0.0",
+  "framework": "FedRAMP Moderate",
+  "baseline": "Rev 5",
+  "provider": "aws",
+  "controls": [
+    {
+      "control_id": "AC-2",
+      "title": "Account Management",
+      "family": "Access Control",
+      "checks": [
+        {
+          "check_id": "ac-2-iam-users-have-activity",
+          "description": "IAM users should have recent activity or be disabled",
+          "severity": "medium",
+          "query": "select name, password_last_used, create_date, password_enabled from aws_iam_user",
+          "deny_condition": "password_enabled == true AND password_last_used is null or older than 90 days",
+          "resource_type": "aws_iam_user"
+        },
+        {
+          "check_id": "ac-2-no-root-access-keys",
+          "description": "Root account should not have access keys",
+          "severity": "critical",
+          "query": "select account_access_keys_present from aws_iam_account_summary",
+          "resource_type": "aws_iam_account_summary"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-3",
+      "title": "Access Enforcement",
+      "family": "Access Control",
+      "checks": [
+        {
+          "check_id": "ac-3-s3-no-public-access",
+          "description": "S3 buckets should block public access",
+          "severity": "high",
+          "query": "select name, block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
+        },
+        {
+          "check_id": "ac-3-s3-no-public-policy",
+          "description": "S3 buckets should not have public policies",
+          "severity": "high",
+          "query": "select name, bucket_policy_is_public from aws_s3_bucket where bucket_policy_is_public = true",
+          "resource_type": "aws_s3_bucket"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-6",
+      "title": "Least Privilege",
+      "family": "Access Control",
+      "checks": [
+        {
+          "check_id": "ac-6-no-admin-access",
+          "description": "IAM users should not have AdministratorAccess policy",
+          "severity": "critical",
+          "query": "select name, attached_policy_arns from aws_iam_user",
+          "resource_type": "aws_iam_user"
+        },
+        {
+          "check_id": "ac-6-no-inline-admin-policies",
+          "description": "IAM users should not have inline policies with full admin",
+          "severity": "high",
+          "query": "select name, inline_policies from aws_iam_user where inline_policies is not null",
+          "resource_type": "aws_iam_user"
+        },
+        {
+          "check_id": "ac-6-no-star-policies",
+          "description": "IAM policies should not allow Action:* Resource:*",
+          "severity": "critical",
+          "query": "select name, arn, policy_std from aws_iam_policy where is_attached = true",
+          "resource_type": "aws_iam_policy"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-7",
+      "title": "Unsuccessful Logon Attempts",
+      "family": "Access Control",
+      "checks": [
+        {
+          "check_id": "ac-7-password-lockout",
+          "description": "Account password policy should enforce lockout",
+          "severity": "medium",
+          "query": "select max_password_age, password_reuse_prevention from aws_iam_account_password_policy",
+          "resource_type": "aws_iam_account_password_policy"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-2",
+      "title": "Event Logging",
+      "family": "Audit and Accountability",
+      "checks": [
+        {
+          "check_id": "au-2-cloudtrail-enabled",
+          "description": "CloudTrail should be enabled and logging",
+          "severity": "critical",
+          "query": "select name, is_logging, is_multi_region_trail, log_file_validation_enabled from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-3",
+      "title": "Content of Audit Records",
+      "family": "Audit and Accountability",
+      "checks": [
+        {
+          "check_id": "au-3-cloudtrail-log-validation",
+          "description": "CloudTrail should have log file validation enabled",
+          "severity": "high",
+          "query": "select name, log_file_validation_enabled from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-6",
+      "title": "Audit Record Review",
+      "family": "Audit and Accountability",
+      "checks": [
+        {
+          "check_id": "au-6-guardduty-enabled",
+          "description": "GuardDuty should be enabled for threat detection",
+          "severity": "high",
+          "query": "select detector_id, status from aws_guardduty_detector",
+          "resource_type": "aws_guardduty_detector"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-9",
+      "title": "Protection of Audit Information",
+      "family": "Audit and Accountability",
+      "checks": [
+        {
+          "check_id": "au-9-cloudtrail-encrypted",
+          "description": "CloudTrail logs should be encrypted with KMS",
+          "severity": "high",
+          "query": "select name, kms_key_id from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail"
+        },
+        {
+          "check_id": "au-9-cloudtrail-bucket-not-public",
+          "description": "CloudTrail S3 bucket should not be public",
+          "severity": "critical",
+          "query": "select s3_bucket_name from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-11",
+      "title": "Audit Record Retention",
+      "family": "Audit and Accountability",
+      "checks": [
+        {
+          "check_id": "au-11-s3-versioning-on-log-buckets",
+          "description": "S3 buckets storing logs should have versioning enabled",
+          "severity": "medium",
+          "query": "select name, versioning_enabled from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
+        }
+      ]
+    },
+    {
+      "control_id": "CM-6",
+      "title": "Configuration Settings",
+      "family": "Configuration Management",
+      "checks": [
+        {
+          "check_id": "cm-6-config-enabled",
+          "description": "AWS Config should be enabled for configuration tracking",
+          "severity": "high",
+          "query": "select name, recording, status from aws_config_configuration_recorder",
+          "resource_type": "aws_config_configuration_recorder"
+        }
+      ]
+    },
+    {
+      "control_id": "CM-8",
+      "title": "System Component Inventory",
+      "family": "Configuration Management",
+      "checks": [
+        {
+          "check_id": "cm-8-ec2-instances-tagged",
+          "description": "EC2 instances should have required tags",
+          "severity": "medium",
+          "query": "select instance_id, tags from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance"
+        }
+      ]
+    },
+    {
+      "control_id": "IA-2",
+      "title": "Identification and Authentication",
+      "family": "Identification and Authentication",
+      "checks": [
+        {
+          "check_id": "ia-2-iam-user-mfa",
+          "description": "IAM users with console access should have MFA enabled",
+          "severity": "critical",
+          "query": "select name, mfa_enabled, password_last_used, create_date from aws_iam_user",
+          "resource_type": "aws_iam_user"
+        },
+        {
+          "check_id": "ia-2-root-mfa",
+          "description": "Root account should have MFA enabled",
+          "severity": "critical",
+          "query": "select account_mfa_enabled from aws_iam_account_summary",
+          "resource_type": "aws_iam_account_summary"
+        }
+      ]
+    },
+    {
+      "control_id": "IA-5",
+      "title": "Authenticator Management",
+      "family": "Identification and Authentication",
+      "checks": [
+        {
+          "check_id": "ia-5-password-length",
+          "description": "Password policy should require minimum 14 characters",
+          "severity": "high",
+          "query": "select minimum_password_length, require_uppercase_characters, require_lowercase_characters, require_numbers, require_symbols from aws_iam_account_password_policy",
+          "resource_type": "aws_iam_account_password_policy"
+        },
+        {
+          "check_id": "ia-5-access-keys-rotated",
+          "description": "IAM access keys should be rotated within 90 days",
+          "severity": "high",
+          "query": "select user_name, access_key_id, create_date, status from aws_iam_access_key",
+          "resource_type": "aws_iam_access_key"
+        }
+      ]
+    },
+    {
+      "control_id": "RA-5",
+      "title": "Vulnerability Monitoring and Scanning",
+      "family": "Risk Assessment",
+      "checks": [
+        {
+          "check_id": "ra-5-inspector-enabled",
+          "description": "AWS Inspector should be enabled for vulnerability scanning",
+          "severity": "high",
+          "query": "select name, state from aws_inspector2_coverage",
+          "resource_type": "aws_inspector2_coverage"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-7",
+      "title": "Boundary Protection",
+      "family": "System and Communications Protection",
+      "checks": [
+        {
+          "check_id": "sc-7-no-unrestricted-ingress",
+          "description": "Security groups should not allow unrestricted inbound access",
+          "severity": "critical",
+          "query": "select group_id, from_port, to_port, cidr_ipv4, ip_protocol, type from aws_vpc_security_group_rule where type = 'ingress'",
+          "resource_type": "aws_vpc_security_group_rule"
+        },
+        {
+          "check_id": "sc-7-no-default-sg-traffic",
+          "description": "Default security group should restrict all traffic",
+          "severity": "high",
+          "query": "select group_id, group_name, vpc_id from aws_vpc_security_group where group_name = 'default'",
+          "resource_type": "aws_vpc_security_group"
+        },
+        {
+          "check_id": "sc-7-vpc-flow-logs",
+          "description": "VPC flow logs should be enabled",
+          "severity": "high",
+          "query": "select vpc_id, flow_log_status from aws_vpc",
+          "resource_type": "aws_vpc"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-8",
+      "title": "Transmission Confidentiality and Integrity",
+      "family": "System and Communications Protection",
+      "checks": [
+        {
+          "check_id": "sc-8-elb-https-only",
+          "description": "Load balancers should use HTTPS listeners",
+          "severity": "high",
+          "query": "select name, scheme, type from aws_ec2_load_balancer_listener where protocol != 'HTTPS' and protocol != 'TLS'",
+          "resource_type": "aws_ec2_load_balancer_listener"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-12",
+      "title": "Cryptographic Key Establishment and Management",
+      "family": "System and Communications Protection",
+      "checks": [
+        {
+          "check_id": "sc-12-kms-rotation-enabled",
+          "description": "KMS keys should have automatic rotation enabled",
+          "severity": "high",
+          "query": "select id, aliases, key_rotation_enabled, key_manager, origin from aws_kms_key where key_manager = 'CUSTOMER'",
+          "resource_type": "aws_kms_key"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-13",
+      "title": "Cryptographic Protection",
+      "family": "System and Communications Protection",
+      "checks": [
+        {
+          "check_id": "sc-13-kms-fips-origin",
+          "description": "KMS keys should originate from FIPS-validated HSMs",
+          "severity": "high",
+          "query": "select id, aliases, origin, key_manager from aws_kms_key",
+          "resource_type": "aws_kms_key"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "family": "System and Communications Protection",
+      "checks": [
+        {
+          "check_id": "sc-28-s3-encryption",
+          "description": "S3 buckets should have server-side encryption enabled",
+          "severity": "high",
+          "query": "select name, server_side_encryption_configuration from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
+        },
+        {
+          "check_id": "sc-28-ebs-encryption",
+          "description": "EBS volumes should be encrypted",
+          "severity": "high",
+          "query": "select volume_id, encrypted, kms_key_id from aws_ebs_volume",
+          "resource_type": "aws_ebs_volume"
+        },
+        {
+          "check_id": "sc-28-rds-encryption",
+          "description": "RDS instances should be encrypted",
+          "severity": "high",
+          "query": "select db_instance_identifier, storage_encrypted from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance"
+        }
+      ]
+    },
+    {
+      "control_id": "SI-2",
+      "title": "Flaw Remediation",
+      "family": "System and Information Integrity",
+      "checks": [
+        {
+          "check_id": "si-2-ssm-managed",
+          "description": "EC2 instances should be managed by SSM for patching",
+          "severity": "medium",
+          "query": "select instance_id, ping_status from aws_ssm_managed_instance",
+          "resource_type": "aws_ssm_managed_instance"
+        }
+      ]
+    },
+    {
+      "control_id": "SI-4",
+      "title": "System Monitoring",
+      "family": "System and Information Integrity",
+      "checks": [
+        {
+          "check_id": "si-4-securityhub-enabled",
+          "description": "Security Hub should be enabled for centralized monitoring",
+          "severity": "high",
+          "query": "select hub_arn, auto_enable_controls from aws_securityhub_hub",
+          "resource_type": "aws_securityhub_hub"
+        }
+      ]
+    }
+  ]
+}

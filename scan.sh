@@ -37,7 +37,7 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-python3 oscal/generate_ar.py
+python3 oscal/scanner.py catalog/fedramp-moderate-aws.json
 
 echo ""
 echo -e "${CYAN}Output: oscal/assessment-results.json${NC}"

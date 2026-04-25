@@ -1,26 +1,60 @@
 {
   "assessment-results": {
-    "uuid": "a09dbf84-68fe-4bcd-a433-86342860cac4",
+    "uuid": "0479a2b2-dcff-4b30-9ce6-bcf1797909f3",
     "metadata": {
-      "title": "OpenFRAMP Automated Assessment Results",
-      "last-modified": "2026-04-25T22:37:21Z",
+      "title": "OpenFRAMP FedRAMP Moderate Assessment Results",
+      "last-modified": "2026-04-25T23:15:40Z",
       "version": "1.0.0",
-      "oscal-version": "1.1.2"
+      "oscal-version": "1.1.2",
+      "props": [
+        {
+          "name": "framework",
+          "value": "FedRAMP Moderate"
+        },
+        {
+          "name": "baseline",
+          "value": "Rev 5"
+        },
+        {
+          "name": "provider",
+          "value": "aws"
+        }
+      ]
     },
     "import-ap": {
-      "href": "#placeholder-assessment-plan"
+      "href": "#openframp-assessment-plan"
     },
     "results": [
       {
-        "uuid": "96e81008-ae58-4c62-aa5d-dbef54dd227b",
-        "title": "S3 Public Access Assessment",
-        "description": "Check S3 buckets for public access controls",
-        "start": "2026-04-25T22:37:21Z",
+        "uuid": "275d67df-48a7-4410-a77c-4266abb0e149",
+        "title": "AC-2 \u2014 Account Management",
+        "description": "Account Management",
+        "start": "2026-04-25T23:15:40Z",
         "findings": [
           {
-            "uuid": "649e4622-b342-4d1d-ab6a-eb73111f4be8",
-            "title": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
-            "description": "FAIL: openframp-test-insecure-140903bc - public ACLs not blocked (FedRAMP AC-3, PCI DSS 1.3)",
+            "uuid": "9e751795-1b69-473f-8c61-16ca8bf864da",
+            "title": "PASS: unknown \u2014 Root account should not have access keys",
+            "description": "PASS: unknown \u2014 Root account should not have access keys",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-2",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "f58e1dae-5d0b-4f69-bf5a-2cc3232e3d66",
+        "title": "AC-3 \u2014 Access Enforcement",
+        "description": "Access Enforcement",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "db4b9704-925e-4407-b060-951c88ba5b7e",
+            "title": "HIGH: openframp-test-insecure-140903bc \u2014 public access allowed (S3 buckets should block public access)",
+            "description": "HIGH: openframp-test-insecure-140903bc \u2014 public access allowed (S3 buckets should block public access)",
             "target": {
               "type": "objective-id",
               "target-id": "ac-3",
@@ -30,33 +64,9 @@
             }
           },
           {
-            "uuid": "2038b3ed-3b3d-4347-a743-771cdf65a829",
-            "title": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
-            "description": "FAIL: openframp-test-insecure-140903bc - public buckets not restricted (FedRAMP AC-3)",
-            "target": {
-              "type": "objective-id",
-              "target-id": "ac-3",
-              "status": {
-                "state": "not-satisfied"
-              }
-            }
-          },
-          {
-            "uuid": "342ea865-54d5-4174-8f26-625ffb472498",
-            "title": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
-            "description": "FAIL: openframp-test-insecure-140903bc - public policy not blocked (FedRAMP AC-3)",
-            "target": {
-              "type": "objective-id",
-              "target-id": "ac-3",
-              "status": {
-                "state": "not-satisfied"
-              }
-            }
-          },
-          {
-            "uuid": "d78b7e39-31ee-4a78-93e8-71db57c6e2cf",
-            "title": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
-            "description": "PASS: openframp-test-secure-140903bc - all public access controls enabled",
+            "uuid": "1090a7ee-12ff-47e5-96cb-cdf2819ba40a",
+            "title": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets should block public access",
+            "description": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets should block public access",
             "target": {
               "type": "objective-id",
               "target-id": "ac-3",
@@ -65,273 +75,66 @@
               }
             }
           }
-        ],
-        "observations": [
-          {
-            "uuid": "26d86004-b092-4a14-91d0-fb6f3b36b115",
-            "description": "Raw scan data for S3 Public Access Assessment",
-            "methods": [
-              "TEST"
-            ],
-            "collected": "2026-04-25T22:37:21Z",
-            "subjects": [
-              {
-                "subject-uuid": "07f2cbd7-35fc-4329-9aad-43291c7a50b3",
-                "type": "component",
-                "title": "openframp-test-secure-140903bc",
-                "props": [
-                  {
-                    "name": "block_public_acls",
-                    "value": "True"
-                  },
-                  {
-                    "name": "block_public_policy",
-                    "value": "True"
-                  },
-                  {
-                    "name": "ignore_public_acls",
-                    "value": "True"
-                  },
-                  {
-                    "name": "restrict_public_buckets",
-                    "value": "True"
-                  }
-                ]
-              },
-              {
-                "subject-uuid": "73f597fc-7462-48ec-8151-f691e6236b4e",
-                "type": "component",
-                "title": "openframp-test-insecure-140903bc",
-                "props": [
-                  {
-                    "name": "block_public_acls",
-                    "value": "False"
-                  },
-                  {
-                    "name": "block_public_policy",
-                    "value": "False"
-                  },
-                  {
-                    "name": "ignore_public_acls",
-                    "value": "False"
-                  },
-                  {
-                    "name": "restrict_public_buckets",
-                    "value": "False"
-                  }
-                ]
-              }
-            ]
-          }
         ]
       },
       {
-        "uuid": "88792e69-b9f5-4dad-be3e-304a64da6e35",
-        "title": "IAM MFA Assessment",
-        "description": "Check IAM users for MFA enforcement",
-        "start": "2026-04-25T22:37:21Z",
+        "uuid": "28ec78d8-386d-476c-a30f-92943e247f90",
+        "title": "AC-6 \u2014 Least Privilege",
+        "description": "Least Privilege",
+        "start": "2026-04-25T23:15:40Z",
         "findings": [
           {
-            "uuid": "efd9c118-f5b2-4f47-bd1f-4f7a5aae0b6c",
-            "title": "FAIL: IAM user 'openframp-scanner' has no MFA enabled (FedRAMP IA-2, PCI DSS 8.3.1)",
-            "description": "FAIL: IAM user 'openframp-scanner' has no MFA enabled (FedRAMP IA-2, PCI DSS 8.3.1)",
+            "uuid": "9b2cbe49-e483-4ee4-8e8b-33c923722a03",
+            "title": "PASS: openframp-scanner \u2014 IAM users should not have AdministratorAccess policy",
+            "description": "PASS: openframp-scanner \u2014 IAM users should not have AdministratorAccess policy",
             "target": {
               "type": "objective-id",
-              "target-id": "ia-2",
-              "status": {
-                "state": "not-satisfied"
-              }
-            }
-          }
-        ],
-        "observations": [
-          {
-            "uuid": "bf02ab5f-b5fe-401a-8388-c4cd9d9d7604",
-            "description": "Raw scan data for IAM MFA Assessment",
-            "methods": [
-              "TEST"
-            ],
-            "collected": "2026-04-25T22:37:21Z",
-            "subjects": [
-              {
-                "subject-uuid": "c84b2568-d414-4e45-92c8-92649de5c01b",
-                "type": "component",
-                "title": "openframp-scanner",
-                "props": [
-                  {
-                    "name": "create_date",
-                    "value": "2026-04-23T22:35:45Z"
-                  },
-                  {
-                    "name": "mfa_enabled",
-                    "value": "False"
-                  },
-                  {
-                    "name": "password_last_used",
-                    "value": "None"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "uuid": "05a64370-f35a-403b-a9a3-12a6d4d49bb5",
-        "title": "S3 Encryption Assessment",
-        "description": "Check S3 buckets for encryption at rest",
-        "start": "2026-04-25T22:37:21Z",
-        "findings": [
-          {
-            "uuid": "717b1b15-3f68-4e09-8383-ae3f97784972",
-            "title": "PASS: S3 bucket 'openframp-test-insecure-140903bc' has encryption configured",
-            "description": "PASS: S3 bucket 'openframp-test-insecure-140903bc' has encryption configured",
-            "target": {
-              "type": "objective-id",
-              "target-id": "sc-28",
+              "target-id": "ac-6",
               "status": {
                 "state": "satisfied"
               }
             }
           },
           {
-            "uuid": "a4e2d341-7559-48aa-a9e5-4460656df310",
-            "title": "PASS: S3 bucket 'openframp-test-secure-140903bc' has encryption configured",
-            "description": "PASS: S3 bucket 'openframp-test-secure-140903bc' has encryption configured",
+            "uuid": "c4052d9c-b347-42c5-977d-bd51a27b1abe",
+            "title": "PASS: openframp-scanner \u2014 IAM users should not have inline policies with full admin",
+            "description": "PASS: openframp-scanner \u2014 IAM users should not have inline policies with full admin",
             "target": {
               "type": "objective-id",
-              "target-id": "sc-28",
+              "target-id": "ac-6",
               "status": {
                 "state": "satisfied"
               }
             }
-          }
-        ],
-        "observations": [
+          },
           {
-            "uuid": "e56ee7df-0c85-4c04-ba42-0dbc0d013880",
-            "description": "Raw scan data for S3 Encryption Assessment",
-            "methods": [
-              "TEST"
-            ],
-            "collected": "2026-04-25T22:37:21Z",
-            "subjects": [
-              {
-                "subject-uuid": "48621cc9-fe50-46cb-bc0a-be1e8a7089ee",
-                "type": "component",
-                "title": "openframp-test-insecure-140903bc",
-                "props": [
-                  {
-                    "name": "server_side_encryption_configuration",
-                    "value": "{'Rules': [{'ApplyServerSideEncryptionByDefault': {'KMSMasterKeyID': None, 'SSEAlgorithm': 'AES256'}, 'BucketKeyEnabled': False}]}"
-                  }
-                ]
-              },
-              {
-                "subject-uuid": "13c84762-fbb0-4682-93b4-f436132407b9",
-                "type": "component",
-                "title": "openframp-test-secure-140903bc",
-                "props": [
-                  {
-                    "name": "server_side_encryption_configuration",
-                    "value": "{'Rules': [{'ApplyServerSideEncryptionByDefault': {'KMSMasterKeyID': None, 'SSEAlgorithm': 'aws:kms'}, 'BucketKeyEnabled': False}]}"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "uuid": "2cacadb5-7377-420b-9737-b732ed05a258",
-        "title": "CloudTrail Logging Assessment",
-        "description": "Check for active CloudTrail with multi-region and log validation",
-        "start": "2026-04-25T22:37:21Z",
-        "findings": [
-          {
-            "uuid": "7b664261-24cc-4888-9e5d-edcd8776fa08",
-            "title": "FAIL: No CloudTrail trail exists in this account (FedRAMP AU-2, PCI DSS 10.1)",
-            "description": "FAIL: No CloudTrail trail exists in this account (FedRAMP AU-2, PCI DSS 10.1)",
+            "uuid": "03067ad6-874c-40b2-aa38-29768f45989a",
+            "title": "PASS: AWSTrustedAdvisorServiceRolePolicy \u2014 IAM policies should not allow Action:* Resource:*",
+            "description": "PASS: AWSTrustedAdvisorServiceRolePolicy \u2014 IAM policies should not allow Action:* Resource:*",
             "target": {
               "type": "objective-id",
-              "target-id": "au-2",
-              "status": {
-                "state": "not-satisfied"
-              }
-            }
-          }
-        ],
-        "observations": []
-      },
-      {
-        "uuid": "a926b8e7-07f1-4dff-8a71-50d27739a252",
-        "title": "Security Group Assessment",
-        "description": "Check for security groups open to the internet",
-        "start": "2026-04-25T22:37:21Z",
-        "findings": [
-          {
-            "uuid": "af43c089-f136-4856-ab6d-0e2600fa9a9e",
-            "title": "PASS: Security group rule 'sg-07faea8fb5e390205' is not open to the internet",
-            "description": "PASS: Security group rule 'sg-07faea8fb5e390205' is not open to the internet",
-            "target": {
-              "type": "objective-id",
-              "target-id": "sc-7",
+              "target-id": "ac-6",
               "status": {
                 "state": "satisfied"
               }
             }
-          }
-        ],
-        "observations": [
+          },
           {
-            "uuid": "b59615fd-d4c5-42c8-ab09-33210fe72d7a",
-            "description": "Raw scan data for Security Group Assessment",
-            "methods": [
-              "TEST"
-            ],
-            "collected": "2026-04-25T22:37:21Z",
-            "subjects": [
-              {
-                "subject-uuid": "8fdb69e8-ef44-4d1a-98f3-889e31ea5bde",
-                "type": "component",
-                "title": "sg-07faea8fb5e390205",
-                "props": [
-                  {
-                    "name": "cidr_ipv4",
-                    "value": "None"
-                  },
-                  {
-                    "name": "from_port",
-                    "value": "-1"
-                  },
-                  {
-                    "name": "ip_protocol",
-                    "value": "-1"
-                  },
-                  {
-                    "name": "to_port",
-                    "value": "-1"
-                  },
-                  {
-                    "name": "type",
-                    "value": "ingress"
-                  }
-                ]
+            "uuid": "5adeb07f-0e57-4f46-bdee-20b32950895a",
+            "title": "PASS: SecurityAudit \u2014 IAM policies should not allow Action:* Resource:*",
+            "description": "PASS: SecurityAudit \u2014 IAM policies should not allow Action:* Resource:*",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ac-6",
+              "status": {
+                "state": "satisfied"
               }
-            ]
-          }
-        ]
-      },
-      {
-        "uuid": "643441ea-f90a-4715-a148-5174dd87c482",
-        "title": "Least Privilege Assessment",
-        "description": "Check IAM users for overly broad policies",
-        "start": "2026-04-25T22:37:21Z",
-        "findings": [
+            }
+          },
           {
-            "uuid": "2298115e-4b73-43df-8039-6b8e1f1badda",
-            "title": "PASS: IAM user 'openframp-scanner' does not have overly broad policies",
-            "description": "PASS: IAM user 'openframp-scanner' does not have overly broad policies",
+            "uuid": "bbdd6fa0-692c-428e-857a-ee2db4e55519",
+            "title": "PASS: AWSSupportServiceRolePolicy \u2014 IAM policies should not allow Action:* Resource:*",
+            "description": "PASS: AWSSupportServiceRolePolicy \u2014 IAM policies should not allow Action:* Resource:*",
             "target": {
               "type": "objective-id",
               "target-id": "ac-6",
@@ -340,28 +143,309 @@
               }
             }
           }
-        ],
-        "observations": [
+        ]
+      },
+      {
+        "uuid": "43117ce0-3be2-48bd-9da5-f5bd8b3aecf2",
+        "title": "AC-7 \u2014 Unsuccessful Logon Attempts",
+        "description": "Unsuccessful Logon Attempts",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "141ae706-4f48-46f0-8f08-daf45738336e",
+        "title": "AU-2 \u2014 Event Logging",
+        "description": "Event Logging",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
           {
-            "uuid": "3ec89ec2-6e48-49ef-8797-de6bdd17898a",
-            "description": "Raw scan data for Least Privilege Assessment",
-            "methods": [
-              "TEST"
-            ],
-            "collected": "2026-04-25T22:37:21Z",
-            "subjects": [
-              {
-                "subject-uuid": "43f32e65-1936-41a5-9343-bd3d7b955b45",
-                "type": "component",
-                "title": "openframp-scanner",
-                "props": [
-                  {
-                    "name": "attached_policy_arns",
-                    "value": "['arn:aws:iam::aws:policy/SecurityAudit']"
-                  }
-                ]
+            "uuid": "a71f1e2b-bec9-4f4b-af88-0e12575fab07",
+            "title": "CRITICAL: CloudTrail should be enabled and logging \u2014 none found",
+            "description": "CRITICAL: CloudTrail should be enabled and logging \u2014 none found",
+            "target": {
+              "type": "objective-id",
+              "target-id": "au-2",
+              "status": {
+                "state": "not-satisfied"
               }
-            ]
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "02f567c0-c5b3-44c1-bb30-9a6b5f302d6a",
+        "title": "AU-3 \u2014 Content of Audit Records",
+        "description": "Content of Audit Records",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "3fc322cc-d6aa-4f50-ab59-c45fc7d2d3ed",
+        "title": "AU-6 \u2014 Audit Record Review",
+        "description": "Audit Record Review",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "af263821-d3f9-430e-948a-5353d021fdd7",
+            "title": "HIGH: GuardDuty should be enabled for threat detection \u2014 none found",
+            "description": "HIGH: GuardDuty should be enabled for threat detection \u2014 none found",
+            "target": {
+              "type": "objective-id",
+              "target-id": "au-6",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "aafbd686-9f4a-4e65-bb00-2abc8af50efe",
+        "title": "AU-9 \u2014 Protection of Audit Information",
+        "description": "Protection of Audit Information",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "f07fa9fe-c984-4708-b265-1923503d029c",
+        "title": "AU-11 \u2014 Audit Record Retention",
+        "description": "Audit Record Retention",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "259210c4-cc6b-4846-8bb4-bdf79fe19672",
+            "title": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets storing logs should have versioning enabled",
+            "description": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets storing logs should have versioning enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "au-11",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "2ae93d21-28ef-4b3c-9697-cb9819b995be",
+            "title": "PASS: openframp-test-insecure-140903bc \u2014 S3 buckets storing logs should have versioning enabled",
+            "description": "PASS: openframp-test-insecure-140903bc \u2014 S3 buckets storing logs should have versioning enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "au-11",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "b0d2e9dd-58a1-4b3a-baff-71114cd76eed",
+        "title": "CM-6 \u2014 Configuration Settings",
+        "description": "Configuration Settings",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "39fc3b62-a82a-4a19-b9ac-19ed079427c0",
+            "title": "HIGH: AWS Config should be enabled for configuration tracking \u2014 none found",
+            "description": "HIGH: AWS Config should be enabled for configuration tracking \u2014 none found",
+            "target": {
+              "type": "objective-id",
+              "target-id": "cm-6",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "5783333d-d666-42ae-a692-bba474342c55",
+        "title": "CM-8 \u2014 System Component Inventory",
+        "description": "System Component Inventory",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "53714db4-a8b8-43fb-87fb-8d9ad94a9865",
+        "title": "IA-2 \u2014 Identification and Authentication",
+        "description": "Identification and Authentication",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "adcbd946-893a-4005-91f3-a4957468bc2d",
+            "title": "CRITICAL: openframp-scanner \u2014 MFA not enabled (IAM users with console access should have MFA enabled)",
+            "description": "CRITICAL: openframp-scanner \u2014 MFA not enabled (IAM users with console access should have MFA enabled)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ia-2",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "c2e07713-a2e1-49f6-bd13-809ec1a66a3b",
+            "title": "PASS: unknown \u2014 Root account should have MFA enabled",
+            "description": "PASS: unknown \u2014 Root account should have MFA enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ia-2",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "d7c41062-afed-4cf4-b55c-04c533a436ff",
+        "title": "IA-5 \u2014 Authenticator Management",
+        "description": "Authenticator Management",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "0a025864-5782-46ec-8a09-c45f37ebf87a",
+            "title": "HIGH: openframp-scanner \u2014 active key created 2026-04-23T22:35:46Z, check rotation (IAM access keys should be rotated within 90 days)",
+            "description": "HIGH: openframp-scanner \u2014 active key created 2026-04-23T22:35:46Z, check rotation (IAM access keys should be rotated within 90 days)",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ia-5",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "2dd086c1-9c36-4314-916e-976ad967f1b9",
+        "title": "RA-5 \u2014 Vulnerability Monitoring and Scanning",
+        "description": "Vulnerability Monitoring and Scanning",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "3d11f8ad-0026-4aaf-857b-159e28412af2",
+            "title": "HIGH: AWS Inspector should be enabled for vulnerability scanning \u2014 none found",
+            "description": "HIGH: AWS Inspector should be enabled for vulnerability scanning \u2014 none found",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ra-5",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "341bc33a-aa07-4ab6-9bf0-84ce7dec8fcd",
+        "title": "SC-7 \u2014 Boundary Protection",
+        "description": "Boundary Protection",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "d0b891ce-1fd1-491d-87d1-363132c464a2",
+            "title": "PASS: sg-07faea8fb5e390205 \u2014 Security groups should not allow unrestricted inbound access",
+            "description": "PASS: sg-07faea8fb5e390205 \u2014 Security groups should not allow unrestricted inbound access",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-7",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "08de9bda-281b-4ace-92bd-adf6e0f965a4",
+            "title": "PASS: sg-07faea8fb5e390205 \u2014 Default security group should restrict all traffic",
+            "description": "PASS: sg-07faea8fb5e390205 \u2014 Default security group should restrict all traffic",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-7",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "5314a579-058c-469d-9d9a-ffbff1c7e78a",
+        "title": "SC-8 \u2014 Transmission Confidentiality and Integrity",
+        "description": "Transmission Confidentiality and Integrity",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "c81d3616-c796-4937-9cb8-efe354437841",
+        "title": "SC-12 \u2014 Cryptographic Key Establishment and Management",
+        "description": "Cryptographic Key Establishment and Management",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "fdbce796-23d5-41ef-975d-01b7d3865101",
+        "title": "SC-13 \u2014 Cryptographic Protection",
+        "description": "Cryptographic Protection",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "46b488aa-3e6a-4536-9477-2c1673abaa36",
+        "title": "SC-28 \u2014 Protection of Information at Rest",
+        "description": "Protection of Information at Rest",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "4d46dfdd-b1f6-4e04-9edd-09af7e4f7164",
+            "title": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets should have server-side encryption enabled",
+            "description": "PASS: openframp-test-secure-140903bc \u2014 S3 buckets should have server-side encryption enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-28",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          },
+          {
+            "uuid": "34962078-290f-4435-80d6-8f9429ec6fc0",
+            "title": "PASS: openframp-test-insecure-140903bc \u2014 S3 buckets should have server-side encryption enabled",
+            "description": "PASS: openframp-test-insecure-140903bc \u2014 S3 buckets should have server-side encryption enabled",
+            "target": {
+              "type": "objective-id",
+              "target-id": "sc-28",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "e35c0e84-a74d-4f0c-b1a3-e3d0ae458655",
+        "title": "SI-2 \u2014 Flaw Remediation",
+        "description": "Flaw Remediation",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": []
+      },
+      {
+        "uuid": "31c3c649-b3a8-4151-b7d6-23ed55839bce",
+        "title": "SI-4 \u2014 System Monitoring",
+        "description": "System Monitoring",
+        "start": "2026-04-25T23:15:40Z",
+        "findings": [
+          {
+            "uuid": "9138c631-e031-41a3-8df6-37d08871c883",
+            "title": "HIGH: Security Hub should be enabled for centralized monitoring \u2014 none found",
+            "description": "HIGH: Security Hub should be enabled for centralized monitoring \u2014 none found",
+            "target": {
+              "type": "objective-id",
+              "target-id": "si-4",
+              "status": {
+                "state": "not-satisfied"
+              }
+            }
           }
         ]
       }
