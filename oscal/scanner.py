@@ -15,7 +15,7 @@ def run_query(query):
     )
     if result.returncode != 0:
         stderr = result.stderr
-        if "SubscriptionRequiredException" in stderr:
+        if "SubscriptionRequiredException" in stderr or "OptInRequired" in stderr:
             return {"rows": [], "_not_enabled": True}, None
         if "does not exist" in stderr:
             return {"rows": [], "_not_found": True}, None
