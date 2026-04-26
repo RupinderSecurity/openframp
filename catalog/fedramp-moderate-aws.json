@@ -1,20 +1,20 @@
 {
-  "catalog_version": "1.0.0",
-  "framework": "FedRAMP Moderate",
-  "baseline": "Rev 5",
+  "catalog_version": "2.0.0",
+  "framework": "Multi-Framework",
+  "baseline": "FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2",
   "provider": "aws",
   "controls": [
     {
       "control_id": "AC-2",
       "title": "Account Management",
       "family": "Access Control",
+      "frameworks": ["FedRAMP AC-2", "PCI DSS 8.1", "SOC 2 CC6.1"],
       "checks": [
         {
-          "check_id": "ac-2-iam-users-have-activity",
+          "check_id": "ac-2-iam-user-activity",
           "description": "IAM users should have recent activity or be disabled",
           "severity": "medium",
           "query": "select name, password_last_used, create_date from aws_iam_user",
-          "deny_condition": "password_enabled == true AND password_last_used is null or older than 90 days",
           "resource_type": "aws_iam_user"
         },
         {
@@ -23,6 +23,13 @@
           "severity": "critical",
           "query": "select account_access_keys_present from aws_iam_account_summary",
           "resource_type": "aws_iam_account_summary"
+        },
+        {
+          "check_id": "ac-2-unused-credentials",
+          "description": "Credentials unused for 90+ days should be disabled",
+          "severity": "medium",
+          "query": "select user_name, access_key_id, status, access_key_last_used_date from aws_iam_access_key where status = 'Active'",
+          "resource_type": "aws_iam_access_key"
         }
       ]
     },
@@ -30,20 +37,50 @@
       "control_id": "AC-3",
       "title": "Access Enforcement",
       "family": "Access Control",
+      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "ac-3-s3-no-public-access",
-          "description": "S3 buckets should block public access",
+          "description": "S3 buckets should block all public access",
           "severity": "high",
           "query": "select name, block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_bucket",
           "resource_type": "aws_s3_bucket"
         },
         {
           "check_id": "ac-3-s3-no-public-policy",
-          "description": "S3 buckets should not have public policies",
+          "description": "S3 buckets should not have public bucket policies",
           "severity": "high",
           "query": "select name, bucket_policy_is_public from aws_s3_bucket where bucket_policy_is_public = true",
           "resource_type": "aws_s3_bucket"
+        },
+        {
+          "check_id": "ac-3-rds-no-public-access",
+          "description": "RDS instances should not be publicly accessible",
+          "severity": "critical",
+          "query": "select db_instance_identifier, publicly_accessible from aws_rds_db_instance where publicly_accessible = true",
+          "resource_type": "aws_rds_db_instance"
+        },
+        {
+          "check_id": "ac-3-redshift-no-public",
+          "description": "Redshift clusters should not be publicly accessible",
+          "severity": "critical",
+          "query": "select cluster_identifier, publicly_accessible from aws_redshift_cluster where publicly_accessible = true",
+          "resource_type": "aws_redshift_cluster"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-4",
+      "title": "Information Flow Enforcement",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-4", "PCI DSS 1.3", "SOC 2 CC6.6"],
+      "checks": [
+        {
+          "check_id": "ac-4-nacl-unrestricted",
+          "description": "Network ACLs should not allow unrestricted inbound traffic",
+          "severity": "high",
+          "query": "select network_acl_id, rule_number, rule_action, cidr_block, protocol from aws_vpc_network_acl_rule where rule_action = 'allow' and cidr_block = '0.0.0.0/0' and egress = false",
+          "resource_type": "aws_vpc_network_acl_rule"
         }
       ]
     },
@@ -51,6 +88,7 @@
       "control_id": "AC-6",
       "title": "Least Privilege",
       "family": "Access Control",
+      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
       "checks": [
         {
           "check_id": "ac-6-no-admin-access",
@@ -72,6 +110,13 @@
           "severity": "critical",
           "query": "select name, arn, policy_std from aws_iam_policy where is_attached = true",
           "resource_type": "aws_iam_policy"
+        },
+        {
+          "check_id": "ac-6-no-user-attached-policies",
+          "description": "IAM policies should be attached to groups or roles, not users directly",
+          "severity": "medium",
+          "query": "select name, attached_policy_arns from aws_iam_user where attached_policy_arns is not null and jsonb_array_length(attached_policy_arns) > 0",
+          "resource_type": "aws_iam_user"
         }
       ]
     },
@@ -79,13 +124,36 @@
       "control_id": "AC-7",
       "title": "Unsuccessful Logon Attempts",
       "family": "Access Control",
+      "frameworks": ["FedRAMP AC-7", "PCI DSS 8.3.4", "SOC 2 CC6.1"],
       "checks": [
         {
-          "check_id": "ac-7-password-lockout",
-          "description": "Account password policy should enforce lockout",
+          "check_id": "ac-7-password-policy-exists",
+          "description": "Account password policy should be configured",
           "severity": "medium",
-          "query": "select max_password_age, password_reuse_prevention from aws_iam_account_password_policy",
+          "query": "select max_password_age, password_reuse_prevention, minimum_password_length from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-17",
+      "title": "Remote Access",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-17", "PCI DSS 8.4", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ac-17-no-ssh-from-internet",
+          "description": "Security groups should not allow SSH from 0.0.0.0/0",
+          "severity": "critical",
+          "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 22 and to_port >= 22 and cidr_ipv4 = '0.0.0.0/0'",
+          "resource_type": "aws_vpc_security_group_rule"
+        },
+        {
+          "check_id": "ac-17-no-rdp-from-internet",
+          "description": "Security groups should not allow RDP from 0.0.0.0/0",
+          "severity": "critical",
+          "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 3389 and to_port >= 3389 and cidr_ipv4 = '0.0.0.0/0'",
+          "resource_type": "aws_vpc_security_group_rule"
         }
       ]
     },
@@ -93,6 +161,7 @@
       "control_id": "AU-2",
       "title": "Event Logging",
       "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
       "checks": [
         {
           "check_id": "au-2-cloudtrail-enabled",
@@ -100,6 +169,13 @@
           "severity": "critical",
           "query": "select name, is_logging, is_multi_region_trail, log_file_validation_enabled from aws_cloudtrail_trail",
           "resource_type": "aws_cloudtrail_trail"
+        },
+        {
+          "check_id": "au-2-s3-access-logging",
+          "description": "S3 buckets should have access logging enabled",
+          "severity": "medium",
+          "query": "select name, logging from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
         }
       ]
     },
@@ -107,6 +183,7 @@
       "control_id": "AU-3",
       "title": "Content of Audit Records",
       "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-3", "PCI DSS 10.3", "SOC 2 CC7.2"],
       "checks": [
         {
           "check_id": "au-3-cloudtrail-log-validation",
@@ -121,6 +198,7 @@
       "control_id": "AU-6",
       "title": "Audit Record Review",
       "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-6", "PCI DSS 10.6", "SOC 2 CC7.2"],
       "checks": [
         {
           "check_id": "au-6-guardduty-enabled",
@@ -135,6 +213,7 @@
       "control_id": "AU-9",
       "title": "Protection of Audit Information",
       "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-9", "PCI DSS 10.5", "SOC 2 CC7.2"],
       "checks": [
         {
           "check_id": "au-9-cloudtrail-encrypted",
@@ -144,22 +223,8 @@
           "resource_type": "aws_cloudtrail_trail"
         },
         {
-          "check_id": "au-9-cloudtrail-bucket-not-public",
-          "description": "CloudTrail S3 bucket should not be public",
-          "severity": "critical",
-          "query": "select s3_bucket_name from aws_cloudtrail_trail",
-          "resource_type": "aws_cloudtrail_trail"
-        }
-      ]
-    },
-    {
-      "control_id": "AU-11",
-      "title": "Audit Record Retention",
-      "family": "Audit and Accountability",
-      "checks": [
-        {
-          "check_id": "au-11-s3-versioning-on-log-buckets",
-          "description": "S3 buckets storing logs should have versioning enabled",
+          "check_id": "au-9-s3-versioning-log-buckets",
+          "description": "S3 buckets should have versioning enabled to protect logs",
           "severity": "medium",
           "query": "select name, versioning_enabled from aws_s3_bucket",
           "resource_type": "aws_s3_bucket"
@@ -167,9 +232,40 @@
       ]
     },
     {
+      "control_id": "AU-11",
+      "title": "Audit Record Retention",
+      "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-11", "PCI DSS 10.7", "SOC 2 CC7.2"],
+      "checks": [
+        {
+          "check_id": "au-11-s3-lifecycle-policy",
+          "description": "S3 buckets storing logs should have lifecycle policies for retention",
+          "severity": "medium",
+          "query": "select name, lifecycle_rules from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
+        }
+      ]
+    },
+    {
+      "control_id": "CM-2",
+      "title": "Baseline Configuration",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-2", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "cm-2-ec2-imdsv2",
+          "description": "EC2 instances should use IMDSv2 for instance metadata",
+          "severity": "high",
+          "query": "select instance_id, metadata_options from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance"
+        }
+      ]
+    },
+    {
       "control_id": "CM-6",
       "title": "Configuration Settings",
       "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-6", "PCI DSS 2.2", "SOC 2 CC8.1"],
       "checks": [
         {
           "check_id": "cm-6-config-enabled",
@@ -181,16 +277,76 @@
       ]
     },
     {
+      "control_id": "CM-7",
+      "title": "Least Functionality",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-7", "PCI DSS 2.2.4", "SOC 2 CC6.8"],
+      "checks": [
+        {
+          "check_id": "cm-7-no-unrestricted-outbound",
+          "description": "Security groups should restrict outbound to required ports only",
+          "severity": "medium",
+          "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'egress' and cidr_ipv4 = '0.0.0.0/0' and from_port = 0 and to_port = 65535",
+          "resource_type": "aws_vpc_security_group_rule"
+        }
+      ]
+    },
+    {
       "control_id": "CM-8",
       "title": "System Component Inventory",
       "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-8", "PCI DSS 12.5.1", "SOC 2 CC8.1"],
       "checks": [
         {
           "check_id": "cm-8-ec2-instances-tagged",
-          "description": "EC2 instances should have required tags",
+          "description": "EC2 instances should have required tags for inventory",
           "severity": "medium",
           "query": "select instance_id, tags from aws_ec2_instance",
           "resource_type": "aws_ec2_instance"
+        },
+        {
+          "check_id": "cm-8-s3-buckets-tagged",
+          "description": "S3 buckets should have tags for inventory tracking",
+          "severity": "low",
+          "query": "select name, tags from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket"
+        }
+      ]
+    },
+    {
+      "control_id": "CP-9",
+      "title": "System Backup",
+      "family": "Contingency Planning",
+      "frameworks": ["FedRAMP CP-9", "PCI DSS 12.10.1", "SOC 2 A1.2"],
+      "checks": [
+        {
+          "check_id": "cp-9-rds-backup-enabled",
+          "description": "RDS instances should have automated backups enabled",
+          "severity": "high",
+          "query": "select db_instance_identifier, backup_retention_period from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance"
+        },
+        {
+          "check_id": "cp-9-dynamodb-backup",
+          "description": "DynamoDB tables should have point-in-time recovery enabled",
+          "severity": "medium",
+          "query": "select name, point_in_time_recovery_description from aws_dynamodb_table",
+          "resource_type": "aws_dynamodb_table"
+        }
+      ]
+    },
+    {
+      "control_id": "CP-10",
+      "title": "System Recovery and Reconstitution",
+      "family": "Contingency Planning",
+      "frameworks": ["FedRAMP CP-10", "SOC 2 A1.2"],
+      "checks": [
+        {
+          "check_id": "cp-10-rds-multi-az",
+          "description": "RDS instances should use Multi-AZ for high availability",
+          "severity": "high",
+          "query": "select db_instance_identifier, multi_az from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance"
         }
       ]
     },
@@ -198,6 +354,7 @@
       "control_id": "IA-2",
       "title": "Identification and Authentication",
       "family": "Identification and Authentication",
+      "frameworks": ["FedRAMP IA-2", "PCI DSS 8.3.1", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "ia-2-iam-user-mfa",
@@ -219,12 +376,27 @@
       "control_id": "IA-5",
       "title": "Authenticator Management",
       "family": "Identification and Authentication",
+      "frameworks": ["FedRAMP IA-5", "PCI DSS 8.3.6", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "ia-5-password-length",
           "description": "Password policy should require minimum 14 characters",
           "severity": "high",
           "query": "select minimum_password_length, require_uppercase_characters, require_lowercase_characters, require_numbers, require_symbols from aws_iam_account_password_policy",
+          "resource_type": "aws_iam_account_password_policy"
+        },
+        {
+          "check_id": "ia-5-password-reuse",
+          "description": "Password policy should prevent reuse of last 24 passwords",
+          "severity": "medium",
+          "query": "select password_reuse_prevention from aws_iam_account_password_policy",
+          "resource_type": "aws_iam_account_password_policy"
+        },
+        {
+          "check_id": "ia-5-password-max-age",
+          "description": "Password policy should enforce 90-day maximum age",
+          "severity": "medium",
+          "query": "select max_password_age from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy"
         },
         {
@@ -237,9 +409,25 @@
       ]
     },
     {
+      "control_id": "IR-6",
+      "title": "Incident Reporting",
+      "family": "Incident Response",
+      "frameworks": ["FedRAMP IR-6", "PCI DSS 12.10", "SOC 2 CC7.3"],
+      "checks": [
+        {
+          "check_id": "ir-6-sns-topics-exist",
+          "description": "SNS topics should exist for security notifications",
+          "severity": "medium",
+          "query": "select topic_arn from aws_sns_topic",
+          "resource_type": "aws_sns_topic"
+        }
+      ]
+    },
+    {
       "control_id": "RA-5",
       "title": "Vulnerability Monitoring and Scanning",
       "family": "Risk Assessment",
+      "frameworks": ["FedRAMP RA-5", "PCI DSS 11.3", "SOC 2 CC7.1"],
       "checks": [
         {
           "check_id": "ra-5-inspector-enabled",
@@ -254,6 +442,7 @@
       "control_id": "SC-7",
       "title": "Boundary Protection",
       "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-7", "PCI DSS 1.2.1", "SOC 2 CC6.6"],
       "checks": [
         {
           "check_id": "sc-7-no-unrestricted-ingress",
@@ -271,7 +460,7 @@
         },
         {
           "check_id": "sc-7-vpc-flow-logs",
-          "description": "VPC flow logs should be enabled",
+          "description": "VPCs should have flow logs enabled",
           "severity": "high",
           "query": "select vpc_id, is_default from aws_vpc",
           "resource_type": "aws_vpc"
@@ -282,13 +471,21 @@
       "control_id": "SC-8",
       "title": "Transmission Confidentiality and Integrity",
       "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-8", "PCI DSS 4.2.1", "SOC 2 CC6.7"],
       "checks": [
         {
           "check_id": "sc-8-elb-https-only",
-          "description": "Load balancers should use HTTPS listeners",
+          "description": "Load balancer listeners should use HTTPS/TLS only",
           "severity": "high",
-          "query": "select name, scheme, type from aws_ec2_load_balancer_listener where protocol != 'HTTPS' and protocol != 'TLS'",
+          "query": "select load_balancer_arn, protocol, port from aws_ec2_load_balancer_listener where protocol not in ('HTTPS', 'TLS')",
           "resource_type": "aws_ec2_load_balancer_listener"
+        },
+        {
+          "check_id": "sc-8-s3-ssl-enforced",
+          "description": "S3 bucket policies should enforce SSL/TLS for access",
+          "severity": "high",
+          "query": "select name, policy from aws_s3_bucket where policy is not null",
+          "resource_type": "aws_s3_bucket"
         }
       ]
     },
@@ -296,10 +493,11 @@
       "control_id": "SC-12",
       "title": "Cryptographic Key Establishment and Management",
       "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-12", "PCI DSS 3.6", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "sc-12-kms-rotation-enabled",
-          "description": "KMS keys should have automatic rotation enabled",
+          "description": "Customer-managed KMS keys should have automatic rotation enabled",
           "severity": "high",
           "query": "select id, aliases, key_rotation_enabled, key_manager, origin from aws_kms_key where key_manager = 'CUSTOMER'",
           "resource_type": "aws_kms_key"
@@ -310,6 +508,7 @@
       "control_id": "SC-13",
       "title": "Cryptographic Protection",
       "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-13", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "sc-13-kms-fips-origin",
@@ -321,9 +520,25 @@
       ]
     },
     {
+      "control_id": "SC-23",
+      "title": "Session Authenticity",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-23", "PCI DSS 8.2.8", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "sc-23-cloudfront-https",
+          "description": "CloudFront distributions should enforce HTTPS",
+          "severity": "high",
+          "query": "select id, viewer_protocol_policy from aws_cloudfront_distribution",
+          "resource_type": "aws_cloudfront_distribution"
+        }
+      ]
+    },
+    {
       "control_id": "SC-28",
       "title": "Protection of Information at Rest",
       "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-28", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
       "checks": [
         {
           "check_id": "sc-28-s3-encryption",
@@ -341,10 +556,31 @@
         },
         {
           "check_id": "sc-28-rds-encryption",
-          "description": "RDS instances should be encrypted",
+          "description": "RDS instances should have storage encryption enabled",
           "severity": "high",
           "query": "select db_instance_identifier, storage_encrypted from aws_rds_db_instance",
           "resource_type": "aws_rds_db_instance"
+        },
+        {
+          "check_id": "sc-28-dynamodb-encryption",
+          "description": "DynamoDB tables should have encryption enabled",
+          "severity": "high",
+          "query": "select name, sse_description from aws_dynamodb_table",
+          "resource_type": "aws_dynamodb_table"
+        },
+        {
+          "check_id": "sc-28-sns-encryption",
+          "description": "SNS topics should be encrypted with KMS",
+          "severity": "medium",
+          "query": "select topic_arn, kms_master_key_id from aws_sns_topic",
+          "resource_type": "aws_sns_topic"
+        },
+        {
+          "check_id": "sc-28-sqs-encryption",
+          "description": "SQS queues should be encrypted",
+          "severity": "medium",
+          "query": "select queue_arn, kms_master_key_id from aws_sqs_queue",
+          "resource_type": "aws_sqs_queue"
         }
       ]
     },
@@ -352,6 +588,7 @@
       "control_id": "SI-2",
       "title": "Flaw Remediation",
       "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-2", "PCI DSS 6.3.3", "SOC 2 CC7.1"],
       "checks": [
         {
           "check_id": "si-2-ssm-managed",
@@ -363,9 +600,25 @@
       ]
     },
     {
+      "control_id": "SI-3",
+      "title": "Malicious Code Protection",
+      "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-3", "PCI DSS 5.2", "SOC 2 CC6.8"],
+      "checks": [
+        {
+          "check_id": "si-3-guardduty-malware",
+          "description": "GuardDuty should be enabled for malware detection",
+          "severity": "high",
+          "query": "select detector_id, status from aws_guardduty_detector",
+          "resource_type": "aws_guardduty_detector"
+        }
+      ]
+    },
+    {
       "control_id": "SI-4",
       "title": "System Monitoring",
       "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-4", "PCI DSS 10.6.1", "SOC 2 CC7.2"],
       "checks": [
         {
           "check_id": "si-4-securityhub-enabled",
@@ -373,6 +626,28 @@
           "severity": "high",
           "query": "select hub_arn, auto_enable_controls from aws_securityhub_hub",
           "resource_type": "aws_securityhub_hub"
+        },
+        {
+          "check_id": "si-4-cloudwatch-alarm-exists",
+          "description": "CloudWatch alarms should exist for critical metrics",
+          "severity": "medium",
+          "query": "select name, state_value, actions_enabled from aws_cloudwatch_alarm",
+          "resource_type": "aws_cloudwatch_alarm"
+        }
+      ]
+    },
+    {
+      "control_id": "SI-7",
+      "title": "Software and Information Integrity",
+      "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-7", "PCI DSS 11.5", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "si-7-ecr-scan-on-push",
+          "description": "ECR repositories should have scan-on-push enabled",
+          "severity": "medium",
+          "query": "select repository_name, image_scanning_configuration from aws_ecr_repository",
+          "resource_type": "aws_ecr_repository"
         }
       ]
     }

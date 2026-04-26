@@ -200,6 +200,83 @@ def evaluate_check(check, query_result):
             if row.get("account_access_keys_present") == 1:
                 failed = True
                 reason = "root account has access keys"
+
+        elif "backup" in check_id:
+            retention = row.get("backup_retention_period", 0)
+            if retention is None or retention == 0:
+                failed = True
+                reason = "automated backups not enabled"
+        
+        elif "multi-az" in check_id or "multi_az" in check_id:
+            if row.get("multi_az") == False:
+                failed = True
+                reason = "not configured for Multi-AZ"
+        
+        elif "publicly-accessible" in check_id or "no-public" in check_id:
+            if row.get("publicly_accessible") == True:
+                failed = True
+                reason = "publicly accessible"
+        
+        elif "nacl" in check_id:
+            if row.get("cidr_block") == "0.0.0.0/0" and row.get("rule_action") == "allow":
+                failed = True
+                reason = "allows all traffic from 0.0.0.0/0"
+        
+        elif "lifecycle" in check_id:
+            rules = row.get("lifecycle_rules")
+            if rules is None or rules == "null" or rules == "[]":
+                failed = True
+                reason = "no lifecycle policy configured"
+        
+        elif "logging" in check_id and "s3" in check_id:
+            logging = row.get("logging")
+            if logging is None or logging == {} or logging == "null":
+                failed = True
+                reason = "access logging not enabled"
+        
+        elif "imdsv2" in check_id:
+            opts = str(row.get("metadata_options", ""))
+            if "HttpTokens" not in opts or '"HttpTokens":"required"' not in opts.replace(" ", ""):
+                failed = True
+                reason = "IMDSv2 not enforced"
+        
+        elif "outbound" in check_id or "egress" in check_id:
+            if row.get("cidr_ipv4") == "0.0.0.0/0":
+                failed = True
+                reason = "unrestricted outbound to 0.0.0.0/0"
+        
+        elif "password-reuse" in check_id:
+            reuse = row.get("password_reuse_prevention")
+            if reuse is None or reuse < 24:
+                failed = True
+                reason = f"password reuse prevention is {reuse}, should be 24"
+        
+        elif "password-max-age" in check_id:
+            age = row.get("max_password_age")
+            if age is None or age == 0 or age > 90:
+                failed = True
+                reason = f"max password age is {age}, should be 90 or less"
+        
+        elif "cloudfront" in check_id:
+            policy = row.get("viewer_protocol_policy", "")
+            if policy != "https-only" and policy != "redirect-to-https":
+                failed = True
+                reason = f"viewer protocol is {policy}, should be https-only"
+        
+        elif "scan-on-push" in check_id:
+            config = str(row.get("image_scanning_configuration", ""))
+            if "true" not in config.lower():
+                failed = True
+                reason = "scan on push not enabled"
+        
+        elif "sns-topic" in check_id or "alarm" in check_id:
+            pass  # existence is the check — if rows exist, it passes
+        
+        elif "point-in-time" in check_id or "dynamodb-backup" in check_id:
+            pitr = str(row.get("point_in_time_recovery_description", ""))
+            if "ENABLED" not in pitr.upper():
+                failed = True
+                reason = "point-in-time recovery not enabled"
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
