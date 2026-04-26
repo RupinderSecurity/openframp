@@ -1,22 +1,19 @@
 #!/bin/bash
 set -e
 
-# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
 NC='\033[0m'
 BOLD='\033[1m'
 
 echo ""
 echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}${BOLD}║           OpenFRAMP Compliance Scanner           ║${NC}"
-echo -e "${CYAN}${BOLD}║     Open-Source FedRAMP Compliance Pipeline      ║${NC}"
+echo -e "${CYAN}${BOLD}║     Open-Source Multi-Framework Pipeline         ║${NC}"
 echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Check dependencies
 for cmd in steampipe opa python3; do
   if ! command -v $cmd &> /dev/null; then
     echo -e "${RED}ERROR: $cmd is not installed${NC}"
@@ -24,22 +21,27 @@ for cmd in steampipe opa python3; do
   fi
 done
 
-# Check AWS connectivity
-echo -e "${CYAN}Verifying AWS connectivity...${NC}"
-if ! steampipe query --output json "select account_id from aws_account" > /dev/null 2>&1; then
-  echo -e "${RED}ERROR: Cannot connect to AWS. Check credentials.${NC}"
-  exit 1
-fi
-echo -e "${GREEN}Connected.${NC}"
-echo ""
-
-# Run the pipeline
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-python3 oscal/scanner.py catalog/fedramp-moderate-aws.json
+CATALOG="${1:-all}"
 
-echo ""
-echo -e "${CYAN}Output: oscal/assessment-results.json${NC}"
-echo -e "${CYAN}View:   Load the JSON into the OSCAL Viewer${NC}"
+if [ "$CATALOG" = "all" ]; then
+  for catalog_file in catalog/*.json; do
+    echo -e "${CYAN}Running: $catalog_file${NC}"
+    echo ""
+    python3 oscal/scanner.py "$catalog_file"
+    echo ""
+  done
+elif [ -f "$CATALOG" ]; then
+  python3 oscal/scanner.py "$CATALOG"
+else
+  echo -e "${RED}ERROR: Catalog not found: $CATALOG${NC}"
+  echo "Usage: ./scan.sh [catalog-file|all]"
+  echo "Available catalogs:"
+  ls catalog/*.json
+  exit 1
+fi
+
+echo -e "${CYAN}View: Load oscal/assessment-results.json into the OSCAL Viewer${NC}"
 echo ""

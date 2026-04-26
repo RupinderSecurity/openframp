@@ -1,0 +1,324 @@
+{
+  "catalog_version": "1.0.0",
+  "framework": "Multi-Framework",
+  "baseline": "FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2",
+  "provider": "azure",
+  "controls": [
+    {
+      "control_id": "AC-2",
+      "title": "Account Management",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-2", "PCI DSS 8.1", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ac-2-entra-users-enabled",
+          "description": "Entra ID user accounts should be reviewed for active status",
+          "severity": "medium",
+          "query": "select display_name, user_principal_name, account_enabled, created_date_time from azuread_user",
+          "resource_type": "azuread_user"
+        },
+        {
+          "check_id": "ac-2-guest-users",
+          "description": "Guest user accounts should be reviewed and justified",
+          "severity": "medium",
+          "query": "select display_name, user_principal_name, user_type from azuread_user where user_type = 'Guest'",
+          "resource_type": "azuread_user"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-3",
+      "title": "Access Enforcement",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ac-3-storage-no-public-access",
+          "description": "Storage accounts should not allow public blob access",
+          "severity": "high",
+          "query": "select name, allow_blob_public_access from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        },
+        {
+          "check_id": "ac-3-storage-no-public-network",
+          "description": "Storage accounts should restrict network access",
+          "severity": "high",
+          "query": "select name, network_rule_default_action from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-6",
+      "title": "Least Privilege",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
+      "checks": [
+        {
+          "check_id": "ac-6-global-admin-count",
+          "description": "Global Administrator role should have limited assignments",
+          "severity": "critical",
+          "query": "select display_name, member_type from azuread_directory_role_member where role_display_name = 'Global Administrator'",
+          "resource_type": "azuread_directory_role_member"
+        }
+      ]
+    },
+    {
+      "control_id": "AC-17",
+      "title": "Remote Access",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-17", "PCI DSS 8.4", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ac-17-nsg-no-ssh-from-internet",
+          "description": "NSGs should not allow SSH (port 22) from the internet",
+          "severity": "critical",
+          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '22' or destination_port_range = '*')",
+          "resource_type": "azure_network_security_group_rule"
+        },
+        {
+          "check_id": "ac-17-nsg-no-rdp-from-internet",
+          "description": "NSGs should not allow RDP (port 3389) from the internet",
+          "severity": "critical",
+          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '3389' or destination_port_range = '*')",
+          "resource_type": "azure_network_security_group_rule"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-2",
+      "title": "Event Logging",
+      "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
+      "checks": [
+        {
+          "check_id": "au-2-activity-log-exists",
+          "description": "Azure Activity Log should be configured",
+          "severity": "critical",
+          "query": "select name, log_profile_id from azure_subscription",
+          "resource_type": "azure_subscription"
+        },
+        {
+          "check_id": "au-2-diagnostic-settings",
+          "description": "Diagnostic settings should be enabled for audit logging",
+          "severity": "high",
+          "query": "select name, storage_account_id from azure_diagnostic_setting",
+          "resource_type": "azure_diagnostic_setting"
+        }
+      ]
+    },
+    {
+      "control_id": "AU-9",
+      "title": "Protection of Audit Information",
+      "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-9", "PCI DSS 10.5", "SOC 2 CC7.2"],
+      "checks": [
+        {
+          "check_id": "au-9-storage-immutable",
+          "description": "Storage accounts for logs should have immutability policies",
+          "severity": "high",
+          "query": "select name, blob_service_properties from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        }
+      ]
+    },
+    {
+      "control_id": "CM-6",
+      "title": "Configuration Settings",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-6", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "cm-6-defender-enabled",
+          "description": "Microsoft Defender for Cloud should be enabled",
+          "severity": "high",
+          "query": "select name, pricing_tier from azure_security_center_subscription_pricing",
+          "resource_type": "azure_security_center_subscription_pricing"
+        }
+      ]
+    },
+    {
+      "control_id": "CP-9",
+      "title": "System Backup",
+      "family": "Contingency Planning",
+      "frameworks": ["FedRAMP CP-9", "PCI DSS 12.10.1", "SOC 2 A1.2"],
+      "checks": [
+        {
+          "check_id": "cp-9-sql-backup-retention",
+          "description": "SQL databases should have backup retention configured",
+          "severity": "high",
+          "query": "select name, retention_days from azure_sql_database where name != 'master'",
+          "resource_type": "azure_sql_database"
+        }
+      ]
+    },
+    {
+      "control_id": "IA-2",
+      "title": "Identification and Authentication",
+      "family": "Identification and Authentication",
+      "frameworks": ["FedRAMP IA-2", "PCI DSS 8.3.1", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ia-2-entra-mfa-enabled",
+          "description": "Entra ID users should have MFA registered",
+          "severity": "critical",
+          "query": "select display_name, user_principal_name, account_enabled from azuread_user where account_enabled = true",
+          "resource_type": "azuread_user"
+        },
+        {
+          "check_id": "ia-2-conditional-access-policies",
+          "description": "Conditional access policies should be configured for MFA",
+          "severity": "critical",
+          "query": "select display_name, state from azuread_conditional_access_policy",
+          "resource_type": "azuread_conditional_access_policy"
+        }
+      ]
+    },
+    {
+      "control_id": "IA-5",
+      "title": "Authenticator Management",
+      "family": "Identification and Authentication",
+      "frameworks": ["FedRAMP IA-5", "PCI DSS 8.3.6", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ia-5-entra-password-policy",
+          "description": "Entra ID should enforce strong password policies",
+          "severity": "high",
+          "query": "select display_name, password_policies from azuread_user",
+          "resource_type": "azuread_user"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-7",
+      "title": "Boundary Protection",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-7", "PCI DSS 1.2.1", "SOC 2 CC6.6"],
+      "checks": [
+        {
+          "check_id": "sc-7-nsg-unrestricted-inbound",
+          "description": "NSGs should not allow unrestricted inbound on all ports",
+          "severity": "critical",
+          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and destination_port_range = '*'",
+          "resource_type": "azure_network_security_group_rule"
+        },
+        {
+          "check_id": "sc-7-nsg-flow-logs",
+          "description": "NSG flow logs should be enabled",
+          "severity": "high",
+          "query": "select network_watcher_flow_analytics_enabled, name from azure_network_security_group",
+          "resource_type": "azure_network_security_group"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-8",
+      "title": "Transmission Confidentiality and Integrity",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-8", "PCI DSS 4.2.1", "SOC 2 CC6.7"],
+      "checks": [
+        {
+          "check_id": "sc-8-storage-https-only",
+          "description": "Storage accounts should require HTTPS for transfers",
+          "severity": "high",
+          "query": "select name, enable_https_traffic_only from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        },
+        {
+          "check_id": "sc-8-storage-min-tls",
+          "description": "Storage accounts should use TLS 1.2 minimum",
+          "severity": "high",
+          "query": "select name, minimum_tls_version from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        },
+        {
+          "check_id": "sc-8-sql-tls-enforced",
+          "description": "SQL servers should enforce TLS 1.2 minimum",
+          "severity": "high",
+          "query": "select name, minimal_tls_version from azure_sql_server",
+          "resource_type": "azure_sql_server"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-12",
+      "title": "Cryptographic Key Establishment and Management",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-12", "PCI DSS 3.6", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "sc-12-keyvault-soft-delete",
+          "description": "Key Vault should have soft delete enabled",
+          "severity": "high",
+          "query": "select name, soft_delete_enabled, soft_delete_retention_in_days from azure_key_vault",
+          "resource_type": "azure_key_vault"
+        },
+        {
+          "check_id": "sc-12-keyvault-purge-protection",
+          "description": "Key Vault should have purge protection enabled",
+          "severity": "high",
+          "query": "select name, purge_protection_enabled from azure_key_vault",
+          "resource_type": "azure_key_vault"
+        },
+        {
+          "check_id": "sc-12-keyvault-key-expiry",
+          "description": "Key Vault keys should have expiration dates set",
+          "severity": "medium",
+          "query": "select name, enabled, expires_at from azure_key_vault_key",
+          "resource_type": "azure_key_vault_key"
+        }
+      ]
+    },
+    {
+      "control_id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-28", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "sc-28-storage-encryption",
+          "description": "Storage accounts should have encryption enabled",
+          "severity": "high",
+          "query": "select name, encryption_key_source from azure_storage_account",
+          "resource_type": "azure_storage_account"
+        },
+        {
+          "check_id": "sc-28-sql-encryption",
+          "description": "SQL databases should have transparent data encryption enabled",
+          "severity": "high",
+          "query": "select database_name, transparent_data_encryption from azure_sql_database where name != 'master'",
+          "resource_type": "azure_sql_database"
+        },
+        {
+          "check_id": "sc-28-vm-disk-encryption",
+          "description": "VM disks should be encrypted",
+          "severity": "high",
+          "query": "select name, encryption_type from azure_compute_disk",
+          "resource_type": "azure_compute_disk"
+        }
+      ]
+    },
+    {
+      "control_id": "SI-4",
+      "title": "System Monitoring",
+      "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-4", "PCI DSS 10.6.1", "SOC 2 CC7.2"],
+      "checks": [
+        {
+          "check_id": "si-4-security-contacts",
+          "description": "Security contact should be configured in Defender for Cloud",
+          "severity": "medium",
+          "query": "select name, email, alert_notifications from azure_security_center_contact",
+          "resource_type": "azure_security_center_contact"
+        },
+        {
+          "check_id": "si-4-alert-rules",
+          "description": "Activity log alerts should be configured for security events",
+          "severity": "medium",
+          "query": "select name, enabled from azure_log_alert",
+          "resource_type": "azure_log_alert"
+        }
+      ]
+    }
+  ]
+}

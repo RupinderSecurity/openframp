@@ -195,6 +195,96 @@ def evaluate_check(check, query_result):
             if row.get("ping_status") != "Online":
                 failed = True
                 reason = "not managed by SSM"
+
+        elif "storage" in check_id and "public-access" in check_id:
+            if row.get("allow_blob_public_access") == True:
+                failed = True
+                reason = "public blob access allowed"
+        
+        elif "storage" in check_id and "public-network" in check_id:
+            action = row.get("network_rule_default_action", "")
+            if action != "Deny":
+                failed = True
+                reason = f"default network action is {action}, should be Deny"
+        
+        elif "storage" in check_id and "https" in check_id:
+            if row.get("enable_https_traffic_only") == False:
+                failed = True
+                reason = "HTTPS not required"
+        
+        elif "min-tls" in check_id or "tls" in check_id:
+            tls = row.get("minimum_tls_version") or row.get("minimal_tls_version") or ""
+            if tls not in ["TLS1_2", "1.2"]:
+                failed = True
+                reason = f"TLS version is {tls}, should be 1.2"
+        
+        elif "nsg" in check_id and ("ssh" in check_id or "rdp" in check_id or "unrestricted" in check_id):
+            if row.get("source_address_prefix") == "*" and row.get("access") == "Allow":
+                failed = True
+                port = row.get("destination_port_range", "all")
+                reason = f"allows inbound from * on port {port}"
+        
+        elif "keyvault" in check_id and "soft-delete" in check_id:
+            if row.get("soft_delete_enabled") != True:
+                failed = True
+                reason = "soft delete not enabled"
+        
+        elif "keyvault" in check_id and "purge" in check_id:
+            if row.get("purge_protection_enabled") != True:
+                failed = True
+                reason = "purge protection not enabled"
+        
+        elif "keyvault" in check_id and "expiry" in check_id:
+            if row.get("expires_at") is None:
+                failed = True
+                reason = "no expiration date set"
+        
+        elif "defender" in check_id or "pricing" in check_id:
+            tier = row.get("pricing_tier", "")
+            if tier == "Free":
+                failed = True
+                reason = f"Defender pricing tier is Free, should be Standard"
+        
+        elif "conditional-access" in check_id:
+            state = row.get("state", "")
+            if state != "enabled":
+                failed = True
+                reason = f"policy state is {state}"
+        
+        elif "guest" in check_id:
+            failed = True
+            reason = f"guest user found: {row.get('user_principal_name', 'unknown')}"
+        
+        elif "global-admin" in check_id:
+            pass  # existence noted, not auto-failed — but count matters
+        
+        elif "sql" in check_id and "encryption" in check_id:
+            tde = str(row.get("transparent_data_encryption", ""))
+            if "Enabled" not in tde:
+                failed = True
+                reason = "transparent data encryption not enabled"
+        
+        elif "disk-encryption" in check_id:
+            enc_type = row.get("encryption_type", "")
+            if not enc_type or enc_type == "None":
+                failed = True
+                reason = "disk not encrypted"
+        
+        elif "flow-log" in check_id or "flow_log" in check_id:
+            if row.get("network_watcher_flow_analytics_enabled") != True:
+                failed = True
+                reason = "flow logs not enabled"
+        
+        elif "security-contact" in check_id:
+            email = row.get("email", "")
+            if not email:
+                failed = True
+                reason = "no security contact email configured"
+        
+        elif "alert" in check_id and "log" in check_id:
+            if row.get("enabled") != True:
+                failed = True
+                reason = "alert not enabled"
         
         elif "root-access-key" in check_id:
             if row.get("account_access_keys_present") == 1:
