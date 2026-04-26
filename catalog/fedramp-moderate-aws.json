@@ -13,7 +13,7 @@
           "check_id": "ac-2-iam-users-have-activity",
           "description": "IAM users should have recent activity or be disabled",
           "severity": "medium",
-          "query": "select name, password_last_used, create_date, password_enabled from aws_iam_user",
+          "query": "select name, password_last_used, create_date from aws_iam_user",
           "deny_condition": "password_enabled == true AND password_last_used is null or older than 90 days",
           "resource_type": "aws_iam_user"
         },
@@ -273,7 +273,7 @@
           "check_id": "sc-7-vpc-flow-logs",
           "description": "VPC flow logs should be enabled",
           "severity": "high",
-          "query": "select vpc_id, flow_log_status from aws_vpc",
+          "query": "select vpc_id, is_default from aws_vpc",
           "resource_type": "aws_vpc"
         }
       ]

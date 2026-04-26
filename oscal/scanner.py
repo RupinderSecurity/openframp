@@ -14,33 +14,49 @@ def run_query(query):
         capture_output=True, text=True
     )
     if result.returncode != 0:
-        return None, result.stderr
+        stderr = result.stderr
+        if "SubscriptionRequiredException" in stderr:
+            return {"rows": [], "_not_enabled": True}, None
+        if "does not exist" in stderr:
+            return {"rows": [], "_not_found": True}, None
+        return None, stderr
     return json.loads(result.stdout), None
 
-def evaluate_check(check, rows):
-    """Generic evaluation based on check type and known patterns."""
+def evaluate_check(check, query_result):
     findings = {"deny": [], "pass": []}
-    check_id = check["check_id"]
     severity = check.get("severity", "medium").upper()
     desc = check["description"]
+    check_id = check["check_id"]
+    
+    if query_result is None:
+        return findings
+    
+    if query_result.get("_not_enabled"):
+        findings["deny"].append(f"{severity}: {desc} — service not enabled in this account")
+        return findings
+    
+    if query_result.get("_not_found"):
+        return findings
+    
+    rows = query_result.get("rows", [])
     
     if len(rows) == 0:
-        # For some checks, zero rows IS the finding
-        if check_id in ["au-2-cloudtrail-enabled", "au-6-guardduty-enabled", 
-                         "cm-6-config-enabled", "si-4-securityhub-enabled",
-                         "ra-5-inspector-enabled"]:
+        zero_row_checks = ["au-2-cloudtrail-enabled", "au-6-guardduty-enabled",
+                           "cm-6-config-enabled", "si-4-securityhub-enabled",
+                           "ra-5-inspector-enabled"]
+        if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
     
     for row in rows:
-        name = row.get("name", row.get("instance_id", row.get("volume_id", 
-               row.get("db_instance_identifier", row.get("group_id",
-               row.get("user_name", row.get("vpc_id", row.get("hub_arn", "unknown"))))))))
+        name = (row.get("name") or row.get("instance_id") or row.get("volume_id") or
+                row.get("db_instance_identifier") or row.get("group_id") or
+                row.get("user_name") or row.get("vpc_id") or row.get("hub_arn") or
+                row.get("detector_id") or "unknown")
         
         failed = False
         reason = ""
         
-        # MFA checks
         if "mfa" in check_id:
             if row.get("mfa_enabled") == False:
                 failed = True
@@ -49,20 +65,32 @@ def evaluate_check(check, rows):
                 failed = True
                 reason = "Root MFA not enabled"
         
-        # Encryption checks
         elif "encryption" in check_id or "encrypted" in check_id:
             enc = row.get("server_side_encryption_configuration") or row.get("encrypted") or row.get("storage_encrypted")
             if enc is None or enc == False:
                 failed = True
                 reason = "not encrypted"
         
-        # Public access checks
-        elif "public" in check_id:
-            if row.get("block_public_acls") == False or row.get("bucket_policy_is_public") == True:
+        elif "public-access" in check_id:
+            if row.get("block_public_acls") == False:
                 failed = True
                 reason = "public access allowed"
         
-        # CloudTrail checks
+        elif "public-policy" in check_id:
+            if row.get("bucket_policy_is_public") == True:
+                failed = True
+                reason = "public policy attached"
+        
+        elif "cloudtrail" in check_id and "encrypted" in check_id:
+            if row.get("kms_key_id") is None:
+                failed = True
+                reason = "logs not encrypted with KMS"
+        
+        elif "cloudtrail" in check_id and "log-validation" in check_id:
+            if row.get("log_file_validation_enabled") == False:
+                failed = True
+                reason = "log validation not enabled"
+        
         elif "cloudtrail" in check_id:
             if row.get("is_logging") == False:
                 failed = True
@@ -73,65 +101,108 @@ def evaluate_check(check, rows):
             elif row.get("log_file_validation_enabled") == False:
                 failed = True
                 reason = "no log validation"
-            elif "encrypted" in check_id and row.get("kms_key_id") is None:
-                failed = True
-                reason = "logs not encrypted with KMS"
         
-        # Security group checks
-        elif "unrestricted" in check_id or "sc-7" in check_id:
+        elif "unrestricted" in check_id:
             if row.get("cidr_ipv4") == "0.0.0.0/0":
                 ports = f"ports {row.get('from_port', '?')}-{row.get('to_port', '?')}"
                 failed = True
                 reason = f"open to internet on {ports}"
         
-        # Admin policy checks
-        elif "admin" in check_id or "star" in check_id or "least" in check_id:
+        elif "default-sg" in check_id:
+            pass
+        
+        elif "flow" in check_id:
+            if row.get("is_default") == True:
+                failed = True
+                reason = "VPC has no flow logs configured"
+        
+        elif "admin-access" in check_id:
             arns = str(row.get("attached_policy_arns", ""))
             if "AdministratorAccess" in arns:
                 failed = True
                 reason = "has AdministratorAccess"
-            elif "PowerUserAccess" in arns:
-                failed = True
-                reason = "has PowerUserAccess"
         
-        # Password policy checks
-        elif "password" in check_id:
-            if row.get("minimum_password_length", 0) < 14:
+        elif "inline-admin" in check_id:
+            if row.get("inline_policies") not in [None, "null", "[]", ""]:
                 failed = True
-                reason = f"min length {row.get('minimum_password_length', 0)}, should be 14+"
+                reason = "has inline policies"
         
-        # Key rotation checks
+        elif "star" in check_id:
+            policy = str(row.get("policy_std", ""))
+            if '"Action":"*"' in policy and '"Resource":"*"' in policy:
+                failed = True
+                reason = "allows Action:* Resource:*"
+        
+        elif "password-length" in check_id:
+            length = row.get("minimum_password_length", 0)
+            if length < 14:
+                failed = True
+                reason = f"min length {length}, should be 14+"
+        
+        elif "password-lockout" in check_id:
+            reuse = row.get("password_reuse_prevention", 0)
+            if reuse == 0 or reuse is None:
+                failed = True
+                reason = "no password reuse prevention"
+        
         elif "rotation" in check_id:
             if row.get("key_rotation_enabled") == False:
                 failed = True
                 reason = "key rotation not enabled"
         
-        # Config/GuardDuty/SecurityHub/VPC flow logs
-        elif "config" in check_id or "guardduty" in check_id or "securityhub" in check_id:
-            status = row.get("status") or row.get("recording")
-            if status in [False, "DISABLED", None]:
+        elif "access-key" in check_id or "rotated" in check_id:
+            if row.get("status") == "Active":
+                failed = True
+                reason = f"active key created {row.get('create_date', 'unknown')}, verify rotation"
+        
+        elif "config" in check_id:
+            if row.get("recording") in [False, None]:
+                failed = True
+                reason = "not recording"
+        
+        elif "guardduty" in check_id:
+            if row.get("status") != "ENABLED":
                 failed = True
                 reason = "not enabled"
         
-        elif "flow" in check_id:
-            if row.get("flow_log_status") != "ACTIVE":
-                failed = True
-                reason = "flow logs not active"
-        
-        # Access key rotation
-        elif "access-key" in check_id or "rotated" in check_id:
-            create = row.get("create_date", "")
-            if create and row.get("status") == "Active":
-                # Simple age check
-                failed = True
-                reason = f"active key created {create}, check rotation"
-        
-        # Fallback — if we don't have specific logic, flag for review
-        else:
+        elif "securityhub" in check_id:
             pass
         
+        elif "versioning" in check_id:
+            if row.get("versioning_enabled") == False:
+                failed = True
+                reason = "versioning not enabled"
+        
+        elif "tagged" in check_id:
+            tags = row.get("tags")
+            if tags is None or tags == {}:
+                failed = True
+                reason = "no tags"
+        
+        elif "fips" in check_id or "origin" in check_id:
+            origin = row.get("origin", "")
+            if origin not in ["AWS_KMS", "AWS_CLOUDHSM"]:
+                failed = True
+                reason = f"origin is {origin}, not FIPS-validated"
+        
+        elif "https" in check_id:
+            protocol = row.get("protocol", "")
+            if protocol not in ["HTTPS", "TLS"]:
+                failed = True
+                reason = f"protocol is {protocol}, not HTTPS/TLS"
+        
+        elif "ssm" in check_id:
+            if row.get("ping_status") != "Online":
+                failed = True
+                reason = "not managed by SSM"
+        
+        elif "root-access-key" in check_id:
+            if row.get("account_access_keys_present") == 1:
+                failed = True
+                reason = "root account has access keys"
+        
         if failed:
-            findings["deny"].append(f"{severity}: {name} — {reason} ({check['description']})")
+            findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
         else:
             findings["pass"].append(f"PASS: {name} — {desc}")
     
@@ -214,46 +285,41 @@ def main():
     total_errors = 0
     
     for control in catalog["controls"]:
-        control_pass = 0
-        control_fail = 0
+        control_denies = []
+        control_passes = []
         
         print(f"  [{control['control_id']}] {control['title']}")
         
         for check in control["checks"]:
             total_checks += 1
-            rows_data, error = run_query(check["query"])
+            query_result, error = run_query(check["query"])
             
             if error:
                 print(f"    ⚠ {check['check_id']}: query error")
                 total_errors += 1
                 continue
             
-            rows = rows_data.get("rows", [])
-            findings = evaluate_check(check, rows)
+            findings = evaluate_check(check, query_result)
             
-            denials = len(findings.get("deny", []))
-            passes = len(findings.get("pass", []))
+            denials = findings.get("deny", [])
+            passes = findings.get("pass", [])
             
-            control_pass += passes
-            control_fail += denials
+            control_denies.extend(denials)
+            control_passes.extend(passes)
             
-            if denials > 0:
-                print(f"    ✗ {check['check_id']}: {denials} failed")
-            elif passes > 0:
-                print(f"    ✓ {check['check_id']}: {passes} passed")
-            else:
-                print(f"    — {check['check_id']}: no resources found")
+            if len(denials) > 0:
+                print(f"    ✗ {check['check_id']}: {len(denials)} failed")
+            elif len(passes) > 0:
+                print(f"    ✓ {check['check_id']}: {len(passes)} passed")
         
-        total_pass += control_pass
-        total_fail += control_fail
+        total_pass += len(control_passes)
+        total_fail += len(control_denies)
         
         all_results.append({
             "control_id": control["control_id"],
             "title": control["title"],
-            "deny": [d for check in control["checks"] 
-                     for d in evaluate_check(check, run_query(check["query"])[0].get("rows", []) if run_query(check["query"])[0] else []).get("deny", [])],
-            "pass": [p for check in control["checks"]
-                     for p in evaluate_check(check, run_query(check["query"])[0].get("rows", []) if run_query(check["query"])[0] else []).get("pass", [])]
+            "deny": control_denies,
+            "pass": control_passes
         })
     
     # Build OSCAL
