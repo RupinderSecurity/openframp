@@ -27,12 +27,7 @@ cd "$SCRIPT_DIR"
 CATALOG="${1:-all}"
 
 if [ "$CATALOG" = "all" ]; then
-  for catalog_file in catalog/*.json; do
-    echo -e "${CYAN}Running: $catalog_file${NC}"
-    echo ""
-    python3 oscal/scanner.py "$catalog_file"
-    echo ""
-  done
+  python3 oscal/scanner.py catalog/*.json
 elif [ -f "$CATALOG" ]; then
   python3 oscal/scanner.py "$CATALOG"
 else

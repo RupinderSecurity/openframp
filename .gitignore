@@ -4,4 +4,5 @@
 *.tfstate.backup
 *.tfvars
 .DS_Store
-oscal/assessment-results.json
+oscal/assessment-results-*.json
+*.bak

@@ -435,81 +435,115 @@ def build_oscal(all_results, catalog):
     return oscal_ar
 
 def main():
-    catalog_path = sys.argv[1] if len(sys.argv) > 1 else "catalog/fedramp-moderate-aws.json"
-    
-    catalog = load_catalog(catalog_path)
-    
-    print("=" * 60)
-    print(f"OpenFRAMP — {catalog['framework']} Scanner")
-    print(f"Provider: {catalog['provider'].upper()} | Baseline: {catalog['baseline']}")
-    print("=" * 60)
-    print()
-    
-    all_results = []
-    total_pass = 0
-    total_fail = 0
-    total_checks = 0
-    total_errors = 0
-    
-    for control in catalog["controls"]:
-        control_denies = []
-        control_passes = []
-        
-        print(f"  [{control['control_id']}] {control['title']}")
-        
-        for check in control["checks"]:
-            total_checks += 1
-            query_result, error = run_query(check["query"])
-            
-            if error:
-                print(f"    ⚠ {check['check_id']}: query error")
-                total_errors += 1
-                continue
-            
-            findings = evaluate_check(check, query_result)
-            
-            denials = findings.get("deny", [])
-            passes = findings.get("pass", [])
-            
-            control_denies.extend(denials)
-            control_passes.extend(passes)
-            
-            if len(denials) > 0:
-                print(f"    ✗ {check['check_id']}: {len(denials)} failed")
-            elif len(passes) > 0:
-                print(f"    ✓ {check['check_id']}: {len(passes)} passed")
-        
-        total_pass += len(control_passes)
-        total_fail += len(control_denies)
-        
-        all_results.append({
-            "control_id": control["control_id"],
-            "title": control["title"],
-            "deny": control_denies,
-            "pass": control_passes
-        })
-    
-    # Build OSCAL
-    oscal_ar = build_oscal(all_results, catalog)
-    output_path = "oscal/assessment-results.json"
-    with open(output_path, "w") as f:
-        json.dump(oscal_ar, f, indent=2)
-    
-    print()
-    print("=" * 60)
-    controls_checked = len(catalog["controls"])
-    ksi_covered = set()
-    for control in catalog["controls"]:
-        for check in control.get("checks", []):
-            for ksi in check.get("fedramp_20x_ksi", []):
-                ksi_covered.add(ksi)
-    ksi_total = 61  # FedRAMP 20x Moderate total
-    print(f"Controls scanned: {controls_checked}")
-    print(f"Individual checks: {total_checks} ({total_errors} errors)")
-    print(f"FedRAMP 20x KSI coverage: {len(ksi_covered)} of {ksi_total} Moderate KSIs")
-    print(f"Results: {total_pass} passed, {total_fail} failed")
-    print(f"OSCAL output: {output_path}")
-    print("=" * 60)
+    # NEW: accept one or many catalogs
+    catalog_paths = sys.argv[1:] if len(sys.argv) > 1 else ["catalog/fedramp-moderate-aws.json"]
+
+    # NEW: track combined coverage across all catalogs in this run
+    combined_ksi_covered = set()
+    combined_total_checks = 0
+    combined_total_pass = 0
+    combined_total_fail = 0
+    combined_total_errors = 0
+    output_files = []
+
+    for catalog_path in catalog_paths:
+        catalog = load_catalog(catalog_path)
+
+        print("=" * 60)
+        print(f"OpenFRAMP — {catalog['framework']} Scanner")
+        print(f"Provider: {catalog['provider'].upper()} | Baseline: {catalog['baseline']}")
+        print("=" * 60)
+        print()
+
+        all_results = []
+        total_pass = 0
+        total_fail = 0
+        total_checks = 0
+        total_errors = 0
+
+        for control in catalog["controls"]:
+            control_denies = []
+            control_passes = []
+
+            print(f"  [{control['control_id']}] {control['title']}")
+
+            for check in control["checks"]:
+                total_checks += 1
+                query_result, error = run_query(check["query"])
+
+                if error:
+                    print(f"    ⚠ {check['check_id']}: query error")
+                    total_errors += 1
+                    continue
+
+                findings = evaluate_check(check, query_result)
+
+                denials = findings.get("deny", [])
+                passes = findings.get("pass", [])
+
+                control_denies.extend(denials)
+                control_passes.extend(passes)
+
+                if len(denials) > 0:
+                    print(f"    ✗ {check['check_id']}: {len(denials)} failed")
+                elif len(passes) > 0:
+                    print(f"    ✓ {check['check_id']}: {len(passes)} passed")
+
+            total_pass += len(control_passes)
+            total_fail += len(control_denies)
+
+            all_results.append({
+                "control_id": control["control_id"],
+                "title": control["title"],
+                "deny": control_denies,
+                "pass": control_passes
+            })
+
+        # NEW: per-catalog OSCAL output filename derived from provider
+        oscal_ar = build_oscal(all_results, catalog)
+        provider = catalog['provider'].lower()
+        output_path = f"oscal/assessment-results-{provider}.json"
+        with open(output_path, "w") as f:
+            json.dump(oscal_ar, f, indent=2)
+        output_files.append(output_path)
+
+        # Per-catalog banner (existing)
+        print()
+        print("=" * 60)
+        controls_checked = len(catalog["controls"])
+
+        ksi_covered = set()
+        for control in catalog["controls"]:
+            for check in control.get("checks", []):
+                for ksi in check.get("fedramp_20x_ksi", []):
+                    ksi_covered.add(ksi)
+        ksi_total = 61  # FedRAMP 20x Moderate total
+
+        print(f"Controls scanned: {controls_checked}")
+        print(f"Individual checks: {total_checks} ({total_errors} errors)")
+        print(f"FedRAMP 20x KSI coverage: {len(ksi_covered)} of {ksi_total} Moderate KSIs")
+        print(f"Results: {total_pass} passed, {total_fail} failed")
+        print(f"OSCAL output: {output_path}")
+        print("=" * 60)
+        print()
+
+        # NEW: aggregate into combined totals
+        combined_ksi_covered.update(ksi_covered)
+        combined_total_checks += total_checks
+        combined_total_pass += total_pass
+        combined_total_fail += total_fail
+        combined_total_errors += total_errors
+
+    # NEW: combined banner if more than one catalog scanned
+    if len(catalog_paths) > 1:
+        print("=" * 60)
+        print(f"Combined coverage across {len(catalog_paths)} catalogs ({', '.join(p.split('/')[-1] for p in catalog_paths)})")
+        print(f"Individual checks: {combined_total_checks} ({combined_total_errors} errors)")
+        print(f"FedRAMP 20x KSI coverage: {len(combined_ksi_covered)} of 61 Moderate KSIs (union)")
+        print(f"Results: {combined_total_pass} passed, {combined_total_fail} failed")
+        print(f"OSCAL outputs: {', '.join(output_files)}")
+        print("=" * 60)
+        print()
 
 if __name__ == "__main__":
     main()
