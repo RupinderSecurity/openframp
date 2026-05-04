@@ -26,11 +26,11 @@ Once a week (Sunday recommended), do the [Weekly Review](#weekly-review-template
 ## At-a-glance status
 
 ```
-Tier A (V1-Critical):     ▓░░░░░░░░░  ~13%  (1.5/10 items done)
+Tier A (V1-Critical):     ▓▓░░░░░░░░  ~20%  (2/10 items done)
 Tier B (V1-Supporting):   ░░░░░░░░░░   0%  (0/6 items done)
 Tier C (V1.5 / Polish):   ░░░░░░░░░░   0%  (0/5 items done)
 
-Overall V1:                ▓░░░░░░░░░   5%  (1/21 items done)
+Overall V1:                ▓▓░░░░░░░░  ~10%  (2/21 items done)
 ```
 
 > Update this manually when status changes. Keep it visual — easy to skim.
@@ -98,7 +98,7 @@ The strategic positioning move. Adds FedRAMP 20x relevance without rewriting che
 - [x] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-aws.json` (use mapping table from Obsidian note)
 - [x] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-azure.json`
 - [x] Update scanner output banner to show "FedRAMP 20x KSI coverage: X / 61"
-- [ ] Update OSCAL Assessment Results emission to include KSI references
+- [x] Update OSCAL Assessment Results emission to include KSI references
 - [x] Verify scan still passes after schema change
 
 **Estimate:** 6-10 hours · **Status:** not started · **Owner:** RPS
@@ -358,9 +358,9 @@ July 31 is the aggressive target. August 31 is realistic. September 15 is the wo
 
 > Update at the end of every working session. Format: `YYYY-MM-DD (Day) — what you did. Hours: N. Tier: X. Items touched: [list].` Keep entries to 2-4 lines max.
 
-### 2026-05-03 (Sunday evening, late session) — KSI mapping + scanner banner
-Mapped FedRAMP 20x KSI codes to all 85 checks across AWS (57) and Azure (28) catalogs. Updated scanner.py to compute and display unique KSI coverage in banner. AWS scan now shows 23 of 61 KSIs covered, Azure shows 15. Scanner runs clean with 0 errors after policy v2 is fully exercised.
-Hours: ~3. Tier: A. Items touched: A3 (5 of 6 sub-items complete).
+### 2026-05-03 (Sunday) — KSI mapping, multi-catalog architecture, OSCAL precision
+Mapped FedRAMP 20x KSI codes to all 85 checks across AWS (57) and Azure (28). Refactored scanner to accept multiple catalogs in one invocation with per-provider OSCAL output files. Restructured build_oscal to emit one result per check (not per control) with namespaced KSI props. AWS catalog covers 23 unique KSIs, Azure 15, combined union 23. A3 fully complete.
+Hours: ~5. Tier: A. Items completed: A3.
 
 ### 2026-04-29 (Tuesday) — IAM hardening lesson, V1 plan creation
 Worked through Lesson 1 of the Build-and-Secure CLI Lab. Created `openframp-scanner-readonly` policy v1 then v2. Set up `rupinder-admin` user with MFA. Locked self out then recovered (educational). Built this project plan.
