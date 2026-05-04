@@ -94,9 +94,9 @@ Take the parsed SSP structure and emit valid OSCAL 1.1 JSON.
 
 The strategic positioning move. Adds FedRAMP 20x relevance without rewriting checks.
 
-- [ ] Read the official FedRAMP 20x KSI spec (already done — see Obsidian note FedRAMP-20x-KSI-Explainer)
-- [ ] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-aws.json` (use mapping table from Obsidian note)
-- [ ] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-azure.json`
+- [x] Read the official FedRAMP 20x KSI spec (already done — see Obsidian note FedRAMP-20x-KSI-Explainer)
+- [x] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-aws.json` (use mapping table from Obsidian note)
+- [x] Add `fedramp_20x_ksi` array to every check in `catalog/fedramp-moderate-azure.json`
 - [ ] Update scanner output banner to show "FedRAMP 20x KSI coverage: X / 61"
 - [ ] Update OSCAL Assessment Results emission to include KSI references
 - [ ] Verify scan still passes after schema change
