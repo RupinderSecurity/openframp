@@ -38,5 +38,5 @@ else
   exit 1
 fi
 
-echo -e "${CYAN}View: Load oscal/assessment-results.json into the OSCAL Viewer${NC}"
+echo -e "${CYAN}View: Load oscal/assessment-results-*.json into the OSCAL Viewer${NC}"
 echo ""

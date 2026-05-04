@@ -377,7 +377,8 @@ def evaluate_check(check, query_result):
 
 def build_oscal(all_results, catalog):
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
+    KSI_NS = "https://fedramp.gov/ns/oscal"
+
     oscal_ar = {
         "assessment-results": {
             "uuid": str(uuid.uuid4()),
@@ -396,16 +397,31 @@ def build_oscal(all_results, catalog):
             "results": []
         }
     }
-    
+
     for result in all_results:
+        # Build the props list for this result, including KSI references
+        props = [
+            {"name": "control-id", "value": result["control_id"]},
+            {"name": "check-id", "value": result["check_id"]},
+            {"name": "severity", "value": result["severity"]}
+        ]
+        # One prop per KSI — OSCAL convention for multi-valued metadata
+        for ksi in result.get("fedramp_20x_ksi", []):
+            props.append({
+                "name": "fedramp-20x-ksi",
+                "ns": KSI_NS,
+                "value": ksi
+            })
+
         r = {
             "uuid": str(uuid.uuid4()),
-            "title": f"{result['control_id']} — {result['title']}",
-            "description": result["title"],
+            "title": f"{result['check_id']} — {result['check_description']}",
+            "description": result["check_description"],
             "start": now,
+            "props": props,
             "findings": []
         }
-        
+
         for d in result.get("deny", []):
             r["findings"].append({
                 "uuid": str(uuid.uuid4()),
@@ -417,7 +433,7 @@ def build_oscal(all_results, catalog):
                     "status": {"state": "not-satisfied"}
                 }
             })
-        
+
         for p in result.get("pass", []):
             r["findings"].append({
                 "uuid": str(uuid.uuid4()),
@@ -429,9 +445,9 @@ def build_oscal(all_results, catalog):
                     "status": {"state": "satisfied"}
                 }
             })
-        
+
         oscal_ar["assessment-results"]["results"].append(r)
-    
+
     return oscal_ar
 
 def main():
@@ -462,9 +478,6 @@ def main():
         total_errors = 0
 
         for control in catalog["controls"]:
-            control_denies = []
-            control_passes = []
-
             print(f"  [{control['control_id']}] {control['title']}")
 
             for check in control["checks"]:
@@ -481,23 +494,25 @@ def main():
                 denials = findings.get("deny", [])
                 passes = findings.get("pass", [])
 
-                control_denies.extend(denials)
-                control_passes.extend(passes)
-
                 if len(denials) > 0:
                     print(f"    ✗ {check['check_id']}: {len(denials)} failed")
                 elif len(passes) > 0:
                     print(f"    ✓ {check['check_id']}: {len(passes)} passed")
 
-            total_pass += len(control_passes)
-            total_fail += len(control_denies)
+                total_pass += len(passes)
+                total_fail += len(denials)
 
-            all_results.append({
-                "control_id": control["control_id"],
-                "title": control["title"],
-                "deny": control_denies,
-                "pass": control_passes
-            })
+                # NEW: emit one result per check (not per control)
+                all_results.append({
+                    "control_id": control["control_id"],
+                    "control_title": control["title"],
+                    "check_id": check["check_id"],
+                    "check_description": check.get("description", ""),
+                    "severity": check.get("severity", "medium"),
+                    "fedramp_20x_ksi": check.get("fedramp_20x_ksi", []),
+                    "deny": denials,
+                    "pass": passes
+                })
 
         # NEW: per-catalog OSCAL output filename derived from provider
         oscal_ar = build_oscal(all_results, catalog)
