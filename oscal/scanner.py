@@ -498,8 +498,15 @@ def main():
     print()
     print("=" * 60)
     controls_checked = len(catalog["controls"])
+    ksi_covered = set()
+    for control in catalog["controls"]:
+        for check in control.get("checks", []):
+            for ksi in check.get("fedramp_20x_ksi", []):
+                ksi_covered.add(ksi)
+    ksi_total = 61  # FedRAMP 20x Moderate total
     print(f"Controls scanned: {controls_checked}")
     print(f"Individual checks: {total_checks} ({total_errors} errors)")
+    print(f"FedRAMP 20x KSI coverage: {len(ksi_covered)} of {ksi_total} Moderate KSIs")
     print(f"Results: {total_pass} passed, {total_fail} failed")
     print(f"OSCAL output: {output_path}")
     print("=" * 60)
