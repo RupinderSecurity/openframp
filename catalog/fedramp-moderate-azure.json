@@ -15,14 +15,16 @@
           "description": "Entra ID user accounts should be reviewed for active status",
           "severity": "medium",
           "query": "select display_name, user_principal_name, account_enabled, created_date_time from azuread_user",
-          "resource_type": "azuread_user"
+          "resource_type": "azuread_user",
+          "fedramp_20x_ksi": ["KSI-IAM-07"]
         },
         {
           "check_id": "ac-2-guest-users",
           "description": "Guest user accounts should be reviewed and justified",
           "severity": "medium",
           "query": "select display_name, user_principal_name, user_type from azuread_user where user_type = 'Guest'",
-          "resource_type": "azuread_user"
+          "resource_type": "azuread_user",
+          "fedramp_20x_ksi": ["KSI-IAM-05", "KSI-IAM-07"]
         }
       ]
     },
@@ -37,14 +39,16 @@
           "description": "Storage accounts should not allow public blob access",
           "severity": "high",
           "query": "select name, allow_blob_public_access from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
         },
         {
           "check_id": "ac-3-storage-no-public-network",
           "description": "Storage accounts should restrict network access",
           "severity": "high",
           "query": "select name, network_rule_default_action from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         }
       ]
     },
@@ -59,7 +63,8 @@
           "description": "Global Administrator role should have limited assignments",
           "severity": "critical",
           "query": "select display_name, member_type from azuread_directory_role_member where role_display_name = 'Global Administrator'",
-          "resource_type": "azuread_directory_role_member"
+          "resource_type": "azuread_directory_role_member",
+          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
         }
       ]
     },
@@ -74,14 +79,16 @@
           "description": "NSGs should not allow SSH (port 22) from the internet",
           "severity": "critical",
           "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '22' or destination_port_range = '*')",
-          "resource_type": "azure_network_security_group_rule"
+          "resource_type": "azure_network_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
         {
           "check_id": "ac-17-nsg-no-rdp-from-internet",
           "description": "NSGs should not allow RDP (port 3389) from the internet",
           "severity": "critical",
           "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '3389' or destination_port_range = '*')",
-          "resource_type": "azure_network_security_group_rule"
+          "resource_type": "azure_network_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         }
       ]
     },
@@ -96,14 +103,16 @@
           "description": "Azure Activity Log should be configured",
           "severity": "critical",
           "query": "select name, log_profile_id from azure_subscription",
-          "resource_type": "azure_subscription"
+          "resource_type": "azure_subscription",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-MLA-07"]
         },
         {
           "check_id": "au-2-diagnostic-settings",
           "description": "Diagnostic settings should be enabled for audit logging",
           "severity": "high",
           "query": "select name, storage_account_id from azure_diagnostic_setting",
-          "resource_type": "azure_diagnostic_setting"
+          "resource_type": "azure_diagnostic_setting",
+          "fedramp_20x_ksi": ["KSI-MLA-02", "KSI-MLA-07"]
         }
       ]
     },
@@ -118,7 +127,8 @@
           "description": "Storage accounts for logs should have immutability policies",
           "severity": "high",
           "query": "select name, blob_service_properties from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-MLA-01"]
         }
       ]
     },
@@ -133,7 +143,8 @@
           "description": "Microsoft Defender for Cloud should be enabled",
           "severity": "high",
           "query": "select name, pricing_tier from azure_security_center_subscription_pricing",
-          "resource_type": "azure_security_center_subscription_pricing"
+          "resource_type": "azure_security_center_subscription_pricing",
+          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-MLA-01", "KSI-CNA-05"]
         }
       ]
     },
@@ -148,7 +159,8 @@
           "description": "SQL databases should have backup retention configured",
           "severity": "high",
           "query": "select name, retention_days from azure_sql_database where name != 'master'",
-          "resource_type": "azure_sql_database"
+          "resource_type": "azure_sql_database",
+          "fedramp_20x_ksi": ["KSI-RPL-03"]
         }
       ]
     },
@@ -163,14 +175,16 @@
           "description": "Entra ID users should have MFA registered",
           "severity": "critical",
           "query": "select display_name, user_principal_name, account_enabled from azuread_user where account_enabled = true",
-          "resource_type": "azuread_user"
+          "resource_type": "azuread_user",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         },
         {
           "check_id": "ia-2-conditional-access-policies",
           "description": "Conditional access policies should be configured for MFA",
           "severity": "critical",
           "query": "select display_name, state from azuread_conditional_access_policy",
-          "resource_type": "azuread_conditional_access_policy"
+          "resource_type": "azuread_conditional_access_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-01", "KSI-IAM-04"]
         }
       ]
     },
@@ -185,7 +199,8 @@
           "description": "Entra ID should enforce strong password policies",
           "severity": "high",
           "query": "select display_name, password_policies from azuread_user",
-          "resource_type": "azuread_user"
+          "resource_type": "azuread_user",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         }
       ]
     },
@@ -200,14 +215,16 @@
           "description": "NSGs should not allow unrestricted inbound on all ports",
           "severity": "critical",
           "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and destination_port_range = '*'",
-          "resource_type": "azure_network_security_group_rule"
+          "resource_type": "azure_network_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
         {
           "check_id": "sc-7-nsg-flow-logs",
           "description": "NSG flow logs should be enabled",
           "severity": "high",
           "query": "select network_watcher_flow_analytics_enabled, name from azure_network_security_group",
-          "resource_type": "azure_network_security_group"
+          "resource_type": "azure_network_security_group",
+          "fedramp_20x_ksi": ["KSI-MLA-07"]
         }
       ]
     },
@@ -222,21 +239,24 @@
           "description": "Storage accounts should require HTTPS for transfers",
           "severity": "high",
           "query": "select name, enable_https_traffic_only from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-8-storage-min-tls",
           "description": "Storage accounts should use TLS 1.2 minimum",
           "severity": "high",
           "query": "select name, minimum_tls_version from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-8-sql-tls-enforced",
           "description": "SQL servers should enforce TLS 1.2 minimum",
           "severity": "high",
           "query": "select name, minimal_tls_version from azure_sql_server",
-          "resource_type": "azure_sql_server"
+          "resource_type": "azure_sql_server",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         }
       ]
     },
@@ -251,21 +271,24 @@
           "description": "Key Vault should have soft delete enabled",
           "severity": "high",
           "query": "select name, soft_delete_enabled, soft_delete_retention_in_days from azure_key_vault",
-          "resource_type": "azure_key_vault"
+          "resource_type": "azure_key_vault",
+          "fedramp_20x_ksi": ["KSI-SVC-06"]
         },
         {
           "check_id": "sc-12-keyvault-purge-protection",
           "description": "Key Vault should have purge protection enabled",
           "severity": "high",
           "query": "select name, purge_protection_enabled from azure_key_vault",
-          "resource_type": "azure_key_vault"
+          "resource_type": "azure_key_vault",
+          "fedramp_20x_ksi": ["KSI-SVC-06"]
         },
         {
           "check_id": "sc-12-keyvault-key-expiry",
           "description": "Key Vault keys should have expiration dates set",
           "severity": "medium",
           "query": "select name, enabled, expires_at from azure_key_vault_key",
-          "resource_type": "azure_key_vault_key"
+          "resource_type": "azure_key_vault_key",
+          "fedramp_20x_ksi": ["KSI-SVC-06"]
         }
       ]
     },
@@ -280,21 +303,24 @@
           "description": "Storage accounts should have encryption enabled",
           "severity": "high",
           "query": "select name, encryption_key_source from azure_storage_account",
-          "resource_type": "azure_storage_account"
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-sql-encryption",
           "description": "SQL databases should have transparent data encryption enabled",
           "severity": "high",
           "query": "select database_name, transparent_data_encryption from azure_sql_database where name != 'master'",
-          "resource_type": "azure_sql_database"
+          "resource_type": "azure_sql_database",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-vm-disk-encryption",
           "description": "VM disks should be encrypted",
           "severity": "high",
           "query": "select name, encryption_type from azure_compute_disk",
-          "resource_type": "azure_compute_disk"
+          "resource_type": "azure_compute_disk",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         }
       ]
     },
@@ -309,14 +335,16 @@
           "description": "Security contact should be configured in Defender for Cloud",
           "severity": "medium",
           "query": "select name, email, alert_notifications from azure_security_center_contact",
-          "resource_type": "azure_security_center_contact"
+          "resource_type": "azure_security_center_contact",
+          "fedramp_20x_ksi": ["KSI-INR-01"]
         },
         {
           "check_id": "si-4-alert-rules",
           "description": "Activity log alerts should be configured for security events",
           "severity": "medium",
           "query": "select name, enabled from azure_log_alert",
-          "resource_type": "azure_log_alert"
+          "resource_type": "azure_log_alert",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-INR-01"]
         }
       ]
     }
