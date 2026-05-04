@@ -15,21 +15,24 @@
           "description": "IAM users should have recent activity or be disabled",
           "severity": "medium",
           "query": "select name, password_last_used, create_date from aws_iam_user",
-          "resource_type": "aws_iam_user"
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": ["KSI-IAM-07"]
         },
         {
           "check_id": "ac-2-no-root-access-keys",
           "description": "Root account should not have access keys",
           "severity": "critical",
           "query": "select account_access_keys_present from aws_iam_account_summary",
-          "resource_type": "aws_iam_account_summary"
+          "resource_type": "aws_iam_account_summary",
+          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
         },
         {
           "check_id": "ac-2-unused-credentials",
           "description": "Credentials unused for 90+ days should be disabled",
           "severity": "medium",
           "query": "select user_name, access_key_id, status, access_key_last_used_date from aws_iam_access_key where status = 'Active'",
-          "resource_type": "aws_iam_access_key"
+          "resource_type": "aws_iam_access_key",
+          "fedramp_20x_ksi": ["KSI-IAM-07"]
         }
       ]
     },
@@ -44,28 +47,32 @@
           "description": "S3 buckets should block all public access",
           "severity": "high",
           "query": "select name, block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
         },
         {
           "check_id": "ac-3-s3-no-public-policy",
           "description": "S3 buckets should not have public bucket policies",
           "severity": "high",
           "query": "select name, bucket_policy_is_public from aws_s3_bucket where bucket_policy_is_public = true",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
         },
         {
           "check_id": "ac-3-rds-no-public-access",
           "description": "RDS instances should not be publicly accessible",
           "severity": "critical",
           "query": "select db_instance_identifier, publicly_accessible from aws_rds_db_instance where publicly_accessible = true",
-          "resource_type": "aws_rds_db_instance"
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": ["KSI-CNA-02"]
         },
         {
           "check_id": "ac-3-redshift-no-public",
           "description": "Redshift clusters should not be publicly accessible",
           "severity": "critical",
           "query": "select cluster_identifier, publicly_accessible from aws_redshift_cluster where publicly_accessible = true",
-          "resource_type": "aws_redshift_cluster"
+          "resource_type": "aws_redshift_cluster",
+          "fedramp_20x_ksi": ["KSI-CNA-02"]
         }
       ]
     },
@@ -80,7 +87,8 @@
           "description": "Network ACLs should not allow unrestricted inbound traffic",
           "severity": "high",
           "query": "select network_acl_id, rule_number, rule_action, cidr_block, protocol from aws_vpc_network_acl_rule where rule_action = 'allow' and cidr_block = '0.0.0.0/0' and egress = false",
-          "resource_type": "aws_vpc_network_acl_rule"
+          "resource_type": "aws_vpc_network_acl_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-03"]
         }
       ]
     },
@@ -95,28 +103,32 @@
           "description": "IAM users should not have AdministratorAccess policy",
           "severity": "critical",
           "query": "select name, attached_policy_arns from aws_iam_user",
-          "resource_type": "aws_iam_user"
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
         },
         {
           "check_id": "ac-6-no-inline-admin-policies",
           "description": "IAM users should not have inline policies with full admin",
           "severity": "high",
           "query": "select name, inline_policies from aws_iam_user where inline_policies is not null",
-          "resource_type": "aws_iam_user"
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": ["KSI-IAM-05"]
         },
         {
           "check_id": "ac-6-no-star-policies",
           "description": "IAM policies should not allow Action:* Resource:*",
           "severity": "critical",
           "query": "select name, arn, policy_std from aws_iam_policy where is_attached = true",
-          "resource_type": "aws_iam_policy"
+          "resource_type": "aws_iam_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-05"]
         },
         {
           "check_id": "ac-6-no-user-attached-policies",
           "description": "IAM policies should be attached to groups or roles, not users directly",
           "severity": "medium",
           "query": "select name, attached_policy_arns from aws_iam_user where attached_policy_arns is not null and jsonb_array_length(attached_policy_arns) > 0",
-          "resource_type": "aws_iam_user"
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": ["KSI-IAM-05", "KSI-IAM-07"]
         }
       ]
     },
@@ -131,7 +143,8 @@
           "description": "Account password policy should be configured",
           "severity": "medium",
           "query": "select max_password_age, password_reuse_prevention, minimum_password_length from aws_iam_account_password_policy",
-          "resource_type": "aws_iam_account_password_policy"
+          "resource_type": "aws_iam_account_password_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         }
       ]
     },
@@ -146,14 +159,16 @@
           "description": "Security groups should not allow SSH from 0.0.0.0/0",
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 22 and to_port >= 22 and cidr_ipv4 = '0.0.0.0/0'",
-          "resource_type": "aws_vpc_security_group_rule"
+          "resource_type": "aws_vpc_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
         {
           "check_id": "ac-17-no-rdp-from-internet",
           "description": "Security groups should not allow RDP from 0.0.0.0/0",
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 3389 and to_port >= 3389 and cidr_ipv4 = '0.0.0.0/0'",
-          "resource_type": "aws_vpc_security_group_rule"
+          "resource_type": "aws_vpc_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         }
       ]
     },
@@ -168,14 +183,16 @@
           "description": "CloudTrail should be enabled and logging",
           "severity": "critical",
           "query": "select name, is_logging, is_multi_region_trail, log_file_validation_enabled from aws_cloudtrail_trail",
-          "resource_type": "aws_cloudtrail_trail"
+          "resource_type": "aws_cloudtrail_trail",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-MLA-07"]
         },
         {
           "check_id": "au-2-s3-access-logging",
           "description": "S3 buckets should have access logging enabled",
           "severity": "medium",
           "query": "select name, logging from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-MLA-02", "KSI-MLA-07"]
         }
       ]
     },
@@ -190,7 +207,8 @@
           "description": "CloudTrail should have log file validation enabled",
           "severity": "high",
           "query": "select name, log_file_validation_enabled from aws_cloudtrail_trail",
-          "resource_type": "aws_cloudtrail_trail"
+          "resource_type": "aws_cloudtrail_trail",
+          "fedramp_20x_ksi": ["KSI-MLA-01"]
         }
       ]
     },
@@ -205,7 +223,8 @@
           "description": "GuardDuty should be enabled for threat detection",
           "severity": "high",
           "query": "select detector_id, status from aws_guardduty_detector",
-          "resource_type": "aws_guardduty_detector"
+          "resource_type": "aws_guardduty_detector",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-CNA-05"]
         }
       ]
     },
@@ -220,14 +239,16 @@
           "description": "CloudTrail logs should be encrypted with KMS",
           "severity": "high",
           "query": "select name, kms_key_id from aws_cloudtrail_trail",
-          "resource_type": "aws_cloudtrail_trail"
+          "resource_type": "aws_cloudtrail_trail",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-SVC-02"]
         },
         {
           "check_id": "au-9-s3-versioning-log-buckets",
           "description": "S3 buckets should have versioning enabled to protect logs",
           "severity": "medium",
           "query": "select name, versioning_enabled from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-MLA-01"]
         }
       ]
     },
@@ -242,7 +263,8 @@
           "description": "S3 buckets storing logs should have lifecycle policies for retention",
           "severity": "medium",
           "query": "select name, lifecycle_rules from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-MLA-02"]
         }
       ]
     },
@@ -257,7 +279,8 @@
           "description": "EC2 instances should use IMDSv2 for instance metadata",
           "severity": "high",
           "query": "select instance_id, metadata_options from aws_ec2_instance",
-          "resource_type": "aws_ec2_instance"
+          "resource_type": "aws_ec2_instance",
+          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-CNA-04"]
         }
       ]
     },
@@ -272,7 +295,8 @@
           "description": "AWS Config should be enabled for configuration tracking",
           "severity": "high",
           "query": "select name, recording, status from aws_config_configuration_recorder",
-          "resource_type": "aws_config_configuration_recorder"
+          "resource_type": "aws_config_configuration_recorder",
+          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-PIY-01"]
         }
       ]
     },
@@ -287,7 +311,8 @@
           "description": "Security groups should restrict outbound to required ports only",
           "severity": "medium",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'egress' and cidr_ipv4 = '0.0.0.0/0' and from_port = 0 and to_port = 65535",
-          "resource_type": "aws_vpc_security_group_rule"
+          "resource_type": "aws_vpc_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-03"]
         }
       ]
     },
@@ -302,14 +327,16 @@
           "description": "EC2 instances should have required tags for inventory",
           "severity": "medium",
           "query": "select instance_id, tags from aws_ec2_instance",
-          "resource_type": "aws_ec2_instance"
+          "resource_type": "aws_ec2_instance",
+          "fedramp_20x_ksi": ["KSI-PIY-01"]
         },
         {
           "check_id": "cm-8-s3-buckets-tagged",
           "description": "S3 buckets should have tags for inventory tracking",
           "severity": "low",
           "query": "select name, tags from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-PIY-01"]
         }
       ]
     },
@@ -324,14 +351,16 @@
           "description": "RDS instances should have automated backups enabled",
           "severity": "high",
           "query": "select db_instance_identifier, backup_retention_period from aws_rds_db_instance",
-          "resource_type": "aws_rds_db_instance"
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": ["KSI-RPL-03"]
         },
         {
           "check_id": "cp-9-dynamodb-backup",
           "description": "DynamoDB tables should have point-in-time recovery enabled",
           "severity": "medium",
           "query": "select name, point_in_time_recovery_description from aws_dynamodb_table",
-          "resource_type": "aws_dynamodb_table"
+          "resource_type": "aws_dynamodb_table",
+          "fedramp_20x_ksi": ["KSI-RPL-03"]
         }
       ]
     },
@@ -346,7 +375,8 @@
           "description": "RDS instances should use Multi-AZ for high availability",
           "severity": "high",
           "query": "select db_instance_identifier, multi_az from aws_rds_db_instance",
-          "resource_type": "aws_rds_db_instance"
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": ["KSI-CNA-06"]
         }
       ]
     },
@@ -361,14 +391,16 @@
           "description": "IAM users with console access should have MFA enabled",
           "severity": "critical",
           "query": "select name, mfa_enabled, password_last_used, create_date from aws_iam_user",
-          "resource_type": "aws_iam_user"
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         },
         {
           "check_id": "ia-2-root-mfa",
           "description": "Root account should have MFA enabled",
           "severity": "critical",
           "query": "select account_mfa_enabled from aws_iam_account_summary",
-          "resource_type": "aws_iam_account_summary"
+          "resource_type": "aws_iam_account_summary",
+          "fedramp_20x_ksi": ["KSI-IAM-01", "KSI-IAM-04"]
         }
       ]
     },
@@ -383,28 +415,32 @@
           "description": "Password policy should require minimum 14 characters",
           "severity": "high",
           "query": "select minimum_password_length, require_uppercase_characters, require_lowercase_characters, require_numbers, require_symbols from aws_iam_account_password_policy",
-          "resource_type": "aws_iam_account_password_policy"
+          "resource_type": "aws_iam_account_password_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         },
         {
           "check_id": "ia-5-password-reuse",
           "description": "Password policy should prevent reuse of last 24 passwords",
           "severity": "medium",
           "query": "select password_reuse_prevention from aws_iam_account_password_policy",
-          "resource_type": "aws_iam_account_password_policy"
+          "resource_type": "aws_iam_account_password_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         },
         {
           "check_id": "ia-5-password-max-age",
           "description": "Password policy should enforce 90-day maximum age",
           "severity": "medium",
           "query": "select max_password_age from aws_iam_account_password_policy",
-          "resource_type": "aws_iam_account_password_policy"
+          "resource_type": "aws_iam_account_password_policy",
+          "fedramp_20x_ksi": ["KSI-IAM-01"]
         },
         {
           "check_id": "ia-5-access-keys-rotated",
           "description": "IAM access keys should be rotated within 90 days",
           "severity": "high",
           "query": "select user_name, access_key_id, create_date, status from aws_iam_access_key",
-          "resource_type": "aws_iam_access_key"
+          "resource_type": "aws_iam_access_key",
+          "fedramp_20x_ksi": ["KSI-SVC-06", "KSI-IAM-07"]
         }
       ]
     },
@@ -419,7 +455,8 @@
           "description": "SNS topics should exist for security notifications",
           "severity": "medium",
           "query": "select topic_arn from aws_sns_topic",
-          "resource_type": "aws_sns_topic"
+          "resource_type": "aws_sns_topic",
+          "fedramp_20x_ksi": ["KSI-INR-01"]
         }
       ]
     },
@@ -434,7 +471,8 @@
           "description": "AWS Inspector should be enabled for vulnerability scanning",
           "severity": "high",
           "query": "select name, state from aws_inspector2_coverage",
-          "resource_type": "aws_inspector2_coverage"
+          "resource_type": "aws_inspector2_coverage",
+          "fedramp_20x_ksi": ["KSI-SVC-07", "KSI-TPR-04"]
         }
       ]
     },
@@ -449,21 +487,24 @@
           "description": "Security groups should not allow unrestricted inbound access",
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4, ip_protocol, type from aws_vpc_security_group_rule where type = 'ingress'",
-          "resource_type": "aws_vpc_security_group_rule"
+          "resource_type": "aws_vpc_security_group_rule",
+          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
         {
           "check_id": "sc-7-no-default-sg-traffic",
           "description": "Default security group should restrict all traffic",
           "severity": "high",
           "query": "select group_id, group_name, vpc_id from aws_vpc_security_group where group_name = 'default'",
-          "resource_type": "aws_vpc_security_group"
+          "resource_type": "aws_vpc_security_group",
+          "fedramp_20x_ksi": ["KSI-CNA-01"]
         },
         {
           "check_id": "sc-7-vpc-flow-logs",
           "description": "VPCs should have flow logs enabled",
           "severity": "high",
           "query": "select vpc_id, is_default from aws_vpc",
-          "resource_type": "aws_vpc"
+          "resource_type": "aws_vpc",
+          "fedramp_20x_ksi": ["KSI-MLA-07"]
         }
       ]
     },
@@ -478,14 +519,16 @@
           "description": "Load balancer listeners should use HTTPS/TLS only",
           "severity": "high",
           "query": "select load_balancer_arn, protocol, port from aws_ec2_load_balancer_listener where protocol not in ('HTTPS', 'TLS')",
-          "resource_type": "aws_ec2_load_balancer_listener"
+          "resource_type": "aws_ec2_load_balancer_listener",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-8-s3-ssl-enforced",
           "description": "S3 bucket policies should enforce SSL/TLS for access",
           "severity": "high",
           "query": "select name, policy from aws_s3_bucket where policy is not null",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         }
       ]
     },
@@ -500,7 +543,8 @@
           "description": "Customer-managed KMS keys should have automatic rotation enabled",
           "severity": "high",
           "query": "select id, aliases, key_rotation_enabled, key_manager, origin from aws_kms_key where key_manager = 'CUSTOMER'",
-          "resource_type": "aws_kms_key"
+          "resource_type": "aws_kms_key",
+          "fedramp_20x_ksi": ["KSI-SVC-06"]
         }
       ]
     },
@@ -515,7 +559,8 @@
           "description": "KMS keys should originate from FIPS-validated HSMs",
           "severity": "high",
           "query": "select id, aliases, origin, key_manager from aws_kms_key",
-          "resource_type": "aws_kms_key"
+          "resource_type": "aws_kms_key",
+          "fedramp_20x_ksi": ["KSI-AFR-11"]
         }
       ]
     },
@@ -530,7 +575,8 @@
           "description": "CloudFront distributions should enforce HTTPS",
           "severity": "high",
           "query": "select id, viewer_protocol_policy from aws_cloudfront_distribution",
-          "resource_type": "aws_cloudfront_distribution"
+          "resource_type": "aws_cloudfront_distribution",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         }
       ]
     },
@@ -545,42 +591,48 @@
           "description": "S3 buckets should have server-side encryption enabled",
           "severity": "high",
           "query": "select name, server_side_encryption_configuration from aws_s3_bucket",
-          "resource_type": "aws_s3_bucket"
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-ebs-encryption",
           "description": "EBS volumes should be encrypted",
           "severity": "high",
           "query": "select volume_id, encrypted, kms_key_id from aws_ebs_volume",
-          "resource_type": "aws_ebs_volume"
+          "resource_type": "aws_ebs_volume",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-rds-encryption",
           "description": "RDS instances should have storage encryption enabled",
           "severity": "high",
           "query": "select db_instance_identifier, storage_encrypted from aws_rds_db_instance",
-          "resource_type": "aws_rds_db_instance"
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-dynamodb-encryption",
           "description": "DynamoDB tables should have encryption enabled",
           "severity": "high",
           "query": "select name, sse_description from aws_dynamodb_table",
-          "resource_type": "aws_dynamodb_table"
+          "resource_type": "aws_dynamodb_table",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-sns-encryption",
           "description": "SNS topics should be encrypted with KMS",
           "severity": "medium",
           "query": "select topic_arn, kms_master_key_id from aws_sns_topic",
-          "resource_type": "aws_sns_topic"
+          "resource_type": "aws_sns_topic",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         },
         {
           "check_id": "sc-28-sqs-encryption",
           "description": "SQS queues should be encrypted",
           "severity": "medium",
           "query": "select queue_arn, kms_master_key_id from aws_sqs_queue",
-          "resource_type": "aws_sqs_queue"
+          "resource_type": "aws_sqs_queue",
+          "fedramp_20x_ksi": ["KSI-SVC-02"]
         }
       ]
     },
@@ -595,7 +647,8 @@
           "description": "EC2 instances should be managed by SSM for patching",
           "severity": "medium",
           "query": "select instance_id, ping_status from aws_ssm_managed_instance",
-          "resource_type": "aws_ssm_managed_instance"
+          "resource_type": "aws_ssm_managed_instance",
+          "fedramp_20x_ksi": ["KSI-SVC-07"]
         }
       ]
     },
@@ -610,7 +663,8 @@
           "description": "GuardDuty should be enabled for malware detection",
           "severity": "high",
           "query": "select detector_id, status from aws_guardduty_detector",
-          "resource_type": "aws_guardduty_detector"
+          "resource_type": "aws_guardduty_detector",
+          "fedramp_20x_ksi": ["KSI-CNA-05"]
         }
       ]
     },
@@ -625,14 +679,16 @@
           "description": "Security Hub should be enabled for centralized monitoring",
           "severity": "high",
           "query": "select hub_arn, auto_enable_controls from aws_securityhub_hub",
-          "resource_type": "aws_securityhub_hub"
+          "resource_type": "aws_securityhub_hub",
+          "fedramp_20x_ksi": ["KSI-MLA-01"]
         },
         {
           "check_id": "si-4-cloudwatch-alarm-exists",
           "description": "CloudWatch alarms should exist for critical metrics",
           "severity": "medium",
           "query": "select name, state_value, actions_enabled from aws_cloudwatch_alarm",
-          "resource_type": "aws_cloudwatch_alarm"
+          "resource_type": "aws_cloudwatch_alarm",
+          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-INR-01"]
         }
       ]
     },
@@ -647,7 +703,8 @@
           "description": "ECR repositories should have scan-on-push enabled",
           "severity": "medium",
           "query": "select repository_name, image_scanning_configuration from aws_ecr_repository",
-          "resource_type": "aws_ecr_repository"
+          "resource_type": "aws_ecr_repository",
+          "fedramp_20x_ksi": ["KSI-SVC-05", "KSI-TPR-04"]
         }
       ]
     }
