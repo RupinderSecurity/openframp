@@ -16,28 +16,38 @@ def index():
 def get_results():
     oscal_dir = os.path.join(PROJECT_ROOT, 'oscal')
     provider = request.args.get('provider', 'all')
-    combined = {"assessment-results": {"results": [], "metadata": {}}}
-    found = False
+    
+    all_data = {}
     
     for filename in sorted(os.listdir(oscal_dir)):
         if filename.startswith('assessment-results-') and filename.endswith('.json'):
-            # Filter by provider if requested
-            if provider != 'all':
-                if provider == 'aws' and 'aws' not in filename:
-                    continue
-                if provider == 'azure' and 'azure' not in filename:
-                    continue
+            prov = filename.replace('assessment-results-', '').replace('.json', '')
+            
+            if provider != 'all' and provider != prov:
+                continue
             
             filepath = os.path.join(oscal_dir, filename)
             with open(filepath) as f:
                 data = json.load(f)
                 ar = data.get("assessment-results", {})
-                combined["assessment-results"]["metadata"] = ar.get("metadata", {})
-                combined["assessment-results"]["results"].extend(ar.get("results", []))
-                found = True
+                
+                # Tag each result with its provider
+                for result in ar.get("results", []):
+                    result["_provider"] = prov
+                
+                if prov not in all_data:
+                    all_data[prov] = {"metadata": ar.get("metadata", {}), "results": []}
+                all_data[prov]["results"].extend(ar.get("results", []))
     
-    if not found:
+    if not all_data:
         return jsonify({"error": "No scan results found."}), 404
+    
+    # Combine into single response with provider tags preserved
+    combined = {"assessment-results": {"results": [], "metadata": {}, "providers": []}}
+    for prov, pdata in all_data.items():
+        combined["assessment-results"]["metadata"] = pdata["metadata"]
+        combined["assessment-results"]["results"].extend(pdata["results"])
+        combined["assessment-results"]["providers"].append(prov)
     
     return jsonify(combined)
 
