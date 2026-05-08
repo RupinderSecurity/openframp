@@ -7,51 +7,87 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e2740; border-radius: 3px; }
   body { font-family: 'DM Sans', sans-serif; background: #08090d; color: #c8cdd8; min-height: 100vh; }
+
   .header { background: #0a0c12; border-bottom: 1px solid #151a28; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
   .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-icon { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #22d3ee, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #08090d; }
-  .logo-text { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+  .logo-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #22d3ee, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #08090d; }
+  .logo-text { font-size: 16px; font-weight: 600; color: #f1f5f9; }
   .logo-sub { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; }
-  .actions { display: flex; gap: 8px; }
-  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #1e2740; background: rgba(34,211,238,0.04); color: #22d3ee; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .btn:hover { background: rgba(34,211,238,0.1); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-scan { background: rgba(34,211,238,0.15); }
-  select.btn { appearance: none; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2322d3ee' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
-  .content { padding: 24px; }
-  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-  .card { background: #0c0e15; border: 1px solid #151a28; border-radius: 8px; padding: 16px; position: relative; overflow: hidden; }
+
+  .actions { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #1e2740; background: transparent; color: #94a3b8; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .btn:hover { border-color: #2a3148; color: #e2e8f0; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-scan { background: rgba(34,211,238,0.08); border-color: rgba(34,211,238,0.2); color: #22d3ee; }
+  .btn-scan:hover { background: rgba(34,211,238,0.15); }
+  select.btn { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+  .meta { padding: 10px 24px; background: #0a0c12; border-bottom: 1px solid #111827; font-size: 10px; color: #475569; display: flex; gap: 16px; align-items: center; }
+  .meta-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes barIn { from { width: 0; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+  .cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: #0c0e15; border: 1px solid #151a28; border-radius: 10px; padding: 18px 16px; position: relative; overflow: hidden; }
   .card-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0.6; }
   .card-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-  .card-value { font-size: 26px; font-weight: 300; }
-  .controls-list { display: flex; flex-direction: column; gap: 8px; }
-  .control { background: #0c0e15; border: 1px solid #151a28; border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; }
+  .card-value { font-size: 28px; font-weight: 300; font-family: 'JetBrains Mono', monospace; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+  .control { background: #0c0e15; border: 1px solid #151a28; border-radius: 10px; margin-bottom: 8px; transition: all 0.15s; overflow: hidden; }
   .control:hover { border-color: #1e2740; }
-  .control-header { display: flex; justify-content: space-between; align-items: center; }
-  .control-title { display: flex; align-items: center; gap: 10px; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .dot-pass { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.4); }
-  .dot-fail { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.4); }
-  .control-name { font-size: 12px; font-weight: 500; color: #e2e8f0; }
-  .control-id { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(34,211,238,0.08); color: #22d3ee; }
-  .badge-pass { font-size: 10px; color: #34d399; }
-  .badge-fail { font-size: 10px; color: #f87171; }
-  .findings { margin-top: 12px; padding-top: 12px; border-top: 1px solid #151a28; }
-  .finding { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 11px; }
-  .finding-status { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; }
-  .status-fail { background: rgba(248,113,113,0.15); color: #f87171; }
-  .status-pass { background: rgba(52,211,153,0.15); color: #34d399; }
-  .finding-text { color: #94a3b8; }
+  .control-header { padding: 14px 18px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .control-left { display: flex; align-items: center; gap: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-pass { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.3); }
+  .dot-fail { background: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.3); }
+  .dot-empty { background: #334155; }
+  .control-name { font-size: 13px; font-weight: 500; color: #e2e8f0; }
+  .control-id { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: rgba(34,211,238,0.06); color: #22d3ee; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .control-right { display: flex; gap: 12px; align-items: center; font-size: 11px; }
+  .count-pass { color: #34d399; }
+  .count-fail { color: #f87171; }
+  .chevron { color: #475569; font-size: 10px; transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .findings-panel { border-top: 1px solid #151a28; padding: 0 18px 16px; animation: fadeUp 0.2s ease; }
+  .finding { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; margin-top: 8px; border-radius: 8px; background: #0a0c12; border: 1px solid #111827; }
+  .finding-badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; flex-shrink: 0; margin-top: 1px; }
+  .badge-critical { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge-high { background: rgba(248,113,113,0.12); color: #f87171; }
+  .badge-medium { background: rgba(251,191,36,0.12); color: #fbbf24; }
+  .badge-low { background: rgba(148,163,184,0.12); color: #94a3b8; }
+  .badge-pass { background: rgba(52,211,153,0.12); color: #34d399; }
+  .finding-content { flex: 1; min-width: 0; }
+  .finding-resource { font-size: 12px; font-weight: 500; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; margin-bottom: 2px; word-break: break-all; }
+  .finding-detail { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .finding-frameworks { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+  .fw-tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; background: rgba(99,102,241,0.08); color: #818cf8; }
+
+  .progress-bar { height: 6px; background: #151a28; border-radius: 3px; overflow: hidden; margin-top: 16px; margin-bottom: 8px; }
+  .progress-fill { height: 100%; border-radius: 3px; animation: barIn 0.8s ease-out; }
+
   .empty { text-align: center; padding: 80px 40px; }
-  .empty-icon { font-size: 36px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
   .empty-text { font-size: 16px; color: #94a3b8; margin-bottom: 8px; }
   .empty-sub { font-size: 12px; color: #475569; }
-  .scanning { animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-  .meta { padding: 10px 24px; background: #0a0c12; border-bottom: 1px solid #111827; font-size: 10px; color: #475569; display: flex; gap: 16px; }
-  .footer { padding: 14px 24px; border-top: 1px solid #111827; font-size: 9px; color: #334155; display: flex; justify-content: space-between; }
-  .mono { font-family: 'JetBrains Mono', monospace; }
+  .empty-code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #475569; margin-top: 16px; padding: 12px; background: #0c0e15; border-radius: 8px; display: inline-block; }
+
+  .scanning-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(8,9,13,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .scanning-box { background: #0c0e15; border: 1px solid #1e2740; border-radius: 12px; padding: 32px 40px; text-align: center; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #1e2740; border-top-color: #22d3ee; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  .scanning-text { font-size: 14px; color: #94a3b8; }
+
+  .footer { padding: 16px 24px; border-top: 1px solid #111827; font-size: 9px; color: #334155; display: flex; justify-content: space-between; }
 </style>
 </head>
 <body>
@@ -65,20 +101,26 @@
     </div>
   </div>
   <div class="actions">
-    <select id="catalogSelect" class="btn">
-      <option value="all">All Catalogs</option>
+    <select id="catalogSelect" class="btn" onchange="loadResults()">
+      <option value="all">All Providers</option>
     </select>
-    <button id="scanBtn" class="btn btn-scan" onclick="runScan()">Run Scan</button>
-    <button class="btn" onclick="loadResults()">Refresh</button>
+    <button id="scanBtn" class="btn btn-scan" onclick="runScan()">▶ Run Scan</button>
+    <button class="btn" onclick="loadResults()">↻ Refresh</button>
   </div>
 </div>
 
 <div id="metaBar" class="meta" style="display:none"></div>
+<div id="scanOverlay" class="scanning-overlay" style="display:none">
+  <div class="scanning-box">
+    <div class="spinner"></div>
+    <div class="scanning-text">Scanning cloud infrastructure...</div>
+  </div>
+</div>
 <div id="content" class="content"></div>
 
 <div class="footer">
-  <span>OpenFRAMP · github.com/RupinderSecurity/openframp</span>
-  <span>OSCAL Assessment Results · NIST SP 800-53 Rev 5</span>
+  <span>OpenFRAMP v1.0.0 · github.com/RupinderSecurity/openframp</span>
+  <span>OSCAL Assessment Results · NIST SP 800-53 Rev 5 · FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2</span>
 </div>
 
 <script>
@@ -106,129 +148,171 @@ async function loadResults() {
     if (catalog.includes('aws')) provider = 'aws';
     if (catalog.includes('azure')) provider = 'azure';
     const res = await fetch('/api/results?provider=' + provider);
-    if (!res.ok) {
-      showEmpty();
-      return;
-    }
+    if (!res.ok) { showEmpty(); return; }
     data = await res.json();
     render();
-  } catch(e) {
-    showEmpty();
-  }
+  } catch(e) { showEmpty(); }
 }
 
 async function runScan() {
   const btn = document.getElementById('scanBtn');
+  const overlay = document.getElementById('scanOverlay');
   btn.disabled = true;
-  btn.textContent = 'Scanning...';
-  btn.classList.add('scanning');
-  
+  overlay.style.display = 'flex';
   const catalog = document.getElementById('catalogSelect').value;
-  
   try {
-    const res = await fetch('/api/scan', {
+    await fetch('/api/scan', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({catalog})
     });
     await loadResults();
-  } catch(e) {
-    alert('Scan failed: ' + e.message);
-  }
-  
+  } catch(e) { alert('Scan failed: ' + e.message); }
   btn.disabled = false;
-  btn.textContent = 'Run Scan';
-  btn.classList.remove('scanning');
+  overlay.style.display = 'none';
 }
 
 function showEmpty() {
   document.getElementById('metaBar').style.display = 'none';
   document.getElementById('content').innerHTML = `
     <div class="empty">
-      <div class="empty-icon">📋</div>
+      <div class="empty-icon">🛡️</div>
       <div class="empty-text">No scan results yet</div>
       <div class="empty-sub">Click "Run Scan" to scan your cloud environment</div>
+      <div class="empty-code">docker compose up → open localhost:4000 → click Run Scan</div>
     </div>`;
 }
 
 function parseFinding(title) {
-  const m = title.match(/^(PASS|FAIL|CRITICAL|HIGH|MEDIUM|LOW): (.+?) [–-] (.+)$/);
+  // Try: STATUS: resource — detail
+  const m = title.match(/^(PASS|FAIL|CRITICAL|HIGH|MEDIUM|LOW): (.+?) [–—-] (.+)$/);
   if (m) return {status: m[1], resource: m[2], detail: m[3]};
+  // Try: STATUS: detail only
   const m2 = title.match(/^(PASS|FAIL|CRITICAL|HIGH|MEDIUM|LOW): (.+)$/);
   if (m2) return {status: m2[1], resource: '', detail: m2[2]};
   return {status: '—', resource: '', detail: title};
 }
 
+function badgeClass(status) {
+  const s = status.toUpperCase();
+  if (s === 'CRITICAL') return 'badge-critical';
+  if (s === 'HIGH') return 'badge-high';
+  if (s === 'MEDIUM') return 'badge-medium';
+  if (s === 'LOW') return 'badge-low';
+  if (s === 'PASS') return 'badge-pass';
+  if (s === 'FAIL') return 'badge-high';
+  return 'badge-low';
+}
+
 function render() {
   const ar = data['assessment-results'];
   const results = ar.results || [];
-  
+
   let allFindings = [];
-  results.forEach(r => (r.findings || []).forEach(f => allFindings.push(f)));
-  
+  results.forEach(r => (r.findings || []).forEach(f => allFindings.push({...f, controlTitle: r.title})));
+
   const fails = allFindings.filter(f => f.target?.status?.state === 'not-satisfied');
   const passes = allFindings.filter(f => f.target?.status?.state === 'satisfied');
   const passRate = allFindings.length > 0 ? Math.round(passes.length / allFindings.length * 100) : 0;
   const prColor = passRate >= 80 ? '#34d399' : passRate >= 50 ? '#fbbf24' : '#f87171';
-  
+
+  // Count unique controls
+  const controlIds = new Set();
+  results.forEach(r => {
+    const f = (r.findings || [])[0];
+    if (f) controlIds.add(f.target?.['target-id']);
+  });
+
   // Meta bar
   const meta = document.getElementById('metaBar');
   meta.style.display = 'flex';
+  const scanTime = new Date(ar.metadata['last-modified']).toLocaleString();
   meta.innerHTML = `
-    <span>Scanned ${new Date(ar.metadata['last-modified']).toLocaleString()}</span>
+    <span class="meta-dot"></span>
+    <span>Last scan: ${scanTime}</span>
     <span>·</span>
     <span>OSCAL v${ar.metadata['oscal-version']}</span>
     <span>·</span>
-    <span>${allFindings.length} findings across ${results.length} controls</span>`;
-  
+    <span>${allFindings.length} findings across ${results.length} checks</span>
+    <span>·</span>
+    <span>${controlIds.size} controls evaluated</span>`;
+
   // Cards
   let html = `<div class="cards">
-    <div class="card"><div class="card-bar" style="background:#22d3ee"></div><div class="card-label">Findings</div><div class="card-value" style="color:#22d3ee">${allFindings.length}</div></div>
+    <div class="card"><div class="card-bar" style="background:#22d3ee"></div><div class="card-label">Total Findings</div><div class="card-value" style="color:#22d3ee">${allFindings.length}</div></div>
     <div class="card"><div class="card-bar" style="background:#34d399"></div><div class="card-label">Passed</div><div class="card-value" style="color:#34d399">${passes.length}</div></div>
     <div class="card"><div class="card-bar" style="background:#f87171"></div><div class="card-label">Failed</div><div class="card-value" style="color:#f87171">${fails.length}</div></div>
     <div class="card"><div class="card-bar" style="background:${prColor}"></div><div class="card-label">Pass Rate</div><div class="card-value" style="color:${prColor}">${passRate}%</div></div>
+    <div class="card"><div class="card-bar" style="background:#818cf8"></div><div class="card-label">Controls</div><div class="card-value" style="color:#818cf8">${controlIds.size}</div></div>
   </div>`;
-  
+
+  // Overall progress bar
+  html += `<div class="progress-bar"><div class="progress-fill" style="width:${passRate}%;background:${prColor}"></div></div>`;
+  html += `<div style="font-size:11px;color:#64748b;margin-bottom:24px">${passes.length} of ${allFindings.length} checks compliant · ${passRate >= 80 ? 'Satisfactory' : passRate >= 50 ? 'Needs improvement' : 'Needs remediation'}</div>`;
+
   // Controls
-  html += '<div class="controls-list">';
+  html += `<div class="section-title">Controls & Findings</div>`;
   results.forEach((r, i) => {
     const rf = r.findings || [];
+    if (rf.length === 0) return; // skip empty controls
     const rFails = rf.filter(f => f.target?.status?.state === 'not-satisfied');
     const rPasses = rf.filter(f => f.target?.status?.state === 'satisfied');
     const cid = rf[0]?.target?.['target-id']?.toUpperCase() || '—';
     const hasFails = rFails.length > 0;
+    const isEmpty = rf.length === 0;
     const isExpanded = expanded[i];
-    
-    html += `<div class="control" onclick="toggle(${i})">
-      <div class="control-header">
-        <div class="control-title">
-          <span class="dot ${hasFails ? 'dot-fail' : 'dot-pass'}"></span>
-          <span class="control-name">${r.title}</span>
+
+    html += `<div class="control">
+      <div class="control-header" onclick="toggle(${i})">
+        <div class="control-left">
+          <span class="dot ${isEmpty ? 'dot-empty' : hasFails ? 'dot-fail' : 'dot-pass'}"></span>
           <span class="control-id">${cid}</span>
+          <span class="control-name">${r.title.replace(cid + ' — ', '').replace(cid + ' - ', '')}</span>
         </div>
-        <div>
-          <span class="badge-pass">${rPasses.length}✓</span>
-          <span class="badge-fail">${rFails.length}✗</span>
+        <div class="control-right">
+          ${rPasses.length > 0 ? `<span class="count-pass">${rPasses.length} passed</span>` : ''}
+          ${rFails.length > 0 ? `<span class="count-fail">${rFails.length} failed</span>` : ''}
+          <span class="chevron ${isExpanded ? 'open' : ''}">▼</span>
         </div>
       </div>`;
-    
+
     if (isExpanded) {
-      html += '<div class="findings">';
-      rf.forEach(f => {
+      html += `<div class="findings-panel">`;
+      // Show failures first, then passes
+      [...rFails, ...rPasses].forEach(f => {
         const p = parseFinding(f.title);
         const isFail = f.target?.status?.state === 'not-satisfied';
+        const bclass = isFail ? badgeClass(p.status) : 'badge-pass';
+        const statusLabel = isFail ? (p.status === 'FAIL' ? 'FAIL' : p.status) : 'PASS';
+
         html += `<div class="finding">
-          <span class="finding-status ${isFail ? 'status-fail' : 'status-pass'}">${p.status}</span>
-          <span class="finding-text">${p.resource}${p.resource ? ' — ' : ''}${p.detail}</span>
+          <span class="finding-badge ${bclass}">${statusLabel}</span>
+          <div class="finding-content">
+            ${p.resource ? `<div class="finding-resource">${p.resource}</div>` : ''}
+            <div class="finding-detail">${p.detail}</div>
+          </div>
         </div>`;
       });
-      html += '</div>';
+      html += `</div>`;
     }
-    
-    html += '</div>';
+    html += `</div>`;
   });
-  html += '</div>';
-  
+
+  // Controls with no findings (empty)
+  const emptyControls = results.filter(r => (r.findings || []).length === 0);
+  if (emptyControls.length > 0) {
+    html += `<div style="margin-top:24px"><div class="section-title">No Resources Found (${emptyControls.length} controls)</div>`;
+    html += `<div style="font-size:11px;color:#475569;margin-bottom:12px">These controls had no matching resources to evaluate. This may mean the service is not in use or not deployed.</div>`;
+    emptyControls.forEach(r => {
+      const cid = r.title.split(' ')[0] || '—';
+      const name = r.title.replace(cid + ' — ', '').replace(cid + ' - ', '');
+      html += `<div style="display:inline-block;padding:4px 12px;margin:2px 4px;border-radius:6px;background:#0c0e15;border:1px solid #151a28;font-size:11px;color:#475569">
+        <span style="color:#334155;font-family:'JetBrains Mono',monospace">${cid}</span> ${name}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
   document.getElementById('content').innerHTML = html;
 }
 
