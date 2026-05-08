@@ -1,21 +1,12 @@
-version: "3.8"
-
 services:
-  scanner:
+  openframp:
     build: .
+    ports:
+      - "4000:4000"
     volumes:
       - ~/.aws:/home/scanner/.aws:ro
-      - scan-results:/home/scanner/openframp/oscal
-    entrypoint: ["tail", "-f", "/dev/null"]
-
-  web:
-    build: ./web
-    ports:
-      - "3000:3000"
-    volumes:
-      - scan-results:/data
-    depends_on:
-      - scanner
-
-volumes:
-  scan-results:
+    environment:
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+    entrypoint: ["python3", "/home/scanner/openframp/web/app.py"]
