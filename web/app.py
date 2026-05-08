@@ -1,0 +1,75 @@
+from flask import Flask, jsonify, send_from_directory, request
+import json
+import subprocess
+import os
+
+app = Flask(__name__, static_folder='static')
+
+RESULTS_PATH = os.environ.get('RESULTS_PATH', '/data/assessment-results.json')
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+@app.route('/')
+def index():
+    return send_from_directory('static', 'index.html')
+
+@app.route('/api/results')
+def get_results():
+    oscal_dir = os.path.join(PROJECT_ROOT, 'oscal')
+    provider = request.args.get('provider', 'all')
+    combined = {"assessment-results": {"results": [], "metadata": {}}}
+    found = False
+    
+    for filename in sorted(os.listdir(oscal_dir)):
+        if filename.startswith('assessment-results-') and filename.endswith('.json'):
+            # Filter by provider if requested
+            if provider != 'all':
+                if provider == 'aws' and 'aws' not in filename:
+                    continue
+                if provider == 'azure' and 'azure' not in filename:
+                    continue
+            
+            filepath = os.path.join(oscal_dir, filename)
+            with open(filepath) as f:
+                data = json.load(f)
+                ar = data.get("assessment-results", {})
+                combined["assessment-results"]["metadata"] = ar.get("metadata", {})
+                combined["assessment-results"]["results"].extend(ar.get("results", []))
+                found = True
+    
+    if not found:
+        return jsonify({"error": "No scan results found."}), 404
+    
+    return jsonify(combined)
+
+@app.route('/api/scan', methods=['POST'])
+def run_scan():
+    catalog = request.json.get('catalog', 'all')
+    try:
+        if catalog == 'all':
+            cmd = [os.path.join(PROJECT_ROOT, 'scan.sh')]
+        else:
+            cmd = [os.path.join(PROJECT_ROOT, 'scan.sh'), f'catalog/{catalog}']
+
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=300,
+            cwd=PROJECT_ROOT
+        )
+        return jsonify({
+            "status": "complete",
+            "output": result.stdout,
+            "errors": result.stderr
+        })
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "Scan timed out after 5 minutes"}), 504
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/catalogs')
+def list_catalogs():
+    return jsonify([
+        {"id": "fedramp-moderate-aws.json", "name": "AWS — FedRAMP Moderate + PCI DSS + SOC 2", "provider": "aws"},
+        {"id": "fedramp-moderate-azure.json", "name": "Azure — FedRAMP Moderate + PCI DSS + SOC 2", "provider": "azure"}
+    ])
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=4000)

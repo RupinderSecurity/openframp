@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenFRAMP Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #08090d; color: #c8cdd8; min-height: 100vh; }
+  .header { background: #0a0c12; border-bottom: 1px solid #151a28; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #22d3ee, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #08090d; }
+  .logo-text { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+  .logo-sub { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; }
+  .actions { display: flex; gap: 8px; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #1e2740; background: rgba(34,211,238,0.04); color: #22d3ee; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .btn:hover { background: rgba(34,211,238,0.1); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-scan { background: rgba(34,211,238,0.15); }
+  select.btn { appearance: none; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2322d3ee' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  .content { padding: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: #0c0e15; border: 1px solid #151a28; border-radius: 8px; padding: 16px; position: relative; overflow: hidden; }
+  .card-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0.6; }
+  .card-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .card-value { font-size: 26px; font-weight: 300; }
+  .controls-list { display: flex; flex-direction: column; gap: 8px; }
+  .control { background: #0c0e15; border: 1px solid #151a28; border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; }
+  .control:hover { border-color: #1e2740; }
+  .control-header { display: flex; justify-content: space-between; align-items: center; }
+  .control-title { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot-pass { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.4); }
+  .dot-fail { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+  .control-name { font-size: 12px; font-weight: 500; color: #e2e8f0; }
+  .control-id { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(34,211,238,0.08); color: #22d3ee; }
+  .badge-pass { font-size: 10px; color: #34d399; }
+  .badge-fail { font-size: 10px; color: #f87171; }
+  .findings { margin-top: 12px; padding-top: 12px; border-top: 1px solid #151a28; }
+  .finding { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 11px; }
+  .finding-status { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; }
+  .status-fail { background: rgba(248,113,113,0.15); color: #f87171; }
+  .status-pass { background: rgba(52,211,153,0.15); color: #34d399; }
+  .finding-text { color: #94a3b8; }
+  .empty { text-align: center; padding: 80px 40px; }
+  .empty-icon { font-size: 36px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-text { font-size: 16px; color: #94a3b8; margin-bottom: 8px; }
+  .empty-sub { font-size: 12px; color: #475569; }
+  .scanning { animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  .meta { padding: 10px 24px; background: #0a0c12; border-bottom: 1px solid #111827; font-size: 10px; color: #475569; display: flex; gap: 16px; }
+  .footer { padding: 14px 24px; border-top: 1px solid #111827; font-size: 9px; color: #334155; display: flex; justify-content: space-between; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">O</div>
+    <div>
+      <div class="logo-text">OpenFRAMP</div>
+      <div class="logo-sub">Compliance Dashboard</div>
+    </div>
+  </div>
+  <div class="actions">
+    <select id="catalogSelect" class="btn">
+      <option value="all">All Catalogs</option>
+    </select>
+    <button id="scanBtn" class="btn btn-scan" onclick="runScan()">Run Scan</button>
+    <button class="btn" onclick="loadResults()">Refresh</button>
+  </div>
+</div>
+
+<div id="metaBar" class="meta" style="display:none"></div>
+<div id="content" class="content"></div>
+
+<div class="footer">
+  <span>OpenFRAMP · github.com/RupinderSecurity/openframp</span>
+  <span>OSCAL Assessment Results · NIST SP 800-53 Rev 5</span>
+</div>
+
+<script>
+let data = null;
+let expanded = {};
+
+async function loadCatalogs() {
+  try {
+    const res = await fetch('/api/catalogs');
+    const catalogs = await res.json();
+    const select = document.getElementById('catalogSelect');
+    catalogs.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+async function loadResults() {
+  try {
+    const catalog = document.getElementById('catalogSelect').value;
+    let provider = 'all';
+    if (catalog.includes('aws')) provider = 'aws';
+    if (catalog.includes('azure')) provider = 'azure';
+    const res = await fetch('/api/results?provider=' + provider);
+    if (!res.ok) {
+      showEmpty();
+      return;
+    }
+    data = await res.json();
+    render();
+  } catch(e) {
+    showEmpty();
+  }
+}
+
+async function runScan() {
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+  btn.classList.add('scanning');
+  
+  const catalog = document.getElementById('catalogSelect').value;
+  
+  try {
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({catalog})
+    });
+    await loadResults();
+  } catch(e) {
+    alert('Scan failed: ' + e.message);
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Run Scan';
+  btn.classList.remove('scanning');
+}
+
+function showEmpty() {
+  document.getElementById('metaBar').style.display = 'none';
+  document.getElementById('content').innerHTML = `
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">No scan results yet</div>
+      <div class="empty-sub">Click "Run Scan" to scan your cloud environment</div>
+    </div>`;
+}
+
+function parseFinding(title) {
+  const m = title.match(/^(PASS|FAIL|CRITICAL|HIGH|MEDIUM|LOW): (.+?) [–-] (.+)$/);
+  if (m) return {status: m[1], resource: m[2], detail: m[3]};
+  const m2 = title.match(/^(PASS|FAIL|CRITICAL|HIGH|MEDIUM|LOW): (.+)$/);
+  if (m2) return {status: m2[1], resource: '', detail: m2[2]};
+  return {status: '—', resource: '', detail: title};
+}
+
+function render() {
+  const ar = data['assessment-results'];
+  const results = ar.results || [];
+  
+  let allFindings = [];
+  results.forEach(r => (r.findings || []).forEach(f => allFindings.push(f)));
+  
+  const fails = allFindings.filter(f => f.target?.status?.state === 'not-satisfied');
+  const passes = allFindings.filter(f => f.target?.status?.state === 'satisfied');
+  const passRate = allFindings.length > 0 ? Math.round(passes.length / allFindings.length * 100) : 0;
+  const prColor = passRate >= 80 ? '#34d399' : passRate >= 50 ? '#fbbf24' : '#f87171';
+  
+  // Meta bar
+  const meta = document.getElementById('metaBar');
+  meta.style.display = 'flex';
+  meta.innerHTML = `
+    <span>Scanned ${new Date(ar.metadata['last-modified']).toLocaleString()}</span>
+    <span>·</span>
+    <span>OSCAL v${ar.metadata['oscal-version']}</span>
+    <span>·</span>
+    <span>${allFindings.length} findings across ${results.length} controls</span>`;
+  
+  // Cards
+  let html = `<div class="cards">
+    <div class="card"><div class="card-bar" style="background:#22d3ee"></div><div class="card-label">Findings</div><div class="card-value" style="color:#22d3ee">${allFindings.length}</div></div>
+    <div class="card"><div class="card-bar" style="background:#34d399"></div><div class="card-label">Passed</div><div class="card-value" style="color:#34d399">${passes.length}</div></div>
+    <div class="card"><div class="card-bar" style="background:#f87171"></div><div class="card-label">Failed</div><div class="card-value" style="color:#f87171">${fails.length}</div></div>
+    <div class="card"><div class="card-bar" style="background:${prColor}"></div><div class="card-label">Pass Rate</div><div class="card-value" style="color:${prColor}">${passRate}%</div></div>
+  </div>`;
+  
+  // Controls
+  html += '<div class="controls-list">';
+  results.forEach((r, i) => {
+    const rf = r.findings || [];
+    const rFails = rf.filter(f => f.target?.status?.state === 'not-satisfied');
+    const rPasses = rf.filter(f => f.target?.status?.state === 'satisfied');
+    const cid = rf[0]?.target?.['target-id']?.toUpperCase() || '—';
+    const hasFails = rFails.length > 0;
+    const isExpanded = expanded[i];
+    
+    html += `<div class="control" onclick="toggle(${i})">
+      <div class="control-header">
+        <div class="control-title">
+          <span class="dot ${hasFails ? 'dot-fail' : 'dot-pass'}"></span>
+          <span class="control-name">${r.title}</span>
+          <span class="control-id">${cid}</span>
+        </div>
+        <div>
+          <span class="badge-pass">${rPasses.length}✓</span>
+          <span class="badge-fail">${rFails.length}✗</span>
+        </div>
+      </div>`;
+    
+    if (isExpanded) {
+      html += '<div class="findings">';
+      rf.forEach(f => {
+        const p = parseFinding(f.title);
+        const isFail = f.target?.status?.state === 'not-satisfied';
+        html += `<div class="finding">
+          <span class="finding-status ${isFail ? 'status-fail' : 'status-pass'}">${p.status}</span>
+          <span class="finding-text">${p.resource}${p.resource ? ' — ' : ''}${p.detail}</span>
+        </div>`;
+      });
+      html += '</div>';
+    }
+    
+    html += '</div>';
+  });
+  html += '</div>';
+  
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggle(i) {
+  expanded[i] = !expanded[i];
+  render();
+}
+
+loadCatalogs();
+loadResults();
+</script>
+</body>
+</html>
