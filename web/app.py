@@ -82,5 +82,59 @@ def list_catalogs():
         {"id": "github-security.json", "name": "GitHub — Repository Security", "provider": "github"}
     ])
 
+@app.route('/api/upload-ssp', methods=['POST'])
+def upload_ssp():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files['file']
+    if not file.filename.endswith('.docx'):
+        return jsonify({"error": "File must be a .docx file"}), 400
+    
+    import tempfile
+    temp_path = os.path.join(tempfile.gettempdir(), 'ssp-upload.docx')
+    file.save(temp_path)
+    
+    try:
+        # Run the parser
+        parser_dir = os.path.join(PROJECT_ROOT, 'ssp-parser')
+        parsed_path = os.path.join(PROJECT_ROOT, 'oscal', 'ssp-parsed.json')
+        oscal_path = os.path.join(PROJECT_ROOT, 'oscal', 'oscal-ssp.json')
+        
+        result = subprocess.run(
+            ['python3', os.path.join(parser_dir, 'ssp_parser.py'), temp_path, '--output', parsed_path],
+            capture_output=True, text=True, timeout=120, cwd=PROJECT_ROOT
+        )
+        
+        if result.returncode != 0:
+            return jsonify({"error": f"Parser failed: {result.stderr}"}), 500
+        
+        # Generate OSCAL SSP
+        result2 = subprocess.run(
+            ['python3', os.path.join(parser_dir, 'ssp_to_oscal.py'), parsed_path, '--output', oscal_path, '--name', file.filename.replace('.docx', '')],
+            capture_output=True, text=True, timeout=120, cwd=PROJECT_ROOT
+        )
+        
+        # Load parsed results for display
+        with open(parsed_path) as f:
+            parsed = json.load(f)
+        
+        return jsonify({
+            "status": "complete",
+            "statistics": parsed.get("statistics", {}),
+            "controls_preview": parsed.get("controls", [])[:10],
+            "oscal_generated": result2.returncode == 0
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/ssp-results')
+def ssp_results():
+    parsed_path = os.path.join(PROJECT_ROOT, 'oscal', 'ssp-parsed.json')
+    if not os.path.exists(parsed_path):
+        return jsonify({"error": "No SSP parsed yet. Upload an SSP docx first."}), 404
+    with open(parsed_path) as f:
+        return jsonify(json.load(f))
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)

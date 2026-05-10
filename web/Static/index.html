@@ -129,6 +129,7 @@
       <option value="all">Scan All Providers</option>
     </select>
     <button id="scanBtn" class="btn btn-scan" onclick="runScan()">▶ Run Scan</button>
+    <button class="btn" onclick="uploadSSP()" style="border-color:rgba(129,140,248,0.2);color:#818cf8">📄 Upload SSP</button>
     <button class="btn" onclick="loadResults()">↻ Refresh</button>
   </div>
 </div>
@@ -417,6 +418,79 @@ function toggle(i) {
 
 loadCatalogs();
 loadResults();
+
+async function uploadSSP() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.docx';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const overlay = document.getElementById('scanOverlay');
+    overlay.querySelector('.scanning-text').textContent = 'Parsing SSP document...';
+    overlay.querySelector('.scanning-sub').textContent = file.name;
+    overlay.style.display = 'flex';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const res = await fetch('/api/upload-ssp', { method: 'POST', body: formData });
+      const data = await res.json();
+      
+      if (data.error) {
+        alert('SSP parse failed: ' + data.error);
+      } else {
+        showSSPResults(data);
+      }
+    } catch(e) {
+      alert('Upload failed: ' + e.message);
+    }
+    
+    overlay.querySelector('.scanning-text').textContent = 'Scanning cloud infrastructure...';
+    overlay.querySelector('.scanning-sub').textContent = 'This may take a few minutes';
+    overlay.style.display = 'none';
+  };
+  input.click();
+}
+
+function showSSPResults(data) {
+  const stats = data.statistics || {};
+  const controls = data.controls_preview || [];
+  
+  let html = `<div style="margin-bottom:24px">
+    <div class="section-title">SSP Parse Results</div>
+    <div class="cards" style="grid-template-columns:repeat(4,1fr)">
+      <div class="card"><div class="card-bar" style="background:#818cf8"></div><div class="card-label">Controls Found</div><div class="card-value" style="color:#818cf8">${stats.total_controls || 0}</div></div>
+      <div class="card"><div class="card-bar" style="background:#34d399"></div><div class="card-label">With Content</div><div class="card-value" style="color:#34d399">${stats.controls_with_content || 0}</div></div>
+      <div class="card"><div class="card-bar" style="background:#fbbf24"></div><div class="card-label">Fully Complete</div><div class="card-value" style="color:#fbbf24">${stats.fully_complete || 0}</div></div>
+      <div class="card"><div class="card-bar" style="background:#f87171"></div><div class="card-label">Empty</div><div class="card-value" style="color:#f87171">${stats.empty || 0}</div></div>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:8px">Completion rate: ${stats.completion_rate || '0%'} · OSCAL SSP JSON generated: ${data.oscal_generated ? '✓ Yes' : '✗ No'}</div>
+  </div>`;
+  
+  html += `<div class="section-title">Control Preview (first 10)</div>`;
+  controls.forEach(c => {
+    const parts = Object.keys(c.implementation_parts || {}).length;
+    const filled = c.completeness?.filled_parts || 0;
+    html += `<div class="control" style="cursor:default">
+      <div class="control-header">
+        <div class="control-left">
+          <span class="dot ${filled > 0 ? 'dot-pass' : 'dot-empty'}"></span>
+          <span class="control-id">${c.control_id}</span>
+          <span class="control-name">${parts} parts (${filled} filled)</span>
+        </div>
+        <div class="control-right">
+          ${c.responsible_role ? `<span style="font-size:10px;color:#475569">${c.responsible_role}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+  
+  document.getElementById('content').innerHTML = html;
+}
+
 </script>
 </body>
 </html>
