@@ -228,10 +228,18 @@ def evaluate_check(check, query_result):
                 reason = f"TLS version is {tls}, should be 1.2"
         
         elif "nsg" in check_id and ("ssh" in check_id or "rdp" in check_id or "unrestricted" in check_id):
-            if row.get("source_address_prefix") == "*" and row.get("access") == "Allow":
-                failed = True
-                port = row.get("destination_port_range", "all")
-                reason = f"allows inbound from * on port {port}"
+            rules = row.get("security_rules")
+            if rules:
+                rules_str = str(rules)
+                if "ssh" in check_id and "'22'" in rules_str and "'*'" in rules_str and "'Allow'" in rules_str:
+                    failed = True
+                    reason = "SSH (port 22) open from * in security rules"
+                elif "rdp" in check_id and "'3389'" in rules_str and "'*'" in rules_str and "'Allow'" in rules_str:
+                    failed = True
+                    reason = "RDP (port 3389) open from * in security rules"
+                elif "unrestricted" in check_id and "'*'" in rules_str and "'Allow'" in rules_str:
+                    failed = True
+                    reason = "unrestricted inbound rules found"
         
         elif "keyvault" in check_id and "soft-delete" in check_id:
             if row.get("soft_delete_enabled") != True:

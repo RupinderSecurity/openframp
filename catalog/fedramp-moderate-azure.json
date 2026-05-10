@@ -78,7 +78,7 @@
           "check_id": "ac-17-nsg-no-ssh-from-internet",
           "description": "NSGs should not allow SSH (port 22) from the internet",
           "severity": "critical",
-          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '22' or destination_port_range = '*')",
+          "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group_rule",
           "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
@@ -86,7 +86,7 @@
           "check_id": "ac-17-nsg-no-rdp-from-internet",
           "description": "NSGs should not allow RDP (port 3389) from the internet",
           "severity": "critical",
-          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and (destination_port_range = '3389' or destination_port_range = '*')",
+          "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group_rule",
           "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         }
@@ -214,7 +214,7 @@
           "check_id": "sc-7-nsg-unrestricted-inbound",
           "description": "NSGs should not allow unrestricted inbound on all ports",
           "severity": "critical",
-          "query": "select name, access, direction, destination_port_range, source_address_prefix from azure_network_security_group_rule where direction = 'Inbound' and access = 'Allow' and source_address_prefix = '*' and destination_port_range = '*'",
+          "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group_rule",
           "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
         },
