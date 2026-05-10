@@ -9,4 +9,5 @@ services:
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     entrypoint: ["python3", "/home/scanner/openframp/web/app.py"]

@@ -1,0 +1,208 @@
+{
+  "catalog_version": "1.0.0",
+  "framework": "Multi-Framework",
+  "baseline": "FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2",
+  "provider": "github",
+  "controls": [
+    {
+      "control_id": "AC-3",
+      "title": "Access Enforcement",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
+      "checks": [
+        {
+          "check_id": "ac-3-repo-not-public",
+          "description": "Repositories containing sensitive code should be private",
+          "severity": "medium",
+          "query": "select name_with_owner, visibility, is_private from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-CNA-02"]
+        }
+      ]
+    },
+    {
+      "control_id": "AC-6",
+      "title": "Least Privilege",
+      "family": "Access Control",
+      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
+      "checks": [
+        {
+          "check_id": "ac-6-branch-protection-enabled",
+          "description": "Default branch should have branch protection rules",
+          "severity": "high",
+          "query": "select repository_full_name, pattern, requires_approving_reviews, required_approving_review_count, is_admin_enforced from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-IAM-05"]
+        },
+        {
+          "check_id": "ac-6-branch-no-force-push",
+          "description": "Branch protection should block force pushes",
+          "severity": "high",
+          "query": "select repository_full_name, pattern, allows_force_pushes from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-IAM-05"]
+        },
+        {
+          "check_id": "ac-6-branch-no-deletions",
+          "description": "Branch protection should block branch deletions",
+          "severity": "high",
+          "query": "select repository_full_name, pattern, allows_deletions from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-IAM-05"]
+        }
+      ]
+    },
+    {
+      "control_id": "AU-2",
+      "title": "Event Logging",
+      "family": "Audit and Accountability",
+      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
+      "checks": [
+        {
+          "check_id": "au-2-web-commit-signoff",
+          "description": "Repositories should require web commit sign-off for audit trail",
+          "severity": "medium",
+          "query": "select name_with_owner, web_commit_signoff_required from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-LOG-01"]
+        }
+      ]
+    },
+    {
+      "control_id": "CM-2",
+      "title": "Baseline Configuration",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-2", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "cm-2-security-policy-enabled",
+          "description": "Repositories should have a security policy (SECURITY.md)",
+          "severity": "medium",
+          "query": "select name_with_owner, is_security_policy_enabled from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-CNA-01"]
+        },
+        {
+          "check_id": "cm-2-license-defined",
+          "description": "Repositories should have a license defined",
+          "severity": "low",
+          "query": "select name_with_owner, license_info from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-CNA-01"]
+        }
+      ]
+    },
+    {
+      "control_id": "CM-3",
+      "title": "Configuration Change Control",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-3", "PCI DSS 6.5.1", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "cm-3-branch-requires-pr",
+          "description": "Branch protection should require pull request reviews before merging",
+          "severity": "high",
+          "query": "select repository_full_name, pattern, requires_approving_reviews, required_approving_review_count from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        },
+        {
+          "check_id": "cm-3-branch-requires-status-checks",
+          "description": "Branch protection should require status checks to pass",
+          "severity": "medium",
+          "query": "select repository_full_name, pattern, requires_status_checks, requires_strict_status_checks from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        },
+        {
+          "check_id": "cm-3-branch-requires-conversation-resolution",
+          "description": "Branch protection should require conversation resolution before merging",
+          "severity": "low",
+          "query": "select repository_full_name, pattern, requires_conversation_resolution from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        },
+        {
+          "check_id": "cm-3-branch-dismisses-stale-reviews",
+          "description": "Branch protection should dismiss stale PR approvals when new commits are pushed",
+          "severity": "medium",
+          "query": "select repository_full_name, pattern, dismisses_stale_reviews from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        }
+      ]
+    },
+    {
+      "control_id": "CM-7",
+      "title": "Least Functionality",
+      "family": "Configuration Management",
+      "frameworks": ["FedRAMP CM-7", "PCI DSS 2.2.4", "SOC 2 CC6.8"],
+      "checks": [
+        {
+          "check_id": "cm-7-wiki-disabled",
+          "description": "Repository wikis should be disabled unless actively used",
+          "severity": "low",
+          "query": "select name_with_owner, has_wiki_enabled from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-CNA-01"]
+        }
+      ]
+    },
+    {
+      "control_id": "RA-5",
+      "title": "Vulnerability Monitoring and Scanning",
+      "family": "Risk Assessment",
+      "frameworks": ["FedRAMP RA-5", "PCI DSS 11.3", "SOC 2 CC7.1"],
+      "checks": [
+        {
+          "check_id": "ra-5-vulnerability-alerts-enabled",
+          "description": "Repositories should have Dependabot vulnerability alerts enabled",
+          "severity": "high",
+          "query": "select name_with_owner, has_vulnerability_alerts_enabled from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": ["KSI-VSM-01"]
+        }
+      ]
+    },
+    {
+      "control_id": "SA-11",
+      "title": "Developer Testing and Evaluation",
+      "family": "System and Services Acquisition",
+      "frameworks": ["FedRAMP SA-11", "PCI DSS 6.3", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "sa-11-branch-requires-code-owner-review",
+          "description": "Branch protection should require code owner reviews",
+          "severity": "medium",
+          "query": "select repository_full_name, pattern, requires_code_owner_reviews from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        }
+      ]
+    },
+    {
+      "control_id": "SI-7",
+      "title": "Software and Information Integrity",
+      "family": "System and Information Integrity",
+      "frameworks": ["FedRAMP SI-7", "PCI DSS 11.5", "SOC 2 CC8.1"],
+      "checks": [
+        {
+          "check_id": "si-7-commit-signatures-required",
+          "description": "Branch protection should require signed commits",
+          "severity": "medium",
+          "query": "select repository_full_name, pattern, requires_commit_signatures from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        },
+        {
+          "check_id": "si-7-branch-linear-history",
+          "description": "Branch protection should require linear history",
+          "severity": "low",
+          "query": "select repository_full_name, pattern, requires_linear_history from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": ["KSI-CNA-03"]
+        }
+      ]
+    }
+  ]
+}

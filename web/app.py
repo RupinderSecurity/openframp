@@ -78,7 +78,8 @@ def run_scan():
 def list_catalogs():
     return jsonify([
         {"id": "fedramp-moderate-aws.json", "name": "AWS — FedRAMP Moderate + PCI DSS + SOC 2", "provider": "aws"},
-        {"id": "fedramp-moderate-azure.json", "name": "Azure — FedRAMP Moderate + PCI DSS + SOC 2", "provider": "azure"}
+        {"id": "fedramp-moderate-azure.json", "name": "Azure — FedRAMP Moderate + PCI DSS + SOC 2", "provider": "azure"},
+        {"id": "github-security.json", "name": "GitHub — Repository Security", "provider": "github"}
     ])
 
 if __name__ == '__main__':

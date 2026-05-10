@@ -14,7 +14,7 @@ RUN pip install flask --break-system-packages
 USER scanner
 WORKDIR /home/scanner/openframp
 
-RUN steampipe plugin install aws azure azuread
+RUN steampipe plugin install aws azure azuread github
 
 RUN mkdir -p /home/scanner/.steampipe/config
 
@@ -23,6 +23,8 @@ RUN printf 'connection "aws" {\n  plugin  = "aws"\n  regions = ["us-west-2"]\n}\
 RUN printf 'connection "azure" {\n  plugin = "azure"\n  environment = "AZUREPUBLICCLOUD"\n}\n' > /home/scanner/.steampipe/config/azure.spc
 
 RUN printf 'connection "azuread" {\n  plugin = "azuread"\n  environment = "AZUREPUBLICCLOUD"\n}\n' > /home/scanner/.steampipe/config/azuread.spc
+
+RUN printf 'connection "github" {\n  plugin = "github"\n}\n' > /home/scanner/.steampipe/config/github.spc
 
 COPY --chown=scanner:scanner catalog/ catalog/
 COPY --chown=scanner:scanner oscal/ oscal/

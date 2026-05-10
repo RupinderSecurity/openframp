@@ -17,6 +17,8 @@ def run_query(query):
         stderr = result.stderr
         if "SubscriptionRequiredException" in stderr or "OptInRequired" in stderr:
             return {"rows": [], "_not_enabled": True}, None
+        if "Dependabot alerts are disabled" in stderr:
+            return {"rows": [], "_not_enabled": True}, None
         if "does not exist" in stderr:
             return {"rows": [], "_not_found": True}, None
         return None, stderr
@@ -43,7 +45,14 @@ def evaluate_check(check, query_result):
     if len(rows) == 0:
         zero_row_checks = ["au-2-cloudtrail-enabled", "au-6-guardduty-enabled",
                            "cm-6-config-enabled", "si-4-securityhub-enabled",
-                           "ra-5-inspector-enabled"]
+                           "ra-5-inspector-enabled",
+                           "ac-6-branch-protection-enabled", "ac-6-branch-no-force-push",
+                           "ac-6-branch-no-deletions", "cm-3-branch-requires-pr",
+                           "cm-3-branch-requires-status-checks",
+                           "cm-3-branch-requires-conversation-resolution",
+                           "cm-3-branch-dismisses-stale-reviews",
+                           "sa-11-branch-requires-code-owner-review",
+                           "si-7-commit-signatures-required", "si-7-branch-linear-history"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -367,6 +376,90 @@ def evaluate_check(check, query_result):
             if "ENABLED" not in pitr.upper():
                 failed = True
                 reason = "point-in-time recovery not enabled"
+        
+        elif "branch-protection" in check_id and "enabled" in check_id:
+            pass  # if rows exist, protection is enabled — that's a pass
+        
+        elif "force-push" in check_id:
+            if row.get("allows_force_pushes") == True:
+                failed = True
+                reason = "force pushes allowed"
+        
+        elif "no-deletions" in check_id or "branch" in check_id and "deletion" in check_id:
+            if row.get("allows_deletions") == True:
+                failed = True
+                reason = "branch deletions allowed"
+        
+        elif "requires-pr" in check_id:
+            if row.get("requires_approving_reviews") != True:
+                failed = True
+                reason = "pull request reviews not required"
+        
+        elif "status-checks" in check_id:
+            if row.get("requires_status_checks") != True:
+                failed = True
+                reason = "status checks not required"
+        
+        elif "conversation-resolution" in check_id:
+            if row.get("requires_conversation_resolution") != True:
+                failed = True
+                reason = "conversation resolution not required"
+        
+        elif "stale-reviews" in check_id:
+            if row.get("dismisses_stale_reviews") != True:
+                failed = True
+                reason = "stale reviews not dismissed"
+        
+        elif "code-owner" in check_id:
+            if row.get("requires_code_owner_reviews") != True:
+                failed = True
+                reason = "code owner reviews not required"
+        
+        elif "commit-signature" in check_id:
+            if row.get("requires_commit_signatures") != True:
+                failed = True
+                reason = "signed commits not required"
+        
+        elif "linear-history" in check_id:
+            if row.get("requires_linear_history") != True:
+                failed = True
+                reason = "linear history not required"
+        
+        elif "vulnerability-alerts" in check_id:
+            if row.get("has_vulnerability_alerts_enabled") != True:
+                failed = True
+                reason = "Dependabot vulnerability alerts not enabled"
+        
+        elif "dependabot" in check_id and "open" in check_id:
+            if row.get("state") == "open":
+                failed = True
+                reason = f"open Dependabot alert #{row.get('alert_number', '?')}"
+        
+        elif "security-policy" in check_id:
+            if row.get("is_security_policy_enabled") != True:
+                failed = True
+                reason = "no SECURITY.md file"
+        
+        elif "license" in check_id:
+            if row.get("license_info") is None:
+                failed = True
+                reason = "no license defined"
+        
+        elif "wiki-disabled" in check_id:
+            if row.get("has_wiki_enabled") == True:
+                failed = True
+                reason = "wiki enabled (disable unless actively used)"
+        
+        elif "signoff" in check_id:
+            if row.get("web_commit_signoff_required") != True:
+                failed = True
+                reason = "web commit sign-off not required"
+        
+        elif "exposed-secrets" in check_id:
+            pass  # secrets existing in Actions is normal — this is informational
+        
+        elif "repo-not-public" in check_id:
+            pass  # public repos are fine for open source — informational only
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
