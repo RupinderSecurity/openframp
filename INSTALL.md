@@ -2,77 +2,66 @@
 
 ## Quick Start (5 minutes)
 
-### Option A: Docker (recommended — no dependencies)
-
-1. Clone the repo:
+### Option A: Docker Compose (recommended)
 
 ```bash
 git clone https://github.com/RupinderSecurity/openframp.git
 cd openframp
 ```
 
-2. Build the container:
+Create a `.env` file with your cloud credentials:
 
 ```bash
-docker build -t openframp .
+cat > .env <<'EOF'
+AZURE_CLIENT_ID=your-app-id
+AZURE_CLIENT_SECRET=your-secret
+AZURE_TENANT_ID=your-tenant-id
+GITHUB_TOKEN=your-github-token
+EOF
 ```
 
-3. Run a scan (AWS):
+Build and start:
 
 ```bash
-docker run --rm -v ~/.aws:/home/scanner/.aws:ro openframp
+docker compose build
+docker compose up -d
 ```
 
-That's it. Results are printed to the terminal and written to `oscal/assessment-results.json` inside the container. To save results locally:
-
-```bash
-docker run --rm \
-  -v ~/.aws:/home/scanner/.aws:ro \
-  -v $(pwd)/output:/home/scanner/openframp/oscal \
-  openframp
-```
-
-Results will be in `./output/assessment-results.json`.
+Open `http://localhost:4000` in your browser. Click "Run Scan" to scan your cloud environment.
 
 ### Option B: Run locally
 
 #### Prerequisites
 
-- **Python 3.9+** — check with `python3 --version`
-- **Steampipe** — install from https://steampipe.io
-- **OPA** (optional, for legacy rego checks) — install from https://www.openpolicyagent.org
+- Python 3.9+
+- [Steampipe](https://steampipe.io/)
+- Cloud credentials configured
 
 #### Install Steampipe plugins
 
-For AWS scanning:
-
 ```bash
-steampipe plugin install aws
-```
-
-For Azure + Entra ID scanning:
-
-```bash
-steampipe plugin install azure
-steampipe plugin install azuread
+steampipe plugin install aws        # For AWS scanning
+steampipe plugin install azure      # For Azure scanning
+steampipe plugin install azuread    # For Entra ID scanning
+steampipe plugin install github     # For GitHub scanning
 ```
 
 #### Configure cloud credentials
 
-**AWS:** Configure the AWS CLI with credentials that have the `SecurityAudit` managed policy attached:
+**AWS:** Configure credentials with the `SecurityAudit` managed policy:
 
 ```bash
 aws configure
 ```
 
-Or use the included OpenTofu module to create a dedicated read-only scanner:
+For production use, create a dedicated scanner role:
 
 ```bash
 cd bootstrap/scanner-role
 tofu init && tofu apply
 ```
 
-This creates an IAM Role with `SecurityAudit` policy. Configure Steampipe to use it by adding to `~/.aws/config`:
+Add to `~/.aws/config`:
 
 ```ini
 [profile openframp-scanner]
@@ -81,7 +70,7 @@ source_profile = default
 region = us-west-2
 ```
 
-And adding to `~/.steampipe/config/aws.spc`:
+Add to `~/.steampipe/config/aws.spc`:
 
 ```hcl
 connection "aws" {
@@ -91,86 +80,130 @@ connection "aws" {
 }
 ```
 
-**Azure:** Sign in with the Azure CLI:
+**Azure:** For local scanning, sign in with Azure CLI:
 
 ```bash
 az login
 ```
 
-Steampipe picks up Azure CLI credentials automatically. Create the config files.
+For Docker, create a service principal:
 
-`~/.steampipe/config/azure.spc`:
+```bash
+az ad sp create-for-rbac --name "openframp-scanner" --role "Reader" \
+  --scopes "/subscriptions/YOUR_SUBSCRIPTION_ID"
+```
+
+Then grant Entra ID permissions in Azure Portal:
+
+1. Go to App registrations → openframp-scanner → API permissions
+2. Add permission → Microsoft Graph → Application permissions
+3. Add `User.Read.All` and `Directory.Read.All`
+4. Click "Grant admin consent for Default Directory"
+
+Add the credentials to `.env` for Docker use.
+
+For local use, create Steampipe configs:
 
 ```hcl
+# ~/.steampipe/config/azure.spc
 connection "azure" {
   plugin = "azure"
 }
-```
 
-`~/.steampipe/config/azuread.spc`:
-
-```hcl
+# ~/.steampipe/config/azuread.spc
 connection "azuread" {
   plugin = "azuread"
 }
 ```
 
+**GitHub:** Create a personal access token at https://github.com/settings/tokens (classic) with scopes: `repo`, `read:org`, `admin:repo_hook`.
+
+For local use:
+
+```hcl
+# ~/.steampipe/config/github.spc
+connection "github" {
+  plugin = "github"
+  token  = "ghp_your_token_here"
+}
+```
+
+For Docker, add `GITHUB_TOKEN=ghp_your_token_here` to `.env`.
+
 #### Run the scan
 
 ```bash
-cd openframp
-./scan.sh                                        # scan all catalogs
+./scan.sh                                        # scan all providers
 ./scan.sh catalog/fedramp-moderate-aws.json      # AWS only
 ./scan.sh catalog/fedramp-moderate-azure.json    # Azure only
+./scan.sh catalog/github-security.json           # GitHub only
 ```
 
-Results are written to `oscal/assessment-results.json`.
+#### Start the web dashboard
 
-## What gets scanned
-
-OpenFRAMP scans your cloud environment against 85 checks across 46 controls covering FedRAMP Moderate, PCI DSS 4.0.1, and SOC 2.
-
-**AWS checks include:** S3 public access and encryption, IAM MFA enforcement, CloudTrail logging, security group rules, KMS key rotation, GuardDuty, SecurityHub, password policies, EBS encryption, RDS encryption and backups, and more.
-
-**Azure checks include:** Storage account public access and encryption, Entra ID user status and MFA, Key Vault configuration, network security groups, TLS enforcement, Defender for Cloud, and more.
-
-The scanner uses read-only access. It never modifies your environment.
-
-## Understanding the output
-
-The scanner prints a summary to the terminal:
-
-```
-  [AC-2] Account Management
-    ✓ ac-2-iam-user-activity: 1 passed
-    ✓ ac-2-no-root-access-keys: 1 passed
-  [IA-2] Identification and Authentication
-    ✗ ia-2-iam-user-mfa: 1 failed
+```bash
+cd web
+python3 app.py
 ```
 
-- ✓ = check passed (resource is compliant)
-- ✗ = check failed (finding — needs remediation)
-- ⚠ = query error (usually a permission or service issue)
-- — = no resources found (nothing to check)
+Open `http://localhost:4000`.
 
-The full results are written to `oscal/assessment-results.json` in OSCAL Assessment Results format.
+## Web Dashboard
+
+The dashboard at `localhost:4000` provides:
+
+- **Provider tabs** — filter by AWS, Azure & Entra ID, or GitHub
+- **Run Scan** — trigger a live scan from the browser
+- **Upload SSP** — parse FedRAMP SSP Appendix A (.docx) into OSCAL SSP JSON
+- **Expandable controls** — click to see findings with resource names and severity
+- **Progress bar** — compliance posture at a glance
+
+## SSP Parsing
+
+Parse FedRAMP SSP Appendix A documents and generate OSCAL 1.1 SSP JSON.
+
+**Web dashboard:** Click "Upload SSP" and select your `.docx` file.
+
+**Command line:**
+
+```bash
+cd ssp-parser
+python3 ssp_parser.py path/to/SSP-Appendix-A.docx --output parsed.json
+python3 ssp_to_oscal.py parsed.json --output oscal-ssp.json --name "My System"
+```
+
+## Coverage
+
+**101 checks across 3 providers and 3 compliance frameworks:**
+
+| Provider | Controls | Checks | Frameworks |
+| --- | --- | --- | --- |
+| AWS | 31 | 57 | FedRAMP Moderate, PCI DSS 4.0.1, SOC 2 |
+| Azure + Entra ID | 15 | 28 | FedRAMP Moderate, PCI DSS 4.0.1, SOC 2 |
+| GitHub | 9 | 16 | FedRAMP Moderate, PCI DSS 4.0.1, SOC 2 |
+
+The scanner uses read-only access and never modifies your environment.
 
 ## Troubleshooting
 
-**"Cannot connect to AWS"** — Run `aws sts get-caller-identity` to verify your credentials work. The scanner needs the `SecurityAudit` managed policy at minimum.
+**"Cannot connect to AWS"** — Run `aws sts get-caller-identity` to verify credentials.
 
-**"SubscriptionRequiredException" or "OptInRequired"** — The AWS service (GuardDuty, SecurityHub, etc.) is not enabled in your account. This is reported as a finding, not an error. The scanner handles this automatically.
+**"SubscriptionRequiredException" or "OptInRequired"** — AWS service not enabled. Reported as a finding, not an error.
 
-**"Unable to parse config file"** — Your `~/.aws/credentials` file has a formatting issue. Run `cat ~/.aws/credentials` and check for extra spaces, blank lines inside a section, or missing values.
+**"Authorization_RequestDenied" for Azure** — Service principal needs `User.Read.All` and `Directory.Read.All` Application permissions with admin consent.
 
-**Steampipe plugin errors** — Run `steampipe plugin update --all` to ensure plugins are current.
+**Azure zero findings in Docker** — Check `.env` has correct credentials: `docker compose exec openframp env | grep AZURE`
 
-**Azure "authorization failed"** — Run `az login` to refresh your token. Azure CLI tokens expire after a few hours.
+**GitHub branch protection empty** — GitHub Rulesets (newer feature) are not yet supported by Steampipe. Classic branch protection rules are detected.
 
-**Docker build fails** — Make sure Docker Desktop is running. On Mac, open Docker from Applications.
+**Steampipe database conflict in Docker** — Don't run manual `steampipe query` inside a running container. Use the dashboard.
 
-## Permissions required
+**Port 4000 in use** — Stop other services on 4000 or change the port in `docker-compose.yml`.
 
-**AWS:** The `SecurityAudit` AWS-managed policy provides read-only access to all services the scanner checks. No write permissions are needed. For the IAM Role approach, the scanner user also needs `sts:AssumeRole` on the scanner role.
+## Permissions
 
-**Azure:** The default Reader role on the subscription plus Directory Reader on Entra ID. The Azure CLI login typically provides sufficient access for a free or personal account.
+| Provider | Required Access |
+| --- | --- |
+| AWS | `SecurityAudit` managed policy. For Role: also `sts:AssumeRole` |
+| Azure | `Reader` on subscription + `User.Read.All` + `Directory.Read.All` (Application, admin consented) |
+| GitHub | Token with `repo`, `read:org`, `admin:repo_hook` |

@@ -1,6 +1,6 @@
 # Architecture
 
-This document explains how OpenFRAMP works, why it's built this way, and how the pieces fit together. It's intended for contributors, security engineers evaluating the tool, and anyone who wants to understand the design decisions.
+How OpenFRAMP works, why it's built this way, and how the pieces fit together.
 
 ## Pipeline Overview
 
@@ -15,116 +15,113 @@ Appendix A    →    JSON with 323    →    SSP JSON
 
 Pipeline 2: Infrastructure Scanning
 ──────────────────────────────────────────────────────────
-Cloud           Steampipe          Scanner           OSCAL 1.1
-Infrastructure  SQL queries   →    engine     →    Assessment
-(AWS, Azure)    via catalogs       evaluation       Results JSON
-```
+Cloud               Steampipe          Scanner           OSCAL 1.1
+Infrastructure  →   SQL queries   →    engine     →    Assessment
+(AWS, Azure,        via catalogs       evaluation       Results JSON
+ GitHub)
 
-Both pipelines produce standard OSCAL documents that can be viewed in the OSCAL Viewer or consumed by any OSCAL-compatible tool.
+Pipeline 3: Web Dashboard
+──────────────────────────────────────────────────────────
+OSCAL JSON    →    Flask API    →    Browser dashboard
+                                     with provider tabs,
+                                     scan trigger, SSP upload
+```
 
 ## Directory Structure
 
 ```
 openframp/
-├── catalog/                        # Control definitions (the "what to check")
-│   ├── fedramp-moderate-aws.json   #   AWS: 31 controls, 57 checks
-│   └── fedramp-moderate-azure.json #   Azure + Entra ID: 15 controls, 28 checks
+├── catalog/                             # Control definitions
+│   ├── fedramp-moderate-aws.json        #   AWS: 31 controls, 57 checks
+│   ├── fedramp-moderate-azure.json      #   Azure + Entra ID: 15 controls, 28 checks
+│   └── github-security.json             #   GitHub: 9 controls, 16 checks
 │
-├── oscal/                          # Scanner engine and output
-│   ├── scanner.py                  #   Catalog-driven scan engine
-│   ├── generate_ar.py              #   Legacy 6-check generator (still works)
-│   └── assessment-results.json     #   Generated OSCAL Assessment Results
+├── oscal/                               # Scanner engine and output
+│   ├── scanner.py                       #   Catalog-driven scan engine
+│   ├── assessment-results-aws.json      #   Generated OSCAL (per provider)
+│   ├── assessment-results-azure.json    #
+│   └── assessment-results-github.json   #
 │
-├── ssp-parser/                     # SSP document parsing
-│   ├── ssp_parser.py               #   Extracts controls from SSP Appendix A docx
-│   ├── ssp_to_oscal.py             #   Converts parsed data to OSCAL SSP JSON
-│   └── (template docs)             #   FedRAMP SSP templates (not committed)
+├── ssp-parser/                          # SSP document parsing
+│   ├── ssp_parser.py                    #   Extracts 323 controls from Appendix A
+│   ├── ssp_to_oscal.py                  #   Converts to OSCAL 1.1 SSP JSON
+│   └── (template docs)                  #   FedRAMP SSP templates (not committed)
 │
-├── checks/                         # Legacy OPA/Rego policies
-│   ├── s3_public_access.rego       #   Can still be used independently
-│   ├── iam_mfa.rego                #   with: steampipe query | opa eval
-│   └── ...                         #
+├── web/                                 # Web dashboard
+│   ├── app.py                           #   Flask API (scan trigger, SSP upload, results)
+│   └── static/index.html               #   Dashboard UI (provider tabs, findings)
 │
-├── bootstrap/                      # Infrastructure as code for scanner setup
-│   ├── scanner-iam/                #   IAM User with SecurityAudit (static creds)
-│   └── scanner-role/               #   IAM Role with AssumeRole (temp creds)
+├── checks/                              # Legacy OPA/Rego policies (still usable)
 │
-├── lab-environment/                # Test resources for development
-│   └── main.tf                     #   Creates secure + insecure S3 buckets
+├── bootstrap/                           # Infrastructure as code
+│   ├── scanner-iam/                     #   AWS IAM User (static credentials)
+│   └── scanner-role/                    #   AWS IAM Role (temporary credentials)
 │
-├── scan.sh                         # Entry point script
-├── Dockerfile                      # Containerized deployment
-└── INSTALL.md                      # Installation guide
+├── scan.sh                              # CLI entry point
+├── Dockerfile                           # Container image
+├── docker-compose.yml                   # One-command deployment
+└── .env                                 # Cloud credentials (gitignored)
 ```
 
 ## Design Decisions
 
-### Why catalog-driven instead of individual policy files?
+### Why catalog-driven?
 
-The first version of OpenFRAMP used individual OPA/Rego files — one per check. Each file contained a Steampipe SQL query and a Rego policy that evaluated the results. This approach is auditable (each policy is a standalone artifact) but does not scale. Going from 6 checks to 80 would require 80 separate files, each with its own query, policy logic, and test.
+Each check is a JSON entry with a control ID, description, severity, SQL query, and framework mappings. Adding a new check means adding JSON — no code changes to the scanner engine. This scaled OpenFRAMP from 6 hand-written checks to 101 checks across 3 providers in days.
 
-The catalog approach stores check definitions as JSON data. Adding a new check means adding a few lines to a catalog file — no code changes to the scanner engine. This reduced the effort to add a check from "write three files and update the generator" to "add four lines of JSON."
-
-The tradeoff: catalog-driven evaluation logic lives in Python pattern matching rather than declarative Rego policies. This is less formally auditable than Rego. The planned future architecture combines both — catalogs define what to check, Rego files define how to evaluate for the most critical controls where formal policy-as-code matters.
+The tradeoff: evaluation logic lives in Python pattern matching rather than declarative Rego policies. The planned future architecture combines both — catalogs define what to check, Rego files define how to evaluate for critical controls.
 
 ### Why Steampipe?
 
-Steampipe was chosen over alternatives for several reasons:
+Steampipe turns cloud APIs into SQL tables. One tool queries AWS, Azure, GitHub, and 140+ other services with the same interface. Alternatives and why they were not chosen:
 
-**vs. Prowler:** Prowler runs predefined checks against predefined benchmarks. You cannot easily add custom checks or query arbitrary resource properties. Steampipe exposes every cloud resource as a SQL table, allowing arbitrary queries. OpenFRAMP uses this to map checks to any compliance framework, not just CIS Benchmarks.
-
-**vs. Cloud Custodian:** Cloud Custodian is primarily a policy enforcement engine (it takes actions like shutting down non-compliant resources). OpenFRAMP is read-only by design. A compliance scanner that modifies the environment it scans is a non-starter for FedRAMP assessors.
-
-**vs. AWS Config Rules / Azure Policy:** These are cloud-native but vendor-locked. OpenFRAMP scans AWS and Azure from the same engine. Adding GCP requires installing one Steampipe plugin, not adopting an entirely different policy framework.
-
-**vs. Custom API calls:** Steampipe handles pagination, rate limiting, credential management, and caching. Writing raw boto3 or Azure SDK calls for 85 checks would be thousands of lines of infrastructure code that Steampipe eliminates.
+- **Prowler**: Predefined checks only. Cannot add custom checks or map to arbitrary frameworks.
+- **Cloud Custodian**: Primarily a policy enforcement engine that modifies resources. OpenFRAMP is read-only by design.
+- **AWS Config / Azure Policy**: Vendor-locked. OpenFRAMP scans three providers from one engine.
+- **Custom API calls**: Steampipe handles pagination, rate limiting, and caching.
 
 ### Why run inside the boundary?
 
-FedRAMP authorization boundaries define what systems can access what data. SaaS compliance tools (Vanta, Drata, Secureframe) operate outside the boundary. For them to scan inside a FedRAMP Government Cloud environment, the tool itself would need FedRAMP authorization — creating a circular dependency.
-
-OpenFRAMP runs as a container or local process inside the boundary. It uses the same IAM roles and network paths as other authorized systems. No data crosses the boundary. No external SaaS dependency. This is architecturally equivalent to running Nessus inside your network instead of using a cloud-hosted vulnerability scanner.
+SaaS compliance tools operate outside the FedRAMP authorization boundary. For them to scan inside, they would need their own FedRAMP authorization. OpenFRAMP runs as a container inside the boundary with no external dependencies.
 
 ### Why OSCAL?
 
-NIST's Open Security Controls Assessment Language (OSCAL) is becoming the mandatory format for FedRAMP compliance evidence. The September 2026 deadline means every FedRAMP-authorized system needs OSCAL-formatted packages. By generating OSCAL natively, OpenFRAMP produces evidence that feeds directly into the authorization process without format conversion.
+NIST mandates OSCAL for FedRAMP by September 2026. OpenFRAMP generates OSCAL Assessment Results natively, producing machine-readable evidence that feeds directly into the authorization process.
 
-OSCAL also enables machine-readable compliance data. Instead of auditors reading PDF narratives, they can programmatically validate that controls are implemented, compare assessment results across time periods, and identify gaps automatically. This is the foundation for continuous compliance rather than point-in-time assessment.
+### Why three separate output files?
+
+Each provider gets its own OSCAL Assessment Results file (`assessment-results-aws.json`, `assessment-results-azure.json`, `assessment-results-github.json`). The web dashboard combines them for display but keeps them separate on disk. This allows scanning providers independently and comparing results across time.
 
 ### Why IAM Role over IAM User?
 
-The bootstrap module provides two options: an IAM User with static access keys, and an IAM Role with AssumeRole for temporary credentials. The role-based approach is recommended because:
+The role-based approach uses AssumeRole for temporary credentials that expire in 1 hour. No long-lived secrets to rotate. The scanner user's static key only calls `sts:AssumeRole`, never accesses AWS services directly.
 
-- Temporary credentials expire automatically (1 hour default). No long-lived secrets to rotate or leak.
-- The scanner user's static key is only used to call `sts:AssumeRole`, not to access any AWS services directly.
-- The state file (`terraform.tfstate`) for the role module contains no secrets — the role ARN is not sensitive.
-- This pattern matches how production FedRAMP environments manage service accounts.
+### Why Azure Service Principal?
 
-The IAM User option exists for quick local testing where the additional complexity of role assumption is not justified.
+Azure CLI tokens are session-based and machine-specific. They don't work reliably in Docker containers. A service principal with `Reader` role + Microsoft Graph permissions provides stable, credential-based authentication that works in any environment.
 
 ## Catalog Schema
 
-Each catalog file is a JSON document with this structure:
-
 ```json
 {
-  "catalog_version": "2.0.0",
+  "catalog_version": "1.0.0",
   "framework": "Multi-Framework",
   "baseline": "FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2",
   "provider": "aws",
   "controls": [
     {
-      "control_id": "AC-2",
-      "title": "Account Management",
-      "family": "Access Control",
-      "frameworks": ["FedRAMP AC-2", "PCI DSS 8.1", "SOC 2 CC6.1"],
+      "control_id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "family": "System and Communications Protection",
+      "frameworks": ["FedRAMP SC-28", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
       "checks": [
         {
-          "check_id": "ac-2-no-root-access-keys",
-          "description": "Root account should not have access keys",
-          "severity": "critical",
-          "query": "select account_access_keys_present from aws_iam_account_summary",
-          "resource_type": "aws_iam_account_summary"
+          "check_id": "sc-28-s3-encryption",
+          "description": "S3 buckets should have encryption enabled",
+          "severity": "high",
+          "query": "select name, server_side_encryption_configuration from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": ["KSI-CRY-01"]
         }
       ]
     }
@@ -132,47 +129,57 @@ Each catalog file is a JSON document with this structure:
 }
 ```
 
-**Fields:**
-
-- `control_id`: NIST 800-53 Rev 5 control identifier
-- `frameworks`: Array of framework-specific control references this check satisfies
-- `checks`: Array of individual checks for this control. Each check has a unique `check_id`, human-readable `description`, `severity` (critical/high/medium/low), the `query` to run via Steampipe, and the `resource_type` being checked
-- `provider`: Which cloud provider this catalog targets (aws, azure)
-
-Adding a new check requires only adding a JSON entry to the appropriate catalog file. The scanner engine processes it automatically.
+Adding a new check requires only adding a JSON entry. The scanner engine processes it automatically.
 
 ## Scanner Engine
 
-`oscal/scanner.py` is the core engine. It:
+`oscal/scanner.py` reads any catalog file, runs each query via Steampipe, evaluates results with pattern matching, and generates OSCAL output. Error handling:
 
-1. Loads a catalog JSON file
-2. For each control, runs each check's SQL query via Steampipe
-3. Evaluates the query results against known patterns (encryption missing, MFA disabled, public access enabled, etc.)
-4. Collects pass/fail findings with control mappings and severity
-5. Generates an OSCAL Assessment Results document
+- **Service not enabled** (GuardDuty, SecurityHub): reported as a finding
+- **Service not available** (Redshift in Free Tier): reported as a finding
+- **Dependabot alerts disabled**: reported as a finding
+- **Query errors**: counted separately, not confused with findings
 
-The evaluation logic uses pattern matching on check IDs to determine pass/fail criteria. For example, any check with "mfa" in its ID evaluates the `mfa_enabled` field. Any check with "encryption" evaluates encryption configuration fields.
+## Web Dashboard
 
-Error handling distinguishes between:
-- **Service not enabled** (e.g., GuardDuty not activated): reported as a finding ("service not enabled in this account")
-- **Service not available** (e.g., Redshift in Free Tier): reported as a finding
-- **Query errors** (e.g., wrong column names): reported as errors and counted separately
+`web/app.py` is a Flask application serving the dashboard on port 4000.
 
-## SSP Parser
+**API endpoints:**
+- `GET /api/results?provider=all|aws|azure|github` — returns OSCAL results, optionally filtered
+- `POST /api/scan` — triggers a scan (accepts `{"catalog": "all"}` or specific catalog filename)
+- `GET /api/catalogs` — lists available catalogs
+- `POST /api/upload-ssp` — accepts a `.docx` file, parses it, generates OSCAL SSP
+- `GET /api/ssp-results` — returns parsed SSP data
 
-The SSP parser handles FedRAMP SSP Appendix A documents, which contain 323 Moderate baseline controls in a structured Word document format. Each control has two tables:
+The dashboard renders provider tabs dynamically. Adding a new provider catalog automatically creates a new tab.
 
-1. **Summary table**: Contains the control ID, responsible role, parameters, implementation status, and control origination
-2. **Implementation table**: Contains parts (a, b, c, etc.) with narrative descriptions of how the control is implemented
+## Docker Architecture
 
-The parser extracts both tables for each control and produces structured JSON. The OSCAL SSP generator then converts this JSON to a valid OSCAL 1.1 System Security Plan document with proper `implemented-requirements`, `statements`, and `set-parameters`.
+`docker-compose.yml` runs a single container that includes Steampipe (with AWS, Azure, Entra ID, and GitHub plugins), Flask, OPA, and all catalogs. Cloud credentials are passed via environment variables from `.env` and volume mounts.
 
-## What V1 Deliberately Does NOT Do
+```yaml
+services:
+  openframp:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - ~/.aws:/home/scanner/.aws:ro
+    environment:
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    entrypoint: ["python3", "/home/scanner/openframp/web/app.py"]
+```
 
-- **Multi-tenant deployment**: V1 is single-user, single-scan. No user management, no shared state.
-- **Continuous monitoring**: V1 is run-once, produce-report. Scheduled scans via CI/CD are documented but not built in.
-- **Remediation automation**: V1 reports findings. It does not fix them. A compliance scanner should never modify the environment it scans.
-- **GCP support**: V1 covers AWS and Azure. GCP requires a new catalog and Steampipe plugin configuration.
-- **FedRAMP High or Low baselines**: V1 targets Moderate only. High adds approximately 100 additional controls. Low is a subset.
-- **Non-cloud controls**: Physical security (PE family), personnel security (PS family), and other non-technical controls cannot be automated and are excluded.
-- **POA&M generation**: V1 produces Assessment Results but does not generate Plans of Action and Milestones from findings.
+## What V1 Does NOT Do
+
+- **Multi-tenant**: Single-user, single-scan. No user management.
+- **Continuous monitoring**: Run-once, produce-report. CI/CD scheduling is documented but not built in.
+- **Remediation automation**: Reports findings. Does not fix them.
+- **GCP**: AWS, Azure, and GitHub only. GCP requires a new catalog.
+- **FedRAMP High/Low**: Moderate baseline only.
+- **Non-cloud controls**: Physical security, personnel security, and other non-technical controls are not automatable.
+- **POA&M generation**: Produces Assessment Results but not Plans of Action.
+- **Multi-account scanning**: Scans one AWS account, one Azure subscription, one GitHub owner at a time.
