@@ -58,10 +58,12 @@ def evaluate_check(check, query_result):
         return findings
     
     for row in rows:
-        name = (row.get("name") or row.get("instance_id") or row.get("volume_id") or
+        name = (row.get("name") or row.get("name_with_owner") or row.get("repository_full_name") or
+                row.get("instance_id") or row.get("volume_id") or
                 row.get("db_instance_identifier") or row.get("group_id") or
                 row.get("user_name") or row.get("vpc_id") or row.get("hub_arn") or
-                row.get("detector_id") or "unknown")
+                row.get("detector_id") or row.get("topic_arn") or row.get("display_name") or
+                row.get("user_principal_name") or "unknown")
         
         failed = False
         reason = ""

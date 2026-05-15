@@ -130,6 +130,7 @@
     </select>
     <button id="scanBtn" class="btn btn-scan" onclick="runScan()">▶ Run Scan</button>
     <button class="btn" onclick="uploadSSP()" style="border-color:rgba(129,140,248,0.2);color:#818cf8">📄 Upload SSP</button>
+    <button class="btn" onclick="downloadReport()" style="border-color:rgba(52,211,153,0.2);color:#34d399">⬇ Export PDF</button>
     <button class="btn" onclick="loadResults()">↻ Refresh</button>
   </div>
 </div>
@@ -149,6 +150,8 @@
   <span>OpenFRAMP v1.0.0 · github.com/RupinderSecurity/openframp</span>
   <span>OSCAL Assessment Results · NIST SP 800-53 Rev 5 · FedRAMP Moderate + PCI DSS 4.0.1 + SOC 2</span>
 </div>
+
+
 
 <script>
 let data = null;
@@ -489,6 +492,13 @@ function showSSPResults(data) {
   });
   
   document.getElementById('content').innerHTML = html;
+}
+
+function downloadReport() {
+  const catalog = document.getElementById('scanSelect')?.value || 'all';
+  let provider = 'all';
+  if (activeProvider && activeProvider !== 'all') provider = activeProvider;
+  window.open('/api/export?provider=' + provider, '_blank');
 }
 
 </script>
