@@ -8,7 +8,11 @@
       "control_id": "AC-2",
       "title": "Account Management",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-2", "PCI DSS 8.1", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-2",
+        "PCI DSS 8.1",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-2-iam-user-activity",
@@ -16,7 +20,9 @@
           "severity": "medium",
           "query": "select name, password_last_used, create_date from aws_iam_user",
           "resource_type": "aws_iam_user",
-          "fedramp_20x_ksi": ["KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-07"
+          ]
         },
         {
           "check_id": "ac-2-no-root-access-keys",
@@ -24,7 +30,10 @@
           "severity": "critical",
           "query": "select account_access_keys_present from aws_iam_account_summary",
           "resource_type": "aws_iam_account_summary",
-          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-04",
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-2-unused-credentials",
@@ -32,7 +41,19 @@
           "severity": "medium",
           "query": "select user_name, access_key_id, status, access_key_last_used_date from aws_iam_access_key where status = 'Active'",
           "resource_type": "aws_iam_access_key",
-          "fedramp_20x_ksi": ["KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-07"
+          ]
+        },
+        {
+          "check_id": "ac-2-iam-groups-with-policies",
+          "description": "IAM policies should be attached via groups, not directly to users",
+          "severity": "medium",
+          "query": "select name, arn, attached_policy_arns from aws_iam_group",
+          "resource_type": "aws_iam_group",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -40,7 +61,11 @@
       "control_id": "AC-3",
       "title": "Access Enforcement",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-3",
+        "PCI DSS 7.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-3-s3-no-public-access",
@@ -48,7 +73,10 @@
           "severity": "high",
           "query": "select name, block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02",
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-3-s3-no-public-policy",
@@ -56,7 +84,10 @@
           "severity": "high",
           "query": "select name, bucket_policy_is_public from aws_s3_bucket where bucket_policy_is_public = true",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02",
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-3-rds-no-public-access",
@@ -64,7 +95,9 @@
           "severity": "critical",
           "query": "select db_instance_identifier, publicly_accessible from aws_rds_db_instance where publicly_accessible = true",
           "resource_type": "aws_rds_db_instance",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         },
         {
           "check_id": "ac-3-redshift-no-public",
@@ -72,7 +105,29 @@
           "severity": "critical",
           "query": "select cluster_identifier, publicly_accessible from aws_redshift_cluster where publicly_accessible = true",
           "resource_type": "aws_redshift_cluster",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "ac-3-lambda-no-public-access",
+          "description": "Lambda functions should not have public access policies",
+          "severity": "critical",
+          "query": "select function_name, policy_std from aws_lambda_function where policy is not null",
+          "resource_type": "aws_lambda_function",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "ac-3-ebs-snapshot-not-public",
+          "description": "EBS snapshots should not be publicly shared",
+          "severity": "critical",
+          "query": "select snapshot_id, create_volume_permissions from aws_ebs_snapshot where owner_alias is null",
+          "resource_type": "aws_ebs_snapshot",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -80,7 +135,11 @@
       "control_id": "AC-4",
       "title": "Information Flow Enforcement",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-4", "PCI DSS 1.3", "SOC 2 CC6.6"],
+      "frameworks": [
+        "FedRAMP AC-4",
+        "PCI DSS 1.3",
+        "SOC 2 CC6.6"
+      ],
       "checks": [
         {
           "check_id": "ac-4-nacl-unrestricted",
@@ -88,7 +147,10 @@
           "severity": "high",
           "query": "select network_acl_id, rule_number, rule_action, cidr_block, protocol from aws_vpc_network_acl_rule where rule_action = 'allow' and cidr_block = '0.0.0.0/0' and egress = false",
           "resource_type": "aws_vpc_network_acl_rule",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -96,7 +158,11 @@
       "control_id": "AC-6",
       "title": "Least Privilege",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
+      "frameworks": [
+        "FedRAMP AC-6",
+        "PCI DSS 7.1",
+        "SOC 2 CC6.3"
+      ],
       "checks": [
         {
           "check_id": "ac-6-no-admin-access",
@@ -104,7 +170,10 @@
           "severity": "critical",
           "query": "select name, attached_policy_arns from aws_iam_user",
           "resource_type": "aws_iam_user",
-          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-04",
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-6-no-inline-admin-policies",
@@ -112,7 +181,9 @@
           "severity": "high",
           "query": "select name, inline_policies from aws_iam_user where inline_policies is not null",
           "resource_type": "aws_iam_user",
-          "fedramp_20x_ksi": ["KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-6-no-star-policies",
@@ -120,7 +191,9 @@
           "severity": "critical",
           "query": "select name, arn, policy_std from aws_iam_policy where is_attached = true",
           "resource_type": "aws_iam_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-6-no-user-attached-policies",
@@ -128,7 +201,10 @@
           "severity": "medium",
           "query": "select name, attached_policy_arns from aws_iam_user where attached_policy_arns is not null and jsonb_array_length(attached_policy_arns) > 0",
           "resource_type": "aws_iam_user",
-          "fedramp_20x_ksi": ["KSI-IAM-05", "KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05",
+            "KSI-IAM-07"
+          ]
         }
       ]
     },
@@ -136,7 +212,11 @@
       "control_id": "AC-7",
       "title": "Unsuccessful Logon Attempts",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-7", "PCI DSS 8.3.4", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-7",
+        "PCI DSS 8.3.4",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-7-password-policy-exists",
@@ -144,7 +224,9 @@
           "severity": "medium",
           "query": "select max_password_age, password_reuse_prevention, minimum_password_length from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         }
       ]
     },
@@ -152,7 +234,11 @@
       "control_id": "AC-17",
       "title": "Remote Access",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-17", "PCI DSS 8.4", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-17",
+        "PCI DSS 8.4",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-17-no-ssh-from-internet",
@@ -160,7 +246,10 @@
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 22 and to_port >= 22 and cidr_ipv4 = '0.0.0.0/0'",
           "resource_type": "aws_vpc_security_group_rule",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-02"
+          ]
         },
         {
           "check_id": "ac-17-no-rdp-from-internet",
@@ -168,7 +257,10 @@
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'ingress' and from_port <= 3389 and to_port >= 3389 and cidr_ipv4 = '0.0.0.0/0'",
           "resource_type": "aws_vpc_security_group_rule",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -176,7 +268,11 @@
       "control_id": "AU-2",
       "title": "Event Logging",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-2",
+        "PCI DSS 10.2",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-2-cloudtrail-enabled",
@@ -184,7 +280,10 @@
           "severity": "critical",
           "query": "select name, is_logging, is_multi_region_trail, log_file_validation_enabled from aws_cloudtrail_trail",
           "resource_type": "aws_cloudtrail_trail",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-MLA-07"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-MLA-07"
+          ]
         },
         {
           "check_id": "au-2-s3-access-logging",
@@ -192,7 +291,20 @@
           "severity": "medium",
           "query": "select name, logging from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-MLA-02", "KSI-MLA-07"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-02",
+            "KSI-MLA-07"
+          ]
+        },
+        {
+          "check_id": "au-2-cloudtrail-s3-data-events",
+          "description": "CloudTrail should log S3 data events for sensitive buckets",
+          "severity": "medium",
+          "query": "select name, event_selectors from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -200,7 +312,11 @@
       "control_id": "AU-3",
       "title": "Content of Audit Records",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-3", "PCI DSS 10.3", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-3",
+        "PCI DSS 10.3",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-3-cloudtrail-log-validation",
@@ -208,7 +324,9 @@
           "severity": "high",
           "query": "select name, log_file_validation_enabled from aws_cloudtrail_trail",
           "resource_type": "aws_cloudtrail_trail",
-          "fedramp_20x_ksi": ["KSI-MLA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01"
+          ]
         }
       ]
     },
@@ -216,7 +334,11 @@
       "control_id": "AU-6",
       "title": "Audit Record Review",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-6", "PCI DSS 10.6", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-6",
+        "PCI DSS 10.6",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-6-guardduty-enabled",
@@ -224,7 +346,10 @@
           "severity": "high",
           "query": "select detector_id, status from aws_guardduty_detector",
           "resource_type": "aws_guardduty_detector",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-CNA-05"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-CNA-05"
+          ]
         }
       ]
     },
@@ -232,7 +357,11 @@
       "control_id": "AU-9",
       "title": "Protection of Audit Information",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-9", "PCI DSS 10.5", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-9",
+        "PCI DSS 10.5",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-9-cloudtrail-encrypted",
@@ -240,7 +369,10 @@
           "severity": "high",
           "query": "select name, kms_key_id from aws_cloudtrail_trail",
           "resource_type": "aws_cloudtrail_trail",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "au-9-s3-versioning-log-buckets",
@@ -248,7 +380,19 @@
           "severity": "medium",
           "query": "select name, versioning_enabled from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-MLA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01"
+          ]
+        },
+        {
+          "check_id": "au-9-cloudwatch-log-encrypted",
+          "description": "CloudWatch log groups should be encrypted with KMS",
+          "severity": "medium",
+          "query": "select name, kms_key_id from aws_cloudwatch_log_group",
+          "resource_type": "aws_cloudwatch_log_group",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -256,7 +400,11 @@
       "control_id": "AU-11",
       "title": "Audit Record Retention",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-11", "PCI DSS 10.7", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-11",
+        "PCI DSS 10.7",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-11-s3-lifecycle-policy",
@@ -264,7 +412,41 @@
           "severity": "medium",
           "query": "select name, lifecycle_rules from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-MLA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-02"
+          ]
+        },
+        {
+          "check_id": "au-11-cloudwatch-log-retention",
+          "description": "CloudWatch log groups should have retention periods set (not indefinite)",
+          "severity": "medium",
+          "query": "select name, retention_in_days from aws_cloudwatch_log_group",
+          "resource_type": "aws_cloudwatch_log_group",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        }
+      ]
+    },
+    {
+      "control_id": "AU-12",
+      "title": "Audit Record Generation",
+      "family": "Audit and Accountability",
+      "frameworks": [
+        "FedRAMP AU-12",
+        "PCI DSS 10.2",
+        "SOC 2 CC7.2"
+      ],
+      "checks": [
+        {
+          "check_id": "au-12-cloudwatch-log-groups",
+          "description": "CloudWatch log groups should exist for audit logging",
+          "severity": "medium",
+          "query": "select name, retention_in_days, kms_key_id from aws_cloudwatch_log_group",
+          "resource_type": "aws_cloudwatch_log_group",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -272,7 +454,11 @@
       "control_id": "CM-2",
       "title": "Baseline Configuration",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-2", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-2",
+        "PCI DSS 2.2",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-2-ec2-imdsv2",
@@ -280,7 +466,20 @@
           "severity": "high",
           "query": "select instance_id, metadata_options from aws_ec2_instance",
           "resource_type": "aws_ec2_instance",
-          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-CNA-04"]
+          "fedramp_20x_ksi": [
+            "KSI-CMT-01",
+            "KSI-CNA-04"
+          ]
+        },
+        {
+          "check_id": "cm-2-lambda-runtime-supported",
+          "description": "Lambda functions should use supported runtimes",
+          "severity": "medium",
+          "query": "select function_name, runtime, last_modified from aws_lambda_function",
+          "resource_type": "aws_lambda_function",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -288,7 +487,11 @@
       "control_id": "CM-6",
       "title": "Configuration Settings",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-6", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-6",
+        "PCI DSS 2.2",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-6-config-enabled",
@@ -296,7 +499,10 @@
           "severity": "high",
           "query": "select name, recording, status from aws_config_configuration_recorder",
           "resource_type": "aws_config_configuration_recorder",
-          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-PIY-01"]
+          "fedramp_20x_ksi": [
+            "KSI-CMT-01",
+            "KSI-PIY-01"
+          ]
         }
       ]
     },
@@ -304,7 +510,11 @@
       "control_id": "CM-7",
       "title": "Least Functionality",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-7", "PCI DSS 2.2.4", "SOC 2 CC6.8"],
+      "frameworks": [
+        "FedRAMP CM-7",
+        "PCI DSS 2.2.4",
+        "SOC 2 CC6.8"
+      ],
       "checks": [
         {
           "check_id": "cm-7-no-unrestricted-outbound",
@@ -312,7 +522,10 @@
           "severity": "medium",
           "query": "select group_id, from_port, to_port, cidr_ipv4 from aws_vpc_security_group_rule where type = 'egress' and cidr_ipv4 = '0.0.0.0/0' and from_port = 0 and to_port = 65535",
           "resource_type": "aws_vpc_security_group_rule",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -320,7 +533,11 @@
       "control_id": "CM-8",
       "title": "System Component Inventory",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-8", "PCI DSS 12.5.1", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-8",
+        "PCI DSS 12.5.1",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-8-ec2-instances-tagged",
@@ -328,7 +545,9 @@
           "severity": "medium",
           "query": "select instance_id, tags from aws_ec2_instance",
           "resource_type": "aws_ec2_instance",
-          "fedramp_20x_ksi": ["KSI-PIY-01"]
+          "fedramp_20x_ksi": [
+            "KSI-PIY-01"
+          ]
         },
         {
           "check_id": "cm-8-s3-buckets-tagged",
@@ -336,7 +555,19 @@
           "severity": "low",
           "query": "select name, tags from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-PIY-01"]
+          "fedramp_20x_ksi": [
+            "KSI-PIY-01"
+          ]
+        },
+        {
+          "check_id": "cm-8-lambda-tagged",
+          "description": "Lambda functions should have tags for inventory tracking",
+          "severity": "low",
+          "query": "select function_name, tags from aws_lambda_function",
+          "resource_type": "aws_lambda_function",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -344,7 +575,11 @@
       "control_id": "CP-9",
       "title": "System Backup",
       "family": "Contingency Planning",
-      "frameworks": ["FedRAMP CP-9", "PCI DSS 12.10.1", "SOC 2 A1.2"],
+      "frameworks": [
+        "FedRAMP CP-9",
+        "PCI DSS 12.10.1",
+        "SOC 2 A1.2"
+      ],
       "checks": [
         {
           "check_id": "cp-9-rds-backup-enabled",
@@ -352,7 +587,9 @@
           "severity": "high",
           "query": "select db_instance_identifier, backup_retention_period from aws_rds_db_instance",
           "resource_type": "aws_rds_db_instance",
-          "fedramp_20x_ksi": ["KSI-RPL-03"]
+          "fedramp_20x_ksi": [
+            "KSI-RPL-03"
+          ]
         },
         {
           "check_id": "cp-9-dynamodb-backup",
@@ -360,7 +597,19 @@
           "severity": "medium",
           "query": "select name, point_in_time_recovery_description from aws_dynamodb_table",
           "resource_type": "aws_dynamodb_table",
-          "fedramp_20x_ksi": ["KSI-RPL-03"]
+          "fedramp_20x_ksi": [
+            "KSI-RPL-03"
+          ]
+        },
+        {
+          "check_id": "cp-9-s3-versioning-enabled",
+          "description": "S3 buckets should have versioning enabled for data protection",
+          "severity": "medium",
+          "query": "select name, versioning_enabled from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": [
+            "KSI-BCR-01"
+          ]
         }
       ]
     },
@@ -368,7 +617,10 @@
       "control_id": "CP-10",
       "title": "System Recovery and Reconstitution",
       "family": "Contingency Planning",
-      "frameworks": ["FedRAMP CP-10", "SOC 2 A1.2"],
+      "frameworks": [
+        "FedRAMP CP-10",
+        "SOC 2 A1.2"
+      ],
       "checks": [
         {
           "check_id": "cp-10-rds-multi-az",
@@ -376,7 +628,9 @@
           "severity": "high",
           "query": "select db_instance_identifier, multi_az from aws_rds_db_instance",
           "resource_type": "aws_rds_db_instance",
-          "fedramp_20x_ksi": ["KSI-CNA-06"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-06"
+          ]
         }
       ]
     },
@@ -384,7 +638,11 @@
       "control_id": "IA-2",
       "title": "Identification and Authentication",
       "family": "Identification and Authentication",
-      "frameworks": ["FedRAMP IA-2", "PCI DSS 8.3.1", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP IA-2",
+        "PCI DSS 8.3.1",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ia-2-iam-user-mfa",
@@ -392,7 +650,9 @@
           "severity": "critical",
           "query": "select name, mfa_enabled, password_last_used, create_date from aws_iam_user",
           "resource_type": "aws_iam_user",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         },
         {
           "check_id": "ia-2-root-mfa",
@@ -400,7 +660,10 @@
           "severity": "critical",
           "query": "select account_mfa_enabled from aws_iam_account_summary",
           "resource_type": "aws_iam_account_summary",
-          "fedramp_20x_ksi": ["KSI-IAM-01", "KSI-IAM-04"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01",
+            "KSI-IAM-04"
+          ]
         }
       ]
     },
@@ -408,7 +671,11 @@
       "control_id": "IA-5",
       "title": "Authenticator Management",
       "family": "Identification and Authentication",
-      "frameworks": ["FedRAMP IA-5", "PCI DSS 8.3.6", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP IA-5",
+        "PCI DSS 8.3.6",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ia-5-password-length",
@@ -416,7 +683,9 @@
           "severity": "high",
           "query": "select minimum_password_length, require_uppercase_characters, require_lowercase_characters, require_numbers, require_symbols from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         },
         {
           "check_id": "ia-5-password-reuse",
@@ -424,7 +693,9 @@
           "severity": "medium",
           "query": "select password_reuse_prevention from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         },
         {
           "check_id": "ia-5-password-max-age",
@@ -432,7 +703,9 @@
           "severity": "medium",
           "query": "select max_password_age from aws_iam_account_password_policy",
           "resource_type": "aws_iam_account_password_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         },
         {
           "check_id": "ia-5-access-keys-rotated",
@@ -440,7 +713,20 @@
           "severity": "high",
           "query": "select user_name, access_key_id, create_date, status from aws_iam_access_key",
           "resource_type": "aws_iam_access_key",
-          "fedramp_20x_ksi": ["KSI-SVC-06", "KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-06",
+            "KSI-IAM-07"
+          ]
+        },
+        {
+          "check_id": "ia-5-secrets-rotation-enabled",
+          "description": "Secrets Manager secrets should have automatic rotation enabled",
+          "severity": "high",
+          "query": "select name, rotation_enabled, rotation_lambda_arn from aws_secretsmanager_secret",
+          "resource_type": "aws_secretsmanager_secret",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-07"
+          ]
         }
       ]
     },
@@ -448,7 +734,11 @@
       "control_id": "IR-6",
       "title": "Incident Reporting",
       "family": "Incident Response",
-      "frameworks": ["FedRAMP IR-6", "PCI DSS 12.10", "SOC 2 CC7.3"],
+      "frameworks": [
+        "FedRAMP IR-6",
+        "PCI DSS 12.10",
+        "SOC 2 CC7.3"
+      ],
       "checks": [
         {
           "check_id": "ir-6-sns-topics-exist",
@@ -456,7 +746,9 @@
           "severity": "medium",
           "query": "select topic_arn from aws_sns_topic",
           "resource_type": "aws_sns_topic",
-          "fedramp_20x_ksi": ["KSI-INR-01"]
+          "fedramp_20x_ksi": [
+            "KSI-INR-01"
+          ]
         }
       ]
     },
@@ -464,7 +756,11 @@
       "control_id": "RA-5",
       "title": "Vulnerability Monitoring and Scanning",
       "family": "Risk Assessment",
-      "frameworks": ["FedRAMP RA-5", "PCI DSS 11.3", "SOC 2 CC7.1"],
+      "frameworks": [
+        "FedRAMP RA-5",
+        "PCI DSS 11.3",
+        "SOC 2 CC7.1"
+      ],
       "checks": [
         {
           "check_id": "ra-5-inspector-enabled",
@@ -472,7 +768,10 @@
           "severity": "high",
           "query": "select name, state from aws_inspector2_coverage",
           "resource_type": "aws_inspector2_coverage",
-          "fedramp_20x_ksi": ["KSI-SVC-07", "KSI-TPR-04"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-07",
+            "KSI-TPR-04"
+          ]
         }
       ]
     },
@@ -480,7 +779,11 @@
       "control_id": "SC-7",
       "title": "Boundary Protection",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-7", "PCI DSS 1.2.1", "SOC 2 CC6.6"],
+      "frameworks": [
+        "FedRAMP SC-7",
+        "PCI DSS 1.2.1",
+        "SOC 2 CC6.6"
+      ],
       "checks": [
         {
           "check_id": "sc-7-no-unrestricted-ingress",
@@ -488,7 +791,10 @@
           "severity": "critical",
           "query": "select group_id, from_port, to_port, cidr_ipv4, ip_protocol, type from aws_vpc_security_group_rule where type = 'ingress'",
           "resource_type": "aws_vpc_security_group_rule",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-02"
+          ]
         },
         {
           "check_id": "sc-7-no-default-sg-traffic",
@@ -496,7 +802,9 @@
           "severity": "high",
           "query": "select group_id, group_name, vpc_id from aws_vpc_security_group where group_name = 'default'",
           "resource_type": "aws_vpc_security_group",
-          "fedramp_20x_ksi": ["KSI-CNA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         },
         {
           "check_id": "sc-7-vpc-flow-logs",
@@ -504,7 +812,29 @@
           "severity": "high",
           "query": "select vpc_id, is_default from aws_vpc",
           "resource_type": "aws_vpc",
-          "fedramp_20x_ksi": ["KSI-MLA-07"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-07"
+          ]
+        },
+        {
+          "check_id": "sc-7-rds-snapshot-not-public",
+          "description": "RDS snapshots should not be publicly accessible",
+          "severity": "critical",
+          "query": "select db_snapshot_identifier, type from aws_rds_db_snapshot where type = 'public'",
+          "resource_type": "aws_rds_db_snapshot",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "sc-7-s3-account-public-access-block",
+          "description": "S3 account-level public access block should be enabled",
+          "severity": "high",
+          "query": "select block_public_acls, block_public_policy, restrict_public_buckets, ignore_public_acls from aws_s3_account_settings",
+          "resource_type": "aws_s3_account_settings",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -512,7 +842,11 @@
       "control_id": "SC-8",
       "title": "Transmission Confidentiality and Integrity",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-8", "PCI DSS 4.2.1", "SOC 2 CC6.7"],
+      "frameworks": [
+        "FedRAMP SC-8",
+        "PCI DSS 4.2.1",
+        "SOC 2 CC6.7"
+      ],
       "checks": [
         {
           "check_id": "sc-8-elb-https-only",
@@ -520,7 +854,9 @@
           "severity": "high",
           "query": "select load_balancer_arn, protocol, port from aws_ec2_load_balancer_listener where protocol not in ('HTTPS', 'TLS')",
           "resource_type": "aws_ec2_load_balancer_listener",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-8-s3-ssl-enforced",
@@ -528,7 +864,19 @@
           "severity": "high",
           "query": "select name, policy from aws_s3_bucket where policy is not null",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
+        },
+        {
+          "check_id": "sc-8-lambda-function-url-auth",
+          "description": "Lambda function URLs should require IAM authentication",
+          "severity": "high",
+          "query": "select function_name, url_config from aws_lambda_function where url_config is not null",
+          "resource_type": "aws_lambda_function",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -536,7 +884,11 @@
       "control_id": "SC-12",
       "title": "Cryptographic Key Establishment and Management",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-12", "PCI DSS 3.6", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-12",
+        "PCI DSS 3.6",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-12-kms-rotation-enabled",
@@ -544,7 +896,19 @@
           "severity": "high",
           "query": "select id, aliases, key_rotation_enabled, key_manager, origin from aws_kms_key where key_manager = 'CUSTOMER'",
           "resource_type": "aws_kms_key",
-          "fedramp_20x_ksi": ["KSI-SVC-06"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-06"
+          ]
+        },
+        {
+          "check_id": "sc-12-kms-key-not-pending-deletion",
+          "description": "KMS keys should not be scheduled for deletion",
+          "severity": "high",
+          "query": "select id, key_state, aliases from aws_kms_key where key_state = 'PendingDeletion'",
+          "resource_type": "aws_kms_key",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
+          ]
         }
       ]
     },
@@ -552,7 +916,11 @@
       "control_id": "SC-13",
       "title": "Cryptographic Protection",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-13", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-13",
+        "PCI DSS 3.5.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-13-kms-fips-origin",
@@ -560,7 +928,19 @@
           "severity": "high",
           "query": "select id, aliases, origin, key_manager from aws_kms_key",
           "resource_type": "aws_kms_key",
-          "fedramp_20x_ksi": ["KSI-AFR-11"]
+          "fedramp_20x_ksi": [
+            "KSI-AFR-11"
+          ]
+        },
+        {
+          "check_id": "sc-13-ebs-default-encryption",
+          "description": "EBS default encryption should be enabled in the account",
+          "severity": "high",
+          "query": "select default_ebs_encryption_enabled, default_ebs_encryption_key from aws_ec2_regional_settings",
+          "resource_type": "aws_ec2_regional_settings",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -568,7 +948,11 @@
       "control_id": "SC-23",
       "title": "Session Authenticity",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-23", "PCI DSS 8.2.8", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-23",
+        "PCI DSS 8.2.8",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-23-cloudfront-https",
@@ -576,7 +960,9 @@
           "severity": "high",
           "query": "select id, viewer_protocol_policy from aws_cloudfront_distribution",
           "resource_type": "aws_cloudfront_distribution",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         }
       ]
     },
@@ -584,7 +970,11 @@
       "control_id": "SC-28",
       "title": "Protection of Information at Rest",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-28", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-28",
+        "PCI DSS 3.5.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-28-s3-encryption",
@@ -592,7 +982,9 @@
           "severity": "high",
           "query": "select name, server_side_encryption_configuration from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-ebs-encryption",
@@ -600,7 +992,9 @@
           "severity": "high",
           "query": "select volume_id, encrypted, kms_key_id from aws_ebs_volume",
           "resource_type": "aws_ebs_volume",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-rds-encryption",
@@ -608,7 +1002,9 @@
           "severity": "high",
           "query": "select db_instance_identifier, storage_encrypted from aws_rds_db_instance",
           "resource_type": "aws_rds_db_instance",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-dynamodb-encryption",
@@ -616,7 +1012,9 @@
           "severity": "high",
           "query": "select name, sse_description from aws_dynamodb_table",
           "resource_type": "aws_dynamodb_table",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-sns-encryption",
@@ -624,7 +1022,9 @@
           "severity": "medium",
           "query": "select topic_arn, kms_master_key_id from aws_sns_topic",
           "resource_type": "aws_sns_topic",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-sqs-encryption",
@@ -632,7 +1032,39 @@
           "severity": "medium",
           "query": "select queue_arn, kms_master_key_id from aws_sqs_queue",
           "resource_type": "aws_sqs_queue",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
+        },
+        {
+          "check_id": "sc-28-ebs-snapshot-encryption",
+          "description": "EBS snapshots should be encrypted",
+          "severity": "high",
+          "query": "select snapshot_id, encrypted, volume_id from aws_ebs_snapshot where owner_alias is null",
+          "resource_type": "aws_ebs_snapshot",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-28-rds-snapshot-encryption",
+          "description": "RDS snapshots should be encrypted",
+          "severity": "high",
+          "query": "select db_snapshot_identifier, encrypted from aws_rds_db_snapshot",
+          "resource_type": "aws_rds_db_snapshot",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-28-secrets-manager-encrypted",
+          "description": "Secrets Manager secrets should use KMS encryption",
+          "severity": "high",
+          "query": "select name, kms_key_id from aws_secretsmanager_secret",
+          "resource_type": "aws_secretsmanager_secret",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -640,7 +1072,11 @@
       "control_id": "SI-2",
       "title": "Flaw Remediation",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-2", "PCI DSS 6.3.3", "SOC 2 CC7.1"],
+      "frameworks": [
+        "FedRAMP SI-2",
+        "PCI DSS 6.3.3",
+        "SOC 2 CC7.1"
+      ],
       "checks": [
         {
           "check_id": "si-2-ssm-managed",
@@ -648,7 +1084,9 @@
           "severity": "medium",
           "query": "select instance_id, ping_status from aws_ssm_managed_instance",
           "resource_type": "aws_ssm_managed_instance",
-          "fedramp_20x_ksi": ["KSI-SVC-07"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-07"
+          ]
         }
       ]
     },
@@ -656,7 +1094,11 @@
       "control_id": "SI-3",
       "title": "Malicious Code Protection",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-3", "PCI DSS 5.2", "SOC 2 CC6.8"],
+      "frameworks": [
+        "FedRAMP SI-3",
+        "PCI DSS 5.2",
+        "SOC 2 CC6.8"
+      ],
       "checks": [
         {
           "check_id": "si-3-guardduty-malware",
@@ -664,7 +1106,9 @@
           "severity": "high",
           "query": "select detector_id, status from aws_guardduty_detector",
           "resource_type": "aws_guardduty_detector",
-          "fedramp_20x_ksi": ["KSI-CNA-05"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-05"
+          ]
         }
       ]
     },
@@ -672,7 +1116,11 @@
       "control_id": "SI-4",
       "title": "System Monitoring",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-4", "PCI DSS 10.6.1", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP SI-4",
+        "PCI DSS 10.6.1",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "si-4-securityhub-enabled",
@@ -680,7 +1128,9 @@
           "severity": "high",
           "query": "select hub_arn, auto_enable_controls from aws_securityhub_hub",
           "resource_type": "aws_securityhub_hub",
-          "fedramp_20x_ksi": ["KSI-MLA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01"
+          ]
         },
         {
           "check_id": "si-4-cloudwatch-alarm-exists",
@@ -688,7 +1138,10 @@
           "severity": "medium",
           "query": "select name, state_value, actions_enabled from aws_cloudwatch_alarm",
           "resource_type": "aws_cloudwatch_alarm",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-INR-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-INR-01"
+          ]
         }
       ]
     },
@@ -696,7 +1149,11 @@
       "control_id": "SI-7",
       "title": "Software and Information Integrity",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-7", "PCI DSS 11.5", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP SI-7",
+        "PCI DSS 11.5",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "si-7-ecr-scan-on-push",
@@ -704,7 +1161,30 @@
           "severity": "medium",
           "query": "select repository_name, image_scanning_configuration from aws_ecr_repository",
           "resource_type": "aws_ecr_repository",
-          "fedramp_20x_ksi": ["KSI-SVC-05", "KSI-TPR-04"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-05",
+            "KSI-TPR-04"
+          ]
+        },
+        {
+          "check_id": "si-7-ecr-image-scan",
+          "description": "ECR repositories should have image scanning enabled on push",
+          "severity": "medium",
+          "query": "select repository_name, image_scanning_configuration from aws_ecr_repository",
+          "resource_type": "aws_ecr_repository",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-01"
+          ]
+        },
+        {
+          "check_id": "si-7-ecr-tag-immutability",
+          "description": "ECR repositories should have image tag immutability enabled",
+          "severity": "medium",
+          "query": "select repository_name, image_tag_mutability from aws_ecr_repository",
+          "resource_type": "aws_ecr_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     }

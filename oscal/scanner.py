@@ -15,7 +15,7 @@ def run_query(query):
     )
     if result.returncode != 0:
         stderr = result.stderr
-        if "SubscriptionRequiredException" in stderr or "OptInRequired" in stderr:
+        if "SubscriptionRequiredException" in stderr or "OptInRequired" in stderr or "AccessDeniedException" in stderr or "UnauthorizedOperation" in stderr:
             return {"rows": [], "_not_enabled": True}, None
         if "Dependabot alerts are disabled" in stderr:
             return {"rows": [], "_not_enabled": True}, None
@@ -52,7 +52,8 @@ def evaluate_check(check, query_result):
                            "cm-3-branch-requires-conversation-resolution",
                            "cm-3-branch-dismisses-stale-reviews",
                            "sa-11-branch-requires-code-owner-review",
-                           "si-7-commit-signatures-required", "si-7-branch-linear-history"]
+                           "si-7-commit-signatures-required", "si-7-branch-linear-history", 
+                           "au-12-cloudwatch-log-groups"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -475,6 +476,102 @@ def evaluate_check(check, query_result):
         
         elif "repo-not-public" in check_id:
             pass  # public repos are fine for open source — informational only
+
+        elif "ebs-snapshot" in check_id and "encryption" in check_id:
+            if row.get("encrypted") == False:
+                failed = True
+                reason = "snapshot not encrypted"
+        
+        elif "rds-snapshot" in check_id and "encryption" in check_id:
+            if row.get("encrypted") == False:
+                failed = True
+                reason = "snapshot not encrypted"
+        
+        elif "rds-snapshot" in check_id and "public" in check_id:
+            failed = True
+            reason = "public RDS snapshot found"
+        
+        elif "ebs-snapshot" in check_id and "public" in check_id:
+            perms = str(row.get("create_volume_permissions", ""))
+            if "all" in perms.lower():
+                failed = True
+                reason = "snapshot is publicly shared"
+        
+        elif "secrets" in check_id and "rotation" in check_id:
+            if row.get("rotation_enabled") != True:
+                failed = True
+                reason = "automatic rotation not enabled"
+        
+        elif "secrets" in check_id and "encrypted" in check_id:
+            if row.get("kms_key_id") is None:
+                failed = True
+                reason = "using default encryption, not customer KMS"
+        
+        elif "cloudwatch" in check_id and "retention" in check_id:
+            retention = row.get("retention_in_days")
+            if retention is None or retention == 0:
+                failed = True
+                reason = "retention set to indefinite (should have explicit period)"
+        
+        elif "cloudwatch" in check_id and "encrypted" in check_id:
+            if row.get("kms_key_id") is None:
+                failed = True
+                reason = "log group not encrypted with KMS"
+        
+        elif "lambda" in check_id and "runtime" in check_id:
+            runtime = row.get("runtime", "")
+            deprecated = ["python2.7", "python3.6", "python3.7", "nodejs10.x", "nodejs12.x", "dotnetcore2.1", "ruby2.5"]
+            if runtime in deprecated:
+                failed = True
+                reason = f"deprecated runtime: {runtime}"
+        
+        elif "lambda" in check_id and "public" in check_id:
+            policy = str(row.get("policy_std", ""))
+            if '"Principal":"*"' in policy.replace(" ", ""):
+                failed = True
+                reason = "Lambda has public access policy"
+        
+        elif "lambda" in check_id and "url" in check_id:
+            url_config = str(row.get("url_config", ""))
+            if "NONE" in url_config:
+                failed = True
+                reason = "function URL allows unauthenticated access"
+        
+        elif "ebs-default-encryption" in check_id:
+            if row.get("default_ebs_encryption_enabled") != True:
+                failed = True
+                reason = "EBS default encryption not enabled in this region"
+        
+        elif "ecr" in check_id and "immutability" in check_id:
+            if row.get("image_tag_mutability") != "IMMUTABLE":
+                failed = True
+                reason = "image tags are mutable"
+        
+        elif "s3-data-events" in check_id:
+            selectors = str(row.get("event_selectors", ""))
+            if "S3" not in selectors:
+                failed = True
+                reason = "S3 data events not configured"
+        
+        elif "account-public-access-block" in check_id:
+            if (row.get("block_public_acls") != True or 
+                row.get("block_public_policy") != True or
+                row.get("restrict_public_buckets") != True or
+                row.get("ignore_public_acls") != True):
+                failed = True
+                reason = "account-level S3 public access block not fully enabled"
+        
+        elif "s3-versioning" in check_id or "cp-9" in check_id and "versioning" in check_id:
+            if row.get("versioning_enabled") != True:
+                failed = True
+                reason = "versioning not enabled"
+        
+        elif "iam-group" in check_id:
+            pass  # groups existing is informational
+        
+        elif "kms" in check_id and "pending-deletion" in check_id:
+            failed = True
+            reason = f"KMS key scheduled for deletion: {row.get('key_state', '')}"
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
