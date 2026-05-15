@@ -194,6 +194,7 @@ async function loadResults() {
     renderTabs();
     render();
   } catch(e) { showEmpty(); }
+  loadSSP();
 }
 
 async function runScan() {
@@ -217,6 +218,9 @@ async function runScan() {
 function switchProvider(prov) {
   activeProvider = prov;
   expanded = {};
+  // Deactivate SSP tab if it exists
+  const sspTab = document.getElementById('sspTab');
+  if (sspTab) sspTab.classList.remove('active');
   renderTabs();
   render();
 }
@@ -499,6 +503,125 @@ function downloadReport() {
   let provider = 'all';
   if (activeProvider && activeProvider !== 'all') provider = activeProvider;
   window.open('/api/export?provider=' + provider, '_blank');
+}
+
+async function loadSSP() {
+  try {
+    const res = await fetch('/api/ssp-results');
+    if (!res.ok) return;
+    const sspData = await res.json();
+    
+    // Add SSP tab
+    const tabBar = document.getElementById('tabBar');
+    if (tabBar && tabBar.style.display !== 'none') {
+      const existing = document.getElementById('sspTab');
+      if (!existing) {
+        const tab = document.createElement('div');
+        tab.id = 'sspTab';
+        tab.className = 'tab';
+        tab.onclick = () => showSSPTab(sspData);
+        tab.innerHTML = `<span class="provider-icon" style="background:#818cf8">S</span> SSP <span class="tab-count">${sspData.total_controls || 0}</span>`;
+        tabBar.appendChild(tab);
+      }
+    }
+  } catch(e) {}
+}
+
+function showSSPTab(sspData) {
+  // Deactivate other tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sspTab').classList.add('active');
+  
+  const stats = sspData.statistics || {};
+  const controls = sspData.controls || [];
+  
+  const complete = controls.filter(c => c.completeness?.complete);
+  const hasContent = controls.filter(c => c.completeness?.filled_parts > 0);
+  const empty = controls.filter(c => c.completeness?.filled_parts === 0);
+  const completionRate = stats.completion_rate || '0%';
+  
+  let html = `<div class="cards" style="grid-template-columns:repeat(5,1fr)">
+    <div class="card"><div class="card-bar" style="background:#818cf8"></div><div class="card-label">Controls Parsed</div><div class="card-value" style="color:#818cf8">${stats.total_controls || 0}</div></div>
+    <div class="card"><div class="card-bar" style="background:#34d399"></div><div class="card-label">With Content</div><div class="card-value" style="color:#34d399">${stats.controls_with_content || 0}</div></div>
+    <div class="card"><div class="card-bar" style="background:#22d3ee"></div><div class="card-label">Fully Complete</div><div class="card-value" style="color:#22d3ee">${stats.fully_complete || 0}</div></div>
+    <div class="card"><div class="card-bar" style="background:#f87171"></div><div class="card-label">Empty</div><div class="card-value" style="color:#f87171">${stats.empty || 0}</div></div>
+    <div class="card"><div class="card-bar" style="background:#fbbf24"></div><div class="card-label">Completion</div><div class="card-value" style="color:#fbbf24">${completionRate}</div></div>
+  </div>`;
+  
+  // Progress bar
+  const pctNum = parseFloat(completionRate) || 0;
+  const prColor = pctNum >= 80 ? '#34d399' : pctNum >= 50 ? '#fbbf24' : '#f87171';
+  html += `<div class="progress-bar"><div class="progress-fill" style="width:${pctNum}%;background:${prColor}"></div></div>`;
+  html += `<div style="font-size:11px;color:#64748b;margin-bottom:24px">${stats.controls_with_content || 0} of ${stats.total_controls || 0} controls have implementation narratives · OSCAL SSP JSON generated</div>`;
+  
+  // Control families
+  const families = {};
+  controls.forEach(c => {
+    const fam = c.control_id.split('-')[0];
+    if (!families[fam]) families[fam] = {complete: 0, partial: 0, empty: 0, controls: []};
+    if (c.completeness?.complete) families[fam].complete++;
+    else if (c.completeness?.filled_parts > 0) families[fam].partial++;
+    else families[fam].empty++;
+    families[fam].controls.push(c);
+  });
+  
+  const familyNames = {
+    AC: 'Access Control', AU: 'Audit and Accountability', AT: 'Awareness and Training',
+    CM: 'Configuration Management', CP: 'Contingency Planning', IA: 'Identification and Authentication',
+    IR: 'Incident Response', MA: 'Maintenance', MP: 'Media Protection',
+    PE: 'Physical and Environmental', PL: 'Planning', PM: 'Program Management',
+    PS: 'Personnel Security', PT: 'PII Processing', RA: 'Risk Assessment',
+    SA: 'System and Services Acquisition', SC: 'System and Communications Protection',
+    SI: 'System and Information Integrity', SR: 'Supply Chain Risk Management'
+  };
+  
+  html += '<div class="section-title">Control Families</div>';
+  
+  Object.keys(families).sort().forEach(fam => {
+    const f = families[fam];
+    const total = f.complete + f.partial + f.empty;
+    const fillRate = total > 0 ? Math.round((f.complete + f.partial) / total * 100) : 0;
+    const isExpanded = expanded['ssp_' + fam];
+    
+    html += `<div class="control">
+      <div class="control-header" onclick="expanded['ssp_${fam}']=!expanded['ssp_${fam}'];showSSPTab(window._sspData)">
+        <div class="control-left">
+          <span class="dot ${f.empty === total ? 'dot-empty' : f.complete === total ? 'dot-pass' : 'dot-fail'}"></span>
+          <span class="control-id">${fam}</span>
+          <span class="control-name">${familyNames[fam] || fam} (${total} controls)</span>
+        </div>
+        <div class="control-right">
+          ${f.complete > 0 ? `<span class="count-pass">${f.complete} complete</span>` : ''}
+          ${f.partial > 0 ? `<span style="color:#fbbf24;font-size:11px">${f.partial} partial</span>` : ''}
+          ${f.empty > 0 ? `<span class="count-fail">${f.empty} empty</span>` : ''}
+          <span class="chevron ${isExpanded ? 'open' : ''}">▼</span>
+        </div>
+      </div>`;
+    
+    if (isExpanded) {
+      html += '<div class="findings-panel">';
+      f.controls.forEach(c => {
+        const parts = c.completeness?.total_parts || 0;
+        const filled = c.completeness?.filled_parts || 0;
+        const statusClass = filled === 0 ? 'badge-low' : filled === parts ? 'badge-pass' : 'badge-medium';
+        const statusLabel = filled === 0 ? 'EMPTY' : filled === parts ? 'COMPLETE' : 'PARTIAL';
+        
+        html += `<div class="finding">
+          <span class="finding-badge ${statusClass}">${statusLabel}</span>
+          <div class="finding-content">
+            <div class="finding-resource">${c.control_id}</div>
+            <div class="finding-detail">${parts} parts (${filled} filled)${c.responsible_role ? ' · Role: ' + c.responsible_role : ''}</div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+    
+    html += '</div>';
+  });
+  
+  document.getElementById('content').innerHTML = html;
+  window._sspData = sspData;
 }
 
 </script>
