@@ -228,18 +228,23 @@ def evaluate_check(check, query_result):
                 reason = f"TLS version is {tls}, should be 1.2"
         
         elif "nsg" in check_id and ("ssh" in check_id or "rdp" in check_id or "unrestricted" in check_id):
-            rules = row.get("security_rules")
-            if rules:
-                rules_str = str(rules)
-                if "ssh" in check_id and "'22'" in rules_str and "'*'" in rules_str and "'Allow'" in rules_str:
+            rules = row.get("security_rules", "[]")
+            if isinstance(rules, str):
+                import json as json_mod
+                try:
+                    rules = json_mod.loads(rules)
+                except:
+                    rules = []
+            target_port = "22" if "ssh" in check_id else "3389" if "rdp" in check_id else "*"
+            for rule in rules:
+                props = rule.get("properties", rule)
+                if (props.get("access") == "Allow" and
+                    props.get("direction") == "Inbound" and
+                    props.get("sourceAddressPrefix") == "*" and
+                    (props.get("destinationPortRange") == target_port or props.get("destinationPortRange") == "*")):
                     failed = True
-                    reason = "SSH (port 22) open from * in security rules"
-                elif "rdp" in check_id and "'3389'" in rules_str and "'*'" in rules_str and "'Allow'" in rules_str:
-                    failed = True
-                    reason = "RDP (port 3389) open from * in security rules"
-                elif "unrestricted" in check_id and "'*'" in rules_str and "'Allow'" in rules_str:
-                    failed = True
-                    reason = "unrestricted inbound rules found"
+                    reason = f"allows {target_port} inbound from * ({props.get('name', rule.get('name', 'unnamed'))})"
+                    break
         
         elif "keyvault" in check_id and "soft-delete" in check_id:
             if row.get("soft_delete_enabled") != True:
