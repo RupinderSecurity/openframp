@@ -1,6 +1,41 @@
 {
-  "parser_version": "1.0.0",
-  "source": "FedRAMP SSP Appendix A",
+  "parser_version": "2.0.0",
+  "source": "FedRAMP SSP",
+  "system_information": {
+    "csp_name": "",
+    "cso_name": "",
+    "fedramp_package_id": "",
+    "service_model": "",
+    "digital_identity_level": "",
+    "fips_199_level": "",
+    "operational_date": "",
+    "deployment_model": "",
+    "authorization_path": "",
+    "description": ""
+  },
+  "contacts": [
+    {
+      "role": "System Owner",
+      "name": "",
+      "title": "",
+      "organization": "",
+      "address": "",
+      "phone": "",
+      "email": ""
+    },
+    {
+      "role": "ISSO",
+      "name": "",
+      "title": "",
+      "organization": "",
+      "address": "",
+      "phone": "",
+      "email": ""
+    }
+  ],
+  "leveraged_services": [],
+  "ports_protocols": [],
+  "separation_of_duties": [],
   "total_controls": 323,
   "controls": [
     {
@@ -5639,6 +5674,9 @@
     "controls_with_content": 0,
     "fully_complete": 0,
     "empty": 323,
-    "completion_rate": "0.0%"
+    "completion_rate": "0.0%",
+    "has_system_info": true,
+    "contacts_count": 2,
+    "leveraged_services_count": 0
   }
 }
