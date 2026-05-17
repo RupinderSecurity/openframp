@@ -26,11 +26,11 @@ Once a week (Sunday recommended), do the [Weekly Review](#weekly-review-template
 ## At-a-glance status
 
 ```
-Tier A (V1-Critical):     ▓▓░░░░░░░░  ~20%  (2/10 items done)
-Tier B (V1-Supporting):   ░░░░░░░░░░   0%  (0/6 items done)
+Tier A (V1-Critical):     ▓▓▓▓▓▓▓▓▓░  90%  (9/10 items done)
+Tier B (V1-Supporting):   ▓▓░░░░░░░░  20%  (1/6 items done)
 Tier C (V1.5 / Polish):   ░░░░░░░░░░   0%  (0/5 items done)
 
-Overall V1:                ▓▓░░░░░░░░  ~10%  (2/21 items done)
+Overall V1:                ▓▓▓▓▓░░░░░  48%  (10/21 items done)
 ```
 
 > Update this manually when status changes. Keep it visual — easy to skim.
@@ -41,16 +41,16 @@ Overall V1:                ▓▓░░░░░░░░  ~10%  (2/21 items don
 
 V1 ships when ALL of these are true. Not "almost true." All.
 
-- [ ] A stranger can run `git clone && docker compose up` and see the OSCAL Viewer dashboard with results
-- [ ] An SSP `.docx` file goes in, an OSCAL 1.1 SSP JSON comes out
-- [ ] AWS scan produces OSCAL 1.1 Assessment Results JSON with FedRAMP 20x KSI references
-- [ ] Azure scan produces OSCAL 1.1 Assessment Results JSON with FedRAMP 20x KSI references
-- [ ] `INSTALL.md`, `CONTRIBUTING.md`, `ARCHITECTURE.md` exist and have been verified by following them on a clean machine
-- [ ] Repo has branch protection, signed commits required on main, secret scanning enabled
+- [x] A stranger can run `git clone && docker compose up` and see the OSCAL Viewer dashboard with results
+- [x] An SSP `.docx` file goes in, an OSCAL 1.1 SSP JSON comes out
+- [x] AWS scan produces OSCAL 1.1 Assessment Results JSON with FedRAMP 20x KSI references
+- [x] Azure scan produces OSCAL 1.1 Assessment Results JSON with FedRAMP 20x KSI references
+- [x] `INSTALL.md`, `CONTRIBUTING.md`, `ARCHITECTURE.md` exist and have been verified by following them on a clean machine
+- [x] Repo has branch protection, signed commits required on main, secret scanning enabled
 - [ ] At least 3 strangers (not friends, not coworkers) have successfully run the tool and opened either an issue or a star
 - [ ] A 5-minute end-to-end demo video exists, recorded once
-- [ ] README clearly states what V1 does and does NOT do (FedRAMP Moderate only, AWS+Azure only, etc.)
-- [ ] v1.0.0 tag exists on a commit on main, with release notes
+- [x] README clearly states what V1 does and does NOT do (FedRAMP Moderate only, AWS+Azure only, etc.)
+- [x] v1.0.0 tag exists on a commit on main, with release notes
 
 When all 10 are checked, V1 is shipped. Don't move the goalposts.
 
@@ -61,36 +61,36 @@ When all 10 are checked, V1 is shipped. Don't move the goalposts.
 **Goal:** Ship the minimum viable V1 — a working pipeline a stranger can clone and use.
 **Target completion:** July 1, 2026
 
-### A1. SSP docx parser ⏳
+### A1. SSP docx parser ✅
 
 The novel piece. Nothing else in the open-source FedRAMP space does this. This is what makes OpenFRAMP a *pipeline* and not just a scanner.
 
-- [ ] Identify the canonical FedRAMP SSP docx template structure (FedRAMP PMO publishes the Word template)
-- [ ] Catalog the sections that need to extract (control implementations, system info, contacts, boundary diagram references)
-- [ ] Choose docx library (`python-docx` is the obvious pick)
-- [ ] Build extractor for system characteristics section
-- [ ] Build extractor for control implementation statements (the longest section — 300+ controls)
-- [ ] Build extractor for points of contact
-- [ ] Build extractor for inventory section
-- [ ] Test against a real (sanitized) FedRAMP Moderate SSP
-- [ ] Output structured Python objects (intermediate representation)
-- [ ] Add unit tests covering at least 3 SSP variants
+- [x] Identify the canonical FedRAMP SSP docx template structure (FedRAMP PMO publishes the Word template)
+- [x] Catalog the sections that need to extract (control implementations, system info, contacts, boundary diagram references)
+- [x] Choose docx library (`python-docx` is the obvious pick)
+- [x] Build extractor for system characteristics section
+- [x] Build extractor for control implementation statements (the longest section — 300+ controls)
+- [x] Build extractor for points of contact
+- [x] Build extractor for inventory section
+- [x] Test against a real (sanitized) FedRAMP Moderate SSP
+- [x] Output structured Python objects (intermediate representation)
+- [x] Add unit tests covering at least 3 SSP variants
 
-**Estimate:** 25-35 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 25-35 hours · **Status:** completed  · **Owner:** RPS
 
-### A2. OSCAL SSP JSON generator ⏳
+### A2. OSCAL SSP JSON generator ✅
 
 Take the parsed SSP structure and emit valid OSCAL 1.1 JSON.
 
-- [ ] Read OSCAL 1.1 SSP JSON schema (NIST publishes it)
-- [ ] Build JSON serializer from the intermediate representation
-- [ ] Validate output against the OSCAL JSON schema using `jsonschema` or `oscal-cli`
-- [ ] Round-trip test: parse → emit → parse → emit, confirm idempotent
-- [ ] Handle the OSCAL `back-matter` and `metadata` sections correctly
+- [x] Read OSCAL 1.1 SSP JSON schema (NIST publishes it)
+- [x] Build JSON serializer from the intermediate representation
+- [x] Validate output against the OSCAL JSON schema using `jsonschema` or `oscal-cli`
+- [x] Round-trip test: parse → emit → parse → emit, confirm idempotent
+- [x] Handle the OSCAL `back-matter` and `metadata` sections correctly
 
-**Estimate:** 8-12 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 8-12 hours · **Status:** completed  · **Owner:** RPS
 
-### A3. KSI metadata layer in catalogs ⏳
+### A3. KSI metadata layer in catalogs ✅
 
 The strategic positioning move. Adds FedRAMP 20x relevance without rewriting checks.
 
@@ -101,84 +101,84 @@ The strategic positioning move. Adds FedRAMP 20x relevance without rewriting che
 - [x] Update OSCAL Assessment Results emission to include KSI references
 - [x] Verify scan still passes after schema change
 
-**Estimate:** 6-10 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 6-10 hours · **Status:** completed  · **Owner:** RPS
 
-### A4. OSCAL Viewer wired into Docker compose ⏳
+### A4. OSCAL Viewer wired into Docker compose ✅
 
 Right now `docker compose up` produces JSON but no UI. Wire the existing React viewer into the stack so the demo is "one command, see dashboard."
 
-- [ ] Add nginx service to docker-compose.yml to serve the built React app
-- [ ] Build step for the React app inside the container or as a multi-stage Dockerfile
-- [ ] Configure CORS so the viewer can read OSCAL JSON from the scanner output volume
-- [ ] Test on fresh machine: clone repo, `docker compose up`, browser shows dashboard
-- [ ] Document the access URL in `README.md` and `INSTALL.md`
+- [x] Add nginx service to docker-compose.yml to serve the built React app
+- [x] Build step for the React app inside the container or as a multi-stage Dockerfile
+- [x] Configure CORS so the viewer can read OSCAL JSON from the scanner output volume
+- [x] Test on fresh machine: clone repo, `docker compose up`, browser shows dashboard
+- [x] Document the access URL in `README.md` and `INSTALL.md`
 
-**Estimate:** 6-10 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 6-10 hours · **Status:** completed  · **Owner:** RPS
 
-### A5. Codify IAM hardening into OpenTofu ⏳
+### A5. Codify IAM hardening into OpenTofu ✅
 
 The drift from Tuesday's IAM lesson. Currently AWS state has changes that Tofu doesn't reflect. Reconcile or `tofu apply` will revert work.
 
-- [ ] Update `bootstrap/scanner-role/` Tofu module to declare the no-MFA trust policy currently live
-- [ ] Update Tofu module to declare `MaxSessionDuration` of 3600 (or current 4200, decide which)
-- [ ] Update Tofu module to declare the `openframp-scanner-readonly` policy with v2 contents
-- [ ] Run `tofu plan` and confirm zero drift
-- [ ] Add note in `bootstrap/README.md` about the rupinder-admin user (out of scope for the module but documented)
+- [x] Update `bootstrap/scanner-role/` Tofu module to declare the no-MFA trust policy currently live
+- [x] Update Tofu module to declare `MaxSessionDuration` of 3600 (or current 4200, decide which)
+- [x] Update Tofu module to declare the `openframp-scanner-readonly` policy with v2 contents
+- [x] Run `tofu plan` and confirm zero drift
+- [x] Add note in `bootstrap/README.md` about the rupinder-admin user (out of scope for the module but documented)
 
-**Estimate:** 3-4 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 3-4 hours · **Status:** completed  · **Owner:** RPS
 
-### A6. INSTALL.md ⏳
+### A6. INSTALL.md ✅
 
 Real install instructions, verified by running them on a fresh machine.
 
-- [ ] Write prerequisites section (Docker, AWS account, Azure account, Steampipe optional, Python optional)
-- [ ] Write step-by-step: clone, configure AWS creds, configure Azure creds, run scan, view results
-- [ ] Spin up a fresh VM (or fresh user account on Mac), follow the INSTALL.md exactly, document what breaks
-- [ ] Fix the breaks
-- [ ] Add troubleshooting section based on what broke
-- [ ] Add a "first scan in 5 minutes" quickstart at the top
+- [x] Write prerequisites section (Docker, AWS account, Azure account, Steampipe optional, Python optional)
+- [x] Write step-by-step: clone, configure AWS creds, configure Azure creds, run scan, view results
+- [x] Spin up a fresh VM (or fresh user account on Mac), follow the INSTALL.md exactly, document what breaks
+- [x] Fix the breaks
+- [x] Add troubleshooting section based on what broke
+- [x] Add a "first scan in 5 minutes" quickstart at the top
 
-**Estimate:** 6-8 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 6-8 hours · **Status:** completed  · **Owner:** RPS
 
-### A7. CONTRIBUTING.md ⏳
+### A7. CONTRIBUTING.md ✅
 
 How someone else can add a check, add a catalog, fix a bug.
 
-- [ ] Document the catalog file format with annotated example
-- [ ] Document how to add a new check (Steampipe query + JSON entry)
-- [ ] Document the test workflow before submitting a PR
-- [ ] Document the commit message format and PR template expectations
-- [ ] Document the CLA expectation if any (lean toward DCO for simplicity)
-- [ ] Add `CODE_OF_CONDUCT.md` (use Contributor Covenant 2.1, no need to write your own)
+- [x] Document the catalog file format with annotated example
+- [x] Document how to add a new check (Steampipe query + JSON entry)
+- [x] Document the test workflow before submitting a PR
+- [x] Document the commit message format and PR template expectations
+- [x] Document the CLA expectation if any (lean toward DCO for simplicity)
+- [x] Add `CODE_OF_CONDUCT.md` (use Contributor Covenant 2.1, no need to write your own)
 
-**Estimate:** 4-6 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 4-6 hours · **Status:** completed  · **Owner:** RPS
 
-### A8. ARCHITECTURE.md ⏳
+### A8. ARCHITECTURE.md ✅
 
 The technical-credibility document. Why catalog-driven? Why Steampipe? How does the data flow?
 
-- [ ] Diagram the pipeline: SSP docx → parser → OSCAL SSP → scanner + catalogs → OSCAL AR → viewer
-- [ ] Document the catalog-driven design and why
-- [ ] Document the framework-agnostic check model (Rev 5, KSI, PCI, SOC 2 — same check, different mappings)
-- [ ] Document the choice of Steampipe over alternatives (Prowler, Cloud Custodian, custom)
-- [ ] Document the choice of running inside the boundary vs SaaS
-- [ ] Add a section on what V1 deliberately does NOT do, with rationale
+- [x] Diagram the pipeline: SSP docx → parser → OSCAL SSP → scanner + catalogs → OSCAL AR → viewer
+- [x] Document the catalog-driven design and why
+- [x] Document the framework-agnostic check model (Rev 5, KSI, PCI, SOC 2 — same check, different mappings)
+- [x] Document the choice of Steampipe over alternatives (Prowler, Cloud Custodian, custom)
+- [x] Document the choice of running inside the boundary vs SaaS
+- [x] Add a section on what V1 deliberately does NOT do, with rationale
 
-**Estimate:** 4-6 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 4-6 hours · **Status:** completed · **Owner:** RPS
 
-### A9. Repo security hardening ⏳
+### A9. Repo security hardening ✅
 
 Public repo. Free GitHub features, no excuse not to enable.
 
-- [ ] Enable branch protection on `main` (require PR review, require status checks, no force push, no deletion)
-- [ ] Enable secret scanning + push protection
-- [ ] Enable Dependabot for Python and JavaScript dependencies
-- [ ] Add `CODEOWNERS` file
-- [ ] Set up GPG signing for commits, require signed commits on main
-- [ ] Add issue templates (bug report, feature request)
-- [ ] Add PR template with checklist
+- [x] Enable branch protection on `main` (require PR review, require status checks, no force push, no deletion)
+- [x] Enable secret scanning + push protection
+- [x] Enable Dependabot for Python and JavaScript dependencies
+- [x] Add `CODEOWNERS` file
+- [x] Set up GPG signing for commits, require signed commits on main
+- [x] Add issue templates (bug report, feature request)
+- [x] Add PR template with checklist
 
-**Estimate:** 2-3 hours · **Status:** not started · **Owner:** RPS
+**Estimate:** 2-3 hours · **Status:** completed · **Owner:** RPS
 
 ### A10. End-to-end demo video ⏳
 
@@ -205,13 +205,13 @@ Public repo. Free GitHub features, no excuse not to enable.
 **Goal:** The security baseline any real AWS/Azure account doing security work should have. Strengthens OpenFRAMP's claim of being FedRAMP-grade itself.
 **Target completion:** July 31, 2026 (parallel with Tier A late stage)
 
-### B1. CloudTrail + Config + GuardDuty trifecta in lab account ⏳
+### B1. CloudTrail + Config + GuardDuty trifecta in lab account ✅ 
 
 So OpenFRAMP development happens on a properly-monitored AWS account. Also lets IAM Access Analyzer generate a real least-privilege policy from actual scan usage.
 
-- [ ] Enable CloudTrail multi-region with log file validation, KMS encryption, dedicated S3 bucket
+- [x] Enable CloudTrail multi-region with log file validation, KMS encryption, dedicated S3 bucket
 - [ ] Enable AWS Config recorder + delivery channel
-- [ ] Enable GuardDuty in primary region (us-west-2)
+- [x] Enable GuardDuty in primary region (us-west-2)
 - [ ] Verify trail is logging AssumeRole calls properly
 - [ ] After 30 days of usage, run IAM Access Analyzer to generate a tighter scanner policy
 
@@ -357,6 +357,26 @@ July 31 is the aggressive target. August 31 is realistic. September 15 is the wo
 ## Daily Log
 
 > Update at the end of every working session. Format: `YYYY-MM-DD (Day) — what you did. Hours: N. Tier: X. Items touched: [list].` Keep entries to 2-4 lines max.
+
+### 2026-05-17 (Sunday) — Azure resources, GitHub hardening, Obsidian/README update
+Created Azure VNet, Key Vault key, RDP NSG rule. Fixed false positives in storage HTTPS/encryption checks. Added SECURITY.md and LICENSE to all repos. Disabled wikis, enabled Dependabot across 6 repos. GitHub pass rate went from 10/52 to 29/23. Combined: 70 passed, 63 failed, 53% pass rate.
+Hours: ~2. Tier: A/B. Items touched: repo hardening, Azure resources.
+
+### 2026-05-15 (Friday) — PDF export, catalog expansion, SSP tab persistence
+Built PDF compliance report with executive summary, severity breakdown, per-provider findings. Expanded AWS to 78 checks (Lambda, Secrets Manager, CloudWatch, EBS, ECR). Expanded Azure to 41 checks (Entra ID policies, audit logs). Expanded GitHub to 21 checks. Fixed all false positives. SSP tab persists across refresh. 140 total checks, 0 errors.
+Hours: ~3. Tier: A. Items touched: A4, catalogs.
+
+### 2026-05-10 (Sunday) — GitHub scanning, dashboard provider tabs
+Built GitHub security catalog (16 checks). Added provider tabs to dashboard. Fixed NSG embedded JSON parsing. Built SSP upload in web UI. Azure service principal auth in Docker. 101 total checks.
+Hours: ~4. Tier: A. Items touched: A4, A9, catalogs.
+
+### 2026-05-07 (Thursday) — Web dashboard, Docker compose, Azure auth fix
+Built Flask web dashboard on port 4000 with scan trigger and provider filtering. Fixed Azure service principal auth in Docker (Graph API permissions). Tagged v1.0.0. 85 checks across AWS + Azure.
+Hours: ~4. Tier: A. Items touched: A4, A9.
+
+### 2026-05-05 (Tuesday morning) — Repo security, INSTALL.md, SSP parser, OSCAL SSP generator
+Branch protection, Dependabot, issue templates. INSTALL.md written. SSP parser extracts 323 controls from Appendix A. OSCAL SSP generator converts to OSCAL 1.1 JSON. Four V1 items in one morning session.
+Hours: ~1. Tier: A. Items touched: A1, A2, A6, A9.
 
 ### 2026-05-03 (Sunday) — KSI mapping, multi-catalog architecture, OSCAL precision
 Mapped FedRAMP 20x KSI codes to all 85 checks across AWS (57) and Azure (28). Refactored scanner to accept multiple catalogs in one invocation with per-provider OSCAL output files. Restructured build_oscal to emit one result per check (not per control) with namespaced KSI props. AWS catalog covers 23 unique KSIs, Azure 15, combined union 23. A3 fully complete.
