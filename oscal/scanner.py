@@ -78,6 +78,12 @@ def evaluate_check(check, query_result):
                 failed = True
                 reason = "Root MFA not enabled"
         
+        elif "storage" in check_id and "encryption" in check_id and "sc-28" in check_id:
+            key_source = row.get("encryption_key_source", "")
+            if not key_source:
+                failed = True
+                reason = "encryption not configured"
+        
         elif "encryption" in check_id or "encrypted" in check_id:
             enc = row.get("server_side_encryption_configuration") or row.get("encrypted") or row.get("storage_encrypted")
             if enc is None or enc == False:
@@ -198,7 +204,7 @@ def evaluate_check(check, query_result):
                 failed = True
                 reason = f"origin is {origin}, not FIPS-validated"
         
-        elif "https" in check_id:
+        elif "https" in check_id and "storage" not in check_id and "app-service" not in check_id:
             protocol = row.get("protocol", "")
             if protocol not in ["HTTPS", "TLS"]:
                 failed = True
@@ -219,6 +225,11 @@ def evaluate_check(check, query_result):
             if action != "Deny":
                 failed = True
                 reason = f"default network action is {action}, should be Deny"
+        
+        elif "app-service" in check_id and "https" in check_id:
+            if row.get("https_only") != True:
+                failed = True
+                reason = "HTTPS not enforced"
         
         elif "storage" in check_id and "https" in check_id:
             if row.get("enable_https_traffic_only") == False:
@@ -585,10 +596,6 @@ def evaluate_check(check, query_result):
                 failed = True
                 reason = f"guest invite policy is {invite}, should be restricted"
         
-        elif "app-service" in check_id and "https" in check_id:
-            if row.get("https_only") != True:
-                failed = True
-                reason = "HTTPS not enforced"
         
         elif "auto-provisioning" in check_id:
             props = str(row.get("properties", ""))
