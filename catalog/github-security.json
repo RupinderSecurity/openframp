@@ -8,7 +8,11 @@
       "control_id": "AC-3",
       "title": "Access Enforcement",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-3",
+        "PCI DSS 7.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-3-repo-not-public",
@@ -16,7 +20,19 @@
           "severity": "medium",
           "query": "select name_with_owner, visibility, is_private from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "ac-3-repo-forking-restricted",
+          "description": "Private repositories should restrict forking",
+          "severity": "medium",
+          "query": "select name_with_owner, forking_allowed, is_private from github_my_repository where is_private = true and forking_allowed = true",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -24,7 +40,11 @@
       "control_id": "AC-6",
       "title": "Least Privilege",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
+      "frameworks": [
+        "FedRAMP AC-6",
+        "PCI DSS 7.1",
+        "SOC 2 CC6.3"
+      ],
       "checks": [
         {
           "check_id": "ac-6-branch-protection-enabled",
@@ -32,7 +52,9 @@
           "severity": "high",
           "query": "select repository_full_name, pattern, requires_approving_reviews, required_approving_review_count, is_admin_enforced from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-6-branch-no-force-push",
@@ -40,7 +62,9 @@
           "severity": "high",
           "query": "select repository_full_name, pattern, allows_force_pushes from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-6-branch-no-deletions",
@@ -48,7 +72,19 @@
           "severity": "high",
           "query": "select repository_full_name, pattern, allows_deletions from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
+        },
+        {
+          "check_id": "ac-6-branch-last-push-approval",
+          "description": "Branch protection should require last push approval by someone other than the pusher",
+          "severity": "medium",
+          "query": "select repository_full_name, pattern, require_last_push_approval from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -56,7 +92,11 @@
       "control_id": "AU-2",
       "title": "Event Logging",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-2",
+        "PCI DSS 10.2",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-2-web-commit-signoff",
@@ -64,7 +104,9 @@
           "severity": "medium",
           "query": "select name_with_owner, web_commit_signoff_required from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-LOG-01"]
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -72,7 +114,11 @@
       "control_id": "CM-2",
       "title": "Baseline Configuration",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-2", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-2",
+        "PCI DSS 2.2",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-2-security-policy-enabled",
@@ -80,7 +126,9 @@
           "severity": "medium",
           "query": "select name_with_owner, is_security_policy_enabled from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-CNA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         },
         {
           "check_id": "cm-2-license-defined",
@@ -88,7 +136,19 @@
           "severity": "low",
           "query": "select name_with_owner, license_info from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-CNA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-2-delete-branch-on-merge",
+          "description": "Repositories should delete branches after merge to reduce attack surface",
+          "severity": "low",
+          "query": "select name_with_owner, delete_branch_on_merge from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -96,7 +156,11 @@
       "control_id": "CM-3",
       "title": "Configuration Change Control",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-3", "PCI DSS 6.5.1", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-3",
+        "PCI DSS 6.5.1",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-3-branch-requires-pr",
@@ -104,7 +168,9 @@
           "severity": "high",
           "query": "select repository_full_name, pattern, requires_approving_reviews, required_approving_review_count from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         },
         {
           "check_id": "cm-3-branch-requires-status-checks",
@@ -112,7 +178,9 @@
           "severity": "medium",
           "query": "select repository_full_name, pattern, requires_status_checks, requires_strict_status_checks from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         },
         {
           "check_id": "cm-3-branch-requires-conversation-resolution",
@@ -120,7 +188,9 @@
           "severity": "low",
           "query": "select repository_full_name, pattern, requires_conversation_resolution from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         },
         {
           "check_id": "cm-3-branch-dismisses-stale-reviews",
@@ -128,7 +198,19 @@
           "severity": "medium",
           "query": "select repository_full_name, pattern, dismisses_stale_reviews from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
+        },
+        {
+          "check_id": "cm-3-branch-allow-update",
+          "description": "Branch protection should suggest updating out-of-date branches",
+          "severity": "low",
+          "query": "select repository_full_name, pattern, allow_update_branch from github_my_repository where name_with_owner = 'RupinderSecurity/openframp'",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -136,7 +218,11 @@
       "control_id": "CM-7",
       "title": "Least Functionality",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-7", "PCI DSS 2.2.4", "SOC 2 CC6.8"],
+      "frameworks": [
+        "FedRAMP CM-7",
+        "PCI DSS 2.2.4",
+        "SOC 2 CC6.8"
+      ],
       "checks": [
         {
           "check_id": "cm-7-wiki-disabled",
@@ -144,7 +230,9 @@
           "severity": "low",
           "query": "select name_with_owner, has_wiki_enabled from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-CNA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -152,7 +240,11 @@
       "control_id": "RA-5",
       "title": "Vulnerability Monitoring and Scanning",
       "family": "Risk Assessment",
-      "frameworks": ["FedRAMP RA-5", "PCI DSS 11.3", "SOC 2 CC7.1"],
+      "frameworks": [
+        "FedRAMP RA-5",
+        "PCI DSS 11.3",
+        "SOC 2 CC7.1"
+      ],
       "checks": [
         {
           "check_id": "ra-5-vulnerability-alerts-enabled",
@@ -160,7 +252,19 @@
           "severity": "high",
           "query": "select name_with_owner, has_vulnerability_alerts_enabled from github_my_repository",
           "resource_type": "github_my_repository",
-          "fedramp_20x_ksi": ["KSI-VSM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-VSM-01"
+          ]
+        },
+        {
+          "check_id": "ra-5-dependabot-critical-alerts",
+          "description": "Repositories should not have open critical Dependabot alerts",
+          "severity": "critical",
+          "query": "select alert_number, state, repository_full_name from github_repository_dependabot_alert where repository_full_name = 'RupinderSecurity/openframp' and state = 'open'",
+          "resource_type": "github_repository_dependabot_alert",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-01"
+          ]
         }
       ]
     },
@@ -168,7 +272,11 @@
       "control_id": "SA-11",
       "title": "Developer Testing and Evaluation",
       "family": "System and Services Acquisition",
-      "frameworks": ["FedRAMP SA-11", "PCI DSS 6.3", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP SA-11",
+        "PCI DSS 6.3",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "sa-11-branch-requires-code-owner-review",
@@ -176,7 +284,9 @@
           "severity": "medium",
           "query": "select repository_full_name, pattern, requires_code_owner_reviews from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -184,7 +294,11 @@
       "control_id": "SI-7",
       "title": "Software and Information Integrity",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-7", "PCI DSS 11.5", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP SI-7",
+        "PCI DSS 11.5",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "si-7-commit-signatures-required",
@@ -192,7 +306,9 @@
           "severity": "medium",
           "query": "select repository_full_name, pattern, requires_commit_signatures from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         },
         {
           "check_id": "si-7-branch-linear-history",
@@ -200,7 +316,9 @@
           "severity": "low",
           "query": "select repository_full_name, pattern, requires_linear_history from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
-          "fedramp_20x_ksi": ["KSI-CNA-03"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     }

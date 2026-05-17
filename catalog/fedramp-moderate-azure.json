@@ -8,7 +8,11 @@
       "control_id": "AC-2",
       "title": "Account Management",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-2", "PCI DSS 8.1", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-2",
+        "PCI DSS 8.1",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-2-entra-users-enabled",
@@ -16,7 +20,9 @@
           "severity": "medium",
           "query": "select display_name, user_principal_name, account_enabled, created_date_time from azuread_user",
           "resource_type": "azuread_user",
-          "fedramp_20x_ksi": ["KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-07"
+          ]
         },
         {
           "check_id": "ac-2-guest-users",
@@ -24,7 +30,20 @@
           "severity": "medium",
           "query": "select display_name, user_principal_name, user_type from azuread_user where user_type = 'Guest'",
           "resource_type": "azuread_user",
-          "fedramp_20x_ksi": ["KSI-IAM-05", "KSI-IAM-07"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05",
+            "KSI-IAM-07"
+          ]
+        },
+        {
+          "check_id": "ac-2-entra-groups-exist",
+          "description": "Entra ID groups should be used for role-based access management",
+          "severity": "medium",
+          "query": "select display_name, security_enabled, mail_enabled from azuread_group",
+          "resource_type": "azuread_group",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -32,7 +51,11 @@
       "control_id": "AC-3",
       "title": "Access Enforcement",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-3", "PCI DSS 7.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-3",
+        "PCI DSS 7.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-3-storage-no-public-access",
@@ -40,7 +63,10 @@
           "severity": "high",
           "query": "select name, allow_blob_public_access from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-CNA-02", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02",
+            "KSI-IAM-05"
+          ]
         },
         {
           "check_id": "ac-3-storage-no-public-network",
@@ -48,7 +74,20 @@
           "severity": "high",
           "query": "select name, network_rule_default_action from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-CNA-01", "KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01",
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "ac-3-entra-guest-invite-restriction",
+          "description": "Entra ID should restrict guest invite permissions",
+          "severity": "medium",
+          "query": "select allow_invites_from, guest_user_role_id from azuread_authorization_policy",
+          "resource_type": "azuread_authorization_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -56,7 +95,11 @@
       "control_id": "AC-6",
       "title": "Least Privilege",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-6", "PCI DSS 7.1", "SOC 2 CC6.3"],
+      "frameworks": [
+        "FedRAMP AC-6",
+        "PCI DSS 7.1",
+        "SOC 2 CC6.3"
+      ],
       "checks": [
         {
           "check_id": "ac-6-global-admin-count",
@@ -64,7 +107,20 @@
           "severity": "critical",
           "query": "select display_name, member_type from azuread_directory_role_member where role_display_name = 'Global Administrator'",
           "resource_type": "azuread_directory_role_member",
-          "fedramp_20x_ksi": ["KSI-IAM-04", "KSI-IAM-05"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-04",
+            "KSI-IAM-05"
+          ]
+        },
+        {
+          "check_id": "ac-6-privileged-role-assignments",
+          "description": "Privileged directory roles should have limited assignments",
+          "severity": "high",
+          "query": "select role_definition_id, principal_id, member_type from azuread_directory_role_assignment",
+          "resource_type": "azuread_directory_role_assignment",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -72,7 +128,11 @@
       "control_id": "AC-17",
       "title": "Remote Access",
       "family": "Access Control",
-      "frameworks": ["FedRAMP AC-17", "PCI DSS 8.4", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP AC-17",
+        "PCI DSS 8.4",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ac-17-nsg-no-ssh-from-internet",
@@ -80,7 +140,9 @@
           "severity": "critical",
           "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         },
         {
           "check_id": "ac-17-nsg-no-rdp-from-internet",
@@ -88,7 +150,19 @@
           "severity": "critical",
           "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "ac-17-external-identity-policy",
+          "description": "External identity policy should be reviewed",
+          "severity": "medium",
+          "query": "select allow_deleted_identities_data_removal, allow_external_id_to_use_ms_services from azuread_external_identity_policy",
+          "resource_type": "azuread_external_identity_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -96,7 +170,11 @@
       "control_id": "AU-2",
       "title": "Event Logging",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-2", "PCI DSS 10.2", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-2",
+        "PCI DSS 10.2",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-2-activity-log-exists",
@@ -104,7 +182,10 @@
           "severity": "critical",
           "query": "select name, log_profile_id from azure_subscription",
           "resource_type": "azure_subscription",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-MLA-07"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-MLA-07"
+          ]
         },
         {
           "check_id": "au-2-diagnostic-settings",
@@ -112,7 +193,30 @@
           "severity": "high",
           "query": "select name, storage_account_id from azure_diagnostic_setting",
           "resource_type": "azure_diagnostic_setting",
-          "fedramp_20x_ksi": ["KSI-MLA-02", "KSI-MLA-07"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-02",
+            "KSI-MLA-07"
+          ]
+        },
+        {
+          "check_id": "au-2-entra-audit-logs",
+          "description": "Entra ID directory audit logs should be available",
+          "severity": "medium",
+          "query": "select id, activity_display_name, category from azuread_directory_audit_report limit 5",
+          "resource_type": "azuread_directory_audit_report",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        },
+        {
+          "check_id": "au-2-entra-sign-in-logs",
+          "description": "Entra ID sign-in logs should be available for monitoring",
+          "severity": "medium",
+          "query": "select id, user_display_name, status from azuread_sign_in_report limit 5",
+          "resource_type": "azuread_sign_in_report",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -120,7 +224,11 @@
       "control_id": "AU-9",
       "title": "Protection of Audit Information",
       "family": "Audit and Accountability",
-      "frameworks": ["FedRAMP AU-9", "PCI DSS 10.5", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP AU-9",
+        "PCI DSS 10.5",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "au-9-storage-immutable",
@@ -128,7 +236,9 @@
           "severity": "high",
           "query": "select name, blob_service_properties from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-MLA-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01"
+          ]
         }
       ]
     },
@@ -136,7 +246,11 @@
       "control_id": "CM-6",
       "title": "Configuration Settings",
       "family": "Configuration Management",
-      "frameworks": ["FedRAMP CM-6", "PCI DSS 2.2", "SOC 2 CC8.1"],
+      "frameworks": [
+        "FedRAMP CM-6",
+        "PCI DSS 2.2",
+        "SOC 2 CC8.1"
+      ],
       "checks": [
         {
           "check_id": "cm-6-defender-enabled",
@@ -144,7 +258,21 @@
           "severity": "high",
           "query": "select name, pricing_tier from azure_security_center_subscription_pricing",
           "resource_type": "azure_security_center_subscription_pricing",
-          "fedramp_20x_ksi": ["KSI-CMT-01", "KSI-MLA-01", "KSI-CNA-05"]
+          "fedramp_20x_ksi": [
+            "KSI-CMT-01",
+            "KSI-MLA-01",
+            "KSI-CNA-05"
+          ]
+        },
+        {
+          "check_id": "cm-6-defender-auto-provisioning",
+          "description": "Defender for Cloud should have auto-provisioning enabled",
+          "severity": "high",
+          "query": "select name, properties from azure_security_center_auto_provisioning",
+          "resource_type": "azure_security_center_auto_provisioning",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-01"
+          ]
         }
       ]
     },
@@ -152,7 +280,11 @@
       "control_id": "CP-9",
       "title": "System Backup",
       "family": "Contingency Planning",
-      "frameworks": ["FedRAMP CP-9", "PCI DSS 12.10.1", "SOC 2 A1.2"],
+      "frameworks": [
+        "FedRAMP CP-9",
+        "PCI DSS 12.10.1",
+        "SOC 2 A1.2"
+      ],
       "checks": [
         {
           "check_id": "cp-9-sql-backup-retention",
@@ -160,7 +292,9 @@
           "severity": "high",
           "query": "select name, retention_days from azure_sql_database where name != 'master'",
           "resource_type": "azure_sql_database",
-          "fedramp_20x_ksi": ["KSI-RPL-03"]
+          "fedramp_20x_ksi": [
+            "KSI-RPL-03"
+          ]
         }
       ]
     },
@@ -168,7 +302,11 @@
       "control_id": "IA-2",
       "title": "Identification and Authentication",
       "family": "Identification and Authentication",
-      "frameworks": ["FedRAMP IA-2", "PCI DSS 8.3.1", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP IA-2",
+        "PCI DSS 8.3.1",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ia-2-entra-mfa-enabled",
@@ -176,7 +314,9 @@
           "severity": "critical",
           "query": "select display_name, user_principal_name, account_enabled from azuread_user where account_enabled = true",
           "resource_type": "azuread_user",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         },
         {
           "check_id": "ia-2-conditional-access-policies",
@@ -184,7 +324,30 @@
           "severity": "critical",
           "query": "select display_name, state from azuread_conditional_access_policy",
           "resource_type": "azuread_conditional_access_policy",
-          "fedramp_20x_ksi": ["KSI-IAM-01", "KSI-IAM-04"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01",
+            "KSI-IAM-04"
+          ]
+        },
+        {
+          "check_id": "ia-2-security-defaults-enabled",
+          "description": "Entra ID security defaults should be enabled for MFA enforcement",
+          "severity": "critical",
+          "query": "select display_name, is_enabled from azuread_security_defaults_policy",
+          "resource_type": "azuread_security_defaults_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
+        },
+        {
+          "check_id": "ia-2-conditional-access-named-locations",
+          "description": "Conditional access should use named locations for geo-based policies",
+          "severity": "medium",
+          "query": "select display_name from azuread_conditional_access_named_location",
+          "resource_type": "azuread_conditional_access_named_location",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         }
       ]
     },
@@ -192,7 +355,11 @@
       "control_id": "IA-5",
       "title": "Authenticator Management",
       "family": "Identification and Authentication",
-      "frameworks": ["FedRAMP IA-5", "PCI DSS 8.3.6", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP IA-5",
+        "PCI DSS 8.3.6",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "ia-5-entra-password-policy",
@@ -200,7 +367,19 @@
           "severity": "high",
           "query": "select display_name, password_policies from azuread_user",
           "resource_type": "azuread_user",
-          "fedramp_20x_ksi": ["KSI-IAM-01"]
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
+        },
+        {
+          "check_id": "ia-5-device-registration-policy",
+          "description": "Device registration policy should be configured",
+          "severity": "medium",
+          "query": "select azure_ad_join, azure_ad_registration from azuread_device_registration_policy",
+          "resource_type": "azuread_device_registration_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         }
       ]
     },
@@ -208,7 +387,11 @@
       "control_id": "SC-7",
       "title": "Boundary Protection",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-7", "PCI DSS 1.2.1", "SOC 2 CC6.6"],
+      "frameworks": [
+        "FedRAMP SC-7",
+        "PCI DSS 1.2.1",
+        "SOC 2 CC6.6"
+      ],
       "checks": [
         {
           "check_id": "sc-7-nsg-unrestricted-inbound",
@@ -216,7 +399,9 @@
           "severity": "critical",
           "query": "select name, security_rules from azure_network_security_group",
           "resource_type": "azure_network_security_group",
-          "fedramp_20x_ksi": ["KSI-CNA-02"]
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         },
         {
           "check_id": "sc-7-nsg-flow-logs",
@@ -224,7 +409,9 @@
           "severity": "high",
           "query": "select name, network_watcher_flow_analytics_enabled from azure_network_security_group",
           "resource_type": "azure_network_security_group",
-          "fedramp_20x_ksi": ["KSI-LOG-01"]
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -232,7 +419,11 @@
       "control_id": "SC-8",
       "title": "Transmission Confidentiality and Integrity",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-8", "PCI DSS 4.2.1", "SOC 2 CC6.7"],
+      "frameworks": [
+        "FedRAMP SC-8",
+        "PCI DSS 4.2.1",
+        "SOC 2 CC6.7"
+      ],
       "checks": [
         {
           "check_id": "sc-8-storage-https-only",
@@ -240,7 +431,9 @@
           "severity": "high",
           "query": "select name, enable_https_traffic_only from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-8-storage-min-tls",
@@ -248,7 +441,9 @@
           "severity": "high",
           "query": "select name, minimum_tls_version from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-8-sql-tls-enforced",
@@ -256,7 +451,29 @@
           "severity": "high",
           "query": "select name, minimal_tls_version from azure_sql_server",
           "resource_type": "azure_sql_server",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
+        },
+        {
+          "check_id": "sc-8-app-service-https-only",
+          "description": "App Service web apps should enforce HTTPS only",
+          "severity": "high",
+          "query": "select name, https_only, kind from azure_app_service_web_app",
+          "resource_type": "azure_app_service_web_app",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-8-app-service-min-tls",
+          "description": "App Service should use TLS 1.2 minimum",
+          "severity": "high",
+          "query": "select name, configuration from azure_app_service_web_app",
+          "resource_type": "azure_app_service_web_app",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -264,7 +481,11 @@
       "control_id": "SC-12",
       "title": "Cryptographic Key Establishment and Management",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-12", "PCI DSS 3.6", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-12",
+        "PCI DSS 3.6",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-12-keyvault-soft-delete",
@@ -272,7 +493,9 @@
           "severity": "high",
           "query": "select name, soft_delete_enabled, soft_delete_retention_in_days from azure_key_vault",
           "resource_type": "azure_key_vault",
-          "fedramp_20x_ksi": ["KSI-SVC-06"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-06"
+          ]
         },
         {
           "check_id": "sc-12-keyvault-purge-protection",
@@ -280,7 +503,9 @@
           "severity": "high",
           "query": "select name, purge_protection_enabled from azure_key_vault",
           "resource_type": "azure_key_vault",
-          "fedramp_20x_ksi": ["KSI-SVC-06"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-06"
+          ]
         },
         {
           "check_id": "sc-12-keyvault-key-expiry",
@@ -288,7 +513,9 @@
           "severity": "medium",
           "query": "select name, enabled, expires_at from azure_key_vault_key",
           "resource_type": "azure_key_vault_key",
-          "fedramp_20x_ksi": ["KSI-SVC-06"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-06"
+          ]
         }
       ]
     },
@@ -296,7 +523,11 @@
       "control_id": "SC-28",
       "title": "Protection of Information at Rest",
       "family": "System and Communications Protection",
-      "frameworks": ["FedRAMP SC-28", "PCI DSS 3.5.2", "SOC 2 CC6.1"],
+      "frameworks": [
+        "FedRAMP SC-28",
+        "PCI DSS 3.5.2",
+        "SOC 2 CC6.1"
+      ],
       "checks": [
         {
           "check_id": "sc-28-storage-encryption",
@@ -304,7 +535,9 @@
           "severity": "high",
           "query": "select name, encryption_key_source from azure_storage_account",
           "resource_type": "azure_storage_account",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-sql-encryption",
@@ -312,7 +545,9 @@
           "severity": "high",
           "query": "select database_name, transparent_data_encryption from azure_sql_database where name != 'master'",
           "resource_type": "azure_sql_database",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
         },
         {
           "check_id": "sc-28-vm-disk-encryption",
@@ -320,7 +555,19 @@
           "severity": "high",
           "query": "select name, encryption_type from azure_compute_disk",
           "resource_type": "azure_compute_disk",
-          "fedramp_20x_ksi": ["KSI-SVC-02"]
+          "fedramp_20x_ksi": [
+            "KSI-SVC-02"
+          ]
+        },
+        {
+          "check_id": "sc-28-compute-disk-encryption",
+          "description": "Managed disks should be encrypted",
+          "severity": "high",
+          "query": "select name, encryption_type from azure_compute_disk",
+          "resource_type": "azure_compute_disk",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -328,7 +575,11 @@
       "control_id": "SI-4",
       "title": "System Monitoring",
       "family": "System and Information Integrity",
-      "frameworks": ["FedRAMP SI-4", "PCI DSS 10.6.1", "SOC 2 CC7.2"],
+      "frameworks": [
+        "FedRAMP SI-4",
+        "PCI DSS 10.6.1",
+        "SOC 2 CC7.2"
+      ],
       "checks": [
         {
           "check_id": "si-4-security-contacts",
@@ -336,7 +587,9 @@
           "severity": "medium",
           "query": "select name, email, alert_notifications from azure_security_center_contact",
           "resource_type": "azure_security_center_contact",
-          "fedramp_20x_ksi": ["KSI-INR-01"]
+          "fedramp_20x_ksi": [
+            "KSI-INR-01"
+          ]
         },
         {
           "check_id": "si-4-alert-rules",
@@ -344,7 +597,10 @@
           "severity": "medium",
           "query": "select name, enabled from azure_log_alert",
           "resource_type": "azure_log_alert",
-          "fedramp_20x_ksi": ["KSI-MLA-01", "KSI-INR-01"]
+          "fedramp_20x_ksi": [
+            "KSI-MLA-01",
+            "KSI-INR-01"
+          ]
         }
       ]
     }

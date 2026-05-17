@@ -15,7 +15,7 @@ def run_query(query):
     )
     if result.returncode != 0:
         stderr = result.stderr
-        if "SubscriptionRequiredException" in stderr or "OptInRequired" in stderr or "AccessDeniedException" in stderr or "UnauthorizedOperation" in stderr:
+        if any(e in stderr for e in ["SubscriptionRequiredException", "OptInRequired", "AccessDeniedException", "UnauthorizedOperation", "AccessDenied", "required scopes", "PremiumTenantOrB2CTenant", "premium license", "required permissions"]):
             return {"rows": [], "_not_enabled": True}, None
         if "Dependabot alerts are disabled" in stderr:
             return {"rows": [], "_not_enabled": True}, None
@@ -53,7 +53,8 @@ def evaluate_check(check, query_result):
                            "cm-3-branch-dismisses-stale-reviews",
                            "sa-11-branch-requires-code-owner-review",
                            "si-7-commit-signatures-required", "si-7-branch-linear-history", 
-                           "au-12-cloudwatch-log-groups"]
+                           "au-12-cloudwatch-log-groups", "au-2-entra-audit-logs", 
+                           "au-2-entra-sign-in-logs"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -572,6 +573,62 @@ def evaluate_check(check, query_result):
         elif "kms" in check_id and "pending-deletion" in check_id:
             failed = True
             reason = f"KMS key scheduled for deletion: {row.get('key_state', '')}"
+
+        elif "security-defaults" in check_id:
+            if row.get("is_enabled") != True:
+                failed = True
+                reason = "security defaults not enabled"
+        
+        elif "guest-invite" in check_id or "authorization-policy" in check_id:
+            invite = row.get("allow_invites_from", "")
+            if invite in ["everyone", "adminsAndGuestInviters"]:
+                failed = True
+                reason = f"guest invite policy is {invite}, should be restricted"
+        
+        elif "app-service" in check_id and "https" in check_id:
+            if row.get("https_only") != True:
+                failed = True
+                reason = "HTTPS not enforced"
+        
+        elif "auto-provisioning" in check_id:
+            props = str(row.get("properties", ""))
+            if "On" not in props:
+                failed = True
+                reason = "auto-provisioning not enabled"
+        
+        elif "external-identity" in check_id:
+            pass  # informational — existence check
+        
+        elif "device-registration" in check_id:
+            pass  # informational — existence check
+        
+        elif "sign-in-log" in check_id or "audit-log" in check_id:
+            pass  # if rows exist, logs are available — pass
+        
+        elif "entra-group" in check_id:
+            pass  # groups existing is informational
+        
+        elif "privileged-role" in check_id:
+            pass  # informational — count matters but not auto-fail
+        
+        elif "delete-branch-on-merge" in check_id:
+            if row.get("delete_branch_on_merge") != True:
+                failed = True
+                reason = "branches not deleted after merge"
+        
+        elif "last-push-approval" in check_id:
+            if row.get("require_last_push_approval") != True:
+                failed = True
+                reason = "last push approval not required"
+        
+        elif "forking-restricted" in check_id:
+            failed = True
+            reason = "private repo allows forking"
+        
+        elif "dependabot" in check_id and "critical" in check_id:
+            if row.get("state") == "open":
+                failed = True
+                reason = f"open critical alert #{row.get('alert_number', '?')}"
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
