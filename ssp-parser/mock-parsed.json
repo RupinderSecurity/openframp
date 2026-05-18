@@ -1,0 +1,517 @@
+{
+  "parser_version": "2.0.0",
+  "source": "FedRAMP SSP",
+  "system_information": {
+    "csp_name": "NovaCrest Technologies, Inc. (NovaCrest)",
+    "cso_name": "NovaCrest Cloud Platform (NCP)",
+    "fedramp_package_id": "FR-2026-04821",
+    "service_model": "SaaS",
+    "digital_identity_level": "IAL2/FAL2/AAL2",
+    "fips_199_level": "Moderate",
+    "operational_date": "03/15/2025",
+    "deployment_model": "Government-Only Cloud",
+    "authorization_path": "Agency Authorization",
+    "description": "NovaCrest Cloud Platform (NCP) is a SaaS-based compliance management and continuous monitoring platform designed for federal agencies and their contractors. NCP provides automated compliance scanning, OSCAL document generation, evidence collection, and risk dashboards. The platform runs exclusively on AWS GovCloud (US) with all data processed and stored within the FedRAMP authorization boundary. NCP supports FedRAMP Moderate, NIST 800-53 Rev 5, and FedRAMP 20x Key Security Indicators."
+  },
+  "contacts": [
+    {
+      "role": "System Owner",
+      "name": "Sarah Chen",
+      "title": "Chief Technology Officer",
+      "organization": "NovaCrest Technologies, Inc.",
+      "address": "1400 Crystal Drive, Suite 700, Arlington, VA 22202",
+      "phone": "571-555-0142",
+      "email": "sarah.chen@novacrest.com"
+    },
+    {
+      "role": "ISSO",
+      "name": "Marcus Williams",
+      "title": "Information System Security Officer",
+      "organization": "NovaCrest Technologies, Inc.",
+      "address": "1400 Crystal Drive, Suite 700, Arlington, VA 22202",
+      "phone": "571-555-0187",
+      "email": "marcus.williams@novacrest.com"
+    }
+  ],
+  "leveraged_services": [
+    {
+      "#": "1",
+      "CSP/CSO Name (Name on FedRAMP ": "Amazon Web Services (AWS)",
+      "CSO Service": "AWS GovCloud (US)",
+      "Authorization Type and FedRAMP": "JAB P-ATO / FR-1603120926",
+      "Nature of Agreement": "IaaS Agreement",
+      "Impact Level": "High",
+      "Data Types": "CUI, PII, PHI",
+      "Authorized Users": "System Admins, Developers"
+    },
+    {
+      "#": "2",
+      "CSP/CSO Name (Name on FedRAMP ": "Okta Federal",
+      "CSO Service": "Okta Identity Cloud",
+      "Authorization Type and FedRAMP": "Agency ATO / FR-1910020432",
+      "Nature of Agreement": "IdP Service Agreement",
+      "Impact Level": "Moderate",
+      "Data Types": "Identity assertions, MFA tokens",
+      "Authorized Users": "All system users"
+    },
+    {
+      "#": "3",
+      "CSP/CSO Name (Name on FedRAMP ": "Splunk Cloud for Government",
+      "CSO Service": "Splunk Cloud Platform",
+      "Authorization Type and FedRAMP": "JAB P-ATO / FR-2001151082",
+      "Nature of Agreement": "Log aggregation SLA",
+      "Impact Level": "Moderate",
+      "Data Types": "Audit logs, system events",
+      "Authorized Users": "SOC analysts, ISSO"
+    }
+  ],
+  "ports_protocols": [
+    {
+      "Service Name": "HTTPS",
+      "Port #": "443",
+      "Transport Protocol": "TCP/TLS 1.2+",
+      "Reference #": "SC-8, SC-13",
+      "Purpose": "Web application access, API endpoints",
+      "Used By": "All users, API clients"
+    },
+    {
+      "Service Name": "SSH",
+      "Port #": "22",
+      "Transport Protocol": "TCP",
+      "Reference #": "AC-17, SC-8",
+      "Purpose": "Administrative access to bastion host",
+      "Used By": "System administrators only"
+    },
+    {
+      "Service Name": "PostgreSQL",
+      "Port #": "5432",
+      "Transport Protocol": "TCP/TLS",
+      "Reference #": "SC-8, SC-28",
+      "Purpose": "Database connections (internal only)",
+      "Used By": "Application servers"
+    },
+    {
+      "Service Name": "SMTP/TLS",
+      "Port #": "587",
+      "Transport Protocol": "TCP/TLS",
+      "Reference #": "SC-8",
+      "Purpose": "Email notifications, alert delivery",
+      "Used By": "System (automated)"
+    },
+    {
+      "Service Name": "NTP",
+      "Port #": "123",
+      "Transport Protocol": "UDP",
+      "Reference #": "AU-8",
+      "Purpose": "Time synchronization with NIST servers",
+      "Used By": "All servers"
+    },
+    {
+      "Service Name": "Syslog/TLS",
+      "Port #": "6514",
+      "Transport Protocol": "TCP/TLS",
+      "Reference #": "AU-2, AU-3",
+      "Purpose": "Centralized log forwarding to Splunk",
+      "Used By": "All servers"
+    }
+  ],
+  "separation_of_duties": [
+    {
+      "Duty Description": "Adds/Removes Privileged Admins",
+      "System Owner": "X",
+      "ISSO": "X"
+    },
+    {
+      "Duty Description": "Adds/Removes Non-privileged Users",
+      "ISSO": "X",
+      "DevOps Admin": "X"
+    },
+    {
+      "Duty Description": "Manages Firewall/Security Groups",
+      "ISSO": "X",
+      "Security Engineer": "X"
+    },
+    {
+      "Duty Description": "Deploys Application Code",
+      "DevOps Admin": "X"
+    },
+    {
+      "Duty Description": "Reviews Audit Logs",
+      "ISSO": "X",
+      "SOC Analyst": "X"
+    },
+    {
+      "Duty Description": "Manages Database Access",
+      "ISSO": "X",
+      "Database Admin": "X"
+    },
+    {
+      "Duty Description": "Approves System Changes",
+      "System Owner": "X",
+      "ISSO": "X"
+    },
+    {
+      "Duty Description": "Performs Vulnerability Scans",
+      "Security Engineer": "X",
+      "SOC Analyst": "X"
+    }
+  ],
+  "total_controls": 20,
+  "controls": [
+    {
+      "control_id": "AC-1",
+      "responsible_role": "ISSO",
+      "parameters": {
+        "AC-1(a)": "annually"
+      },
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider Corporate",
+      "implementation_parts": {
+        "a": "NovaCrest develops, documents, and disseminates an access control policy to all personnel with system access. The policy is maintained in the NovaCrest Policy Management System (PMS) and is accessible to all employees via the corporate intranet. The policy addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance requirements.",
+        "b": "NovaCrest reviews and updates the access control policy annually and within 30 days of significant changes to the information system or operating environment. The ISSO initiates the review process and the CTO approves all policy updates. Version history is maintained in the PMS with full audit trail.",
+        "c": "NovaCrest develops, documents, and disseminates access control procedures that facilitate the implementation of the access control policy. Procedures are reviewed and updated annually by the Security Engineering team."
+      },
+      "completeness": {
+        "filled_parts": 3,
+        "total_parts": 3,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AC-2",
+      "responsible_role": "System Administrator",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest identifies and selects the following types of system accounts: individual user accounts, shared/group accounts (limited to service accounts only), system accounts, and emergency accounts. All accounts are managed through Okta Federal for authentication and AWS IAM for authorization.",
+        "b": "NovaCrest assigns account managers for all system accounts. The ISSO serves as the primary account manager with delegation to team leads for their respective teams. Account managers are documented in the NovaCrest Access Control Matrix maintained in Confluence.",
+        "c": "NovaCrest establishes conditions for group and role membership based on the principle of least privilege. Role definitions are documented in the RBAC Matrix and reviewed quarterly by the ISSO.",
+        "d": "NovaCrest specifies authorized users, group and role membership, and access authorizations for each account. All access requests are submitted through the ServiceNow ticketing system and require manager approval plus ISSO review for privileged access.",
+        "e": "NovaCrest requires approvals by the account manager and ISSO for requests to create accounts. The approval workflow is enforced through ServiceNow with automated routing based on the requested access level.",
+        "f": "NovaCrest creates, enables, modifies, disables, and removes accounts in accordance with the Access Control SOP. Account lifecycle events are logged in both ServiceNow and Splunk for audit purposes.",
+        "g": "NovaCrest monitors the use of accounts through automated alerting in Splunk. Alerts are configured for: failed login attempts exceeding threshold, after-hours access to production, privilege escalation attempts, and dormant account activity.",
+        "h": "NovaCrest notifies account managers within 24 hours when accounts are no longer required, when users are terminated or transferred, and when system usage or need-to-know changes. HR integration with Okta automates deprovisioning for terminated employees.",
+        "i": "NovaCrest authorizes access to the system based on a valid access authorization, intended system usage, and other attributes as required by the organization. All access decisions are documented in ServiceNow tickets.",
+        "j": "NovaCrest reviews accounts for compliance with account management requirements quarterly. The review is performed by the ISSO with results documented in the Quarterly Access Review Report.",
+        "k": "NovaCrest establishes and implements a process for changing shared/group account authenticators when members leave the group. Service account credentials are rotated automatically through AWS Secrets Manager every 90 days.",
+        "l": "NovaCrest aligns account management processes with personnel termination and transfer procedures. Okta integration with Workday HR ensures accounts are disabled within 4 hours of termination and access is reviewed within 24 hours of transfer."
+      },
+      "completeness": {
+        "filled_parts": 12,
+        "total_parts": 12,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AC-3",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest enforces approved authorizations for logical access to information and system resources in accordance with applicable access control policies. Access enforcement is implemented through: AWS IAM policies using least privilege, Okta RBAC with conditional access policies, PostgreSQL row-level security for multi-tenant data isolation, and application-level authorization middleware that validates permissions on every API request."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AC-6",
+      "responsible_role": "ISSO",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest employs the principle of least privilege, allowing only authorized accesses for users which are necessary to accomplish assigned organizational tasks. IAM policies are crafted using Action-level permissions (never Action:*), Resource-level constraints where supported, and Condition keys to further restrict access. Quarterly access reviews verify that all users retain only the minimum permissions needed for their current role."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AC-17",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest establishes and documents usage restrictions, configuration/connection requirements, and implementation guidance for each type of remote access allowed. Remote administrative access is permitted only through the AWS Systems Manager Session Manager (no SSH bastion required) or through the VPN gateway with MFA authentication. Developer access to production is prohibited; all changes go through the CI/CD pipeline.",
+        "b": "NovaCrest authorizes each type of remote access to the system prior to allowing such connections. Remote access authorization is documented in the Remote Access Policy and requires ISSO approval for each access method."
+      },
+      "completeness": {
+        "filled_parts": 2,
+        "total_parts": 2,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AU-2",
+      "responsible_role": "Security Engineer",
+      "parameters": {
+        "AU-2(a)": "See list below"
+      },
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest identifies the following events as requiring audit logging: successful and unsuccessful login attempts, privilege escalation, account creation/modification/deletion, access to CUI data stores, configuration changes to security-relevant settings, API calls to AWS services (via CloudTrail), changes to security group rules, S3 bucket access events, database query logging for sensitive tables, and application-level user actions.",
+        "b": "NovaCrest coordinates the audit logging function with the ISSO, SOC team, and system administrators. The audit logging requirements are reviewed annually and updated based on threat intelligence, incident lessons learned, and changes to the system architecture.",
+        "c": "NovaCrest provides a rationale for why the auditable events are deemed adequate to support after-the-fact investigations. The event selection is based on NIST SP 800-92 guidance, FedRAMP requirements, and NovaCrest's incident response playbooks which identify the data elements needed for forensic analysis.",
+        "d": "NovaCrest determines that the system generates audit records for all events identified in AU-2(a). Audit record generation is verified through quarterly testing where the SOC team triggers sample events and confirms they appear in Splunk within the expected timeframe."
+      },
+      "completeness": {
+        "filled_parts": 4,
+        "total_parts": 4,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "AU-3",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest audit records contain the following information: what type of event occurred, when the event occurred (timestamp with millisecond precision synchronized to NIST time servers), where the event occurred (system component, IP address, AWS region), the source of the event (user ID, service account, API key identifier), the outcome of the event (success/failure with error codes), and the identity of subjects and objects involved. All audit records are stored in structured JSON format in Splunk for searchability."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "CM-2",
+      "responsible_role": "DevOps Administrator",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest develops, documents, and maintains a current baseline configuration of the information system. Baseline configurations are defined as Infrastructure as Code (IaC) using Terraform modules stored in the NovaCrest GitLab repository. The baseline includes: AMI definitions with CIS Benchmark Level 2 hardening, Terraform modules for VPC, security groups, IAM roles, and all AWS services, container images built from hardened base images with vulnerability scanning, and application configuration managed through AWS Systems Manager Parameter Store."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "CM-6",
+      "responsible_role": "DevOps Administrator",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest establishes configuration settings for information technology products employed within the system using CIS Benchmarks Level 2 as the baseline. Deviations from the CIS Benchmark are documented in the Configuration Deviation Register with risk acceptance by the ISSO.",
+        "b": "NovaCrest implements the configuration settings as defined in the Terraform modules. All infrastructure changes must go through the CI/CD pipeline which validates configurations against the approved baseline before deployment.",
+        "c": "NovaCrest documents all deviations from established configuration settings in the Configuration Deviation Register. Each deviation includes: the specific setting, the approved value vs. actual value, justification, compensating controls, risk acceptance by ISSO, and review date.",
+        "d": "NovaCrest monitors and controls changes to the configuration settings using AWS Config rules that continuously evaluate resource configurations against the approved baseline. Non-compliant resources trigger CloudWatch alarms that notify the SOC team within 15 minutes."
+      },
+      "completeness": {
+        "filled_parts": 4,
+        "total_parts": 4,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "CP-9",
+      "responsible_role": "DevOps Administrator",
+      "parameters": {
+        "CP-9(a)": "daily for user data, hourly for transaction logs"
+      },
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest conducts backups of user-level information daily. RDS automated backups run nightly with a 35-day retention period. S3 objects are versioned with lifecycle policies transitioning old versions to Glacier after 90 days.",
+        "b": "NovaCrest conducts backups of system-level information daily. AMI snapshots are created weekly. Terraform state files are versioned in a dedicated S3 bucket with MFA delete enabled.",
+        "c": "NovaCrest conducts backups of system documentation including the SSP, contingency plan, and incident response plan. Documentation is stored in a versioned S3 bucket with cross-region replication to us-gov-east-1.",
+        "d": "NovaCrest protects the confidentiality, integrity, and availability of backup information at storage locations. All backups are encrypted with a dedicated KMS CMK. Backup bucket access is restricted to the backup service role only. Cross-region replication ensures geographic redundancy."
+      },
+      "completeness": {
+        "filled_parts": 4,
+        "total_parts": 4,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "IA-2",
+      "responsible_role": "ISSO",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific and Service Provider Corporate",
+      "implementation_parts": {
+        "a": "NovaCrest uniquely identifies and authenticates organizational users through Okta Federal. Each user receives a unique username tied to their corporate email address. Authentication requires: username/password meeting NIST SP 800-63B requirements (minimum 12 characters, complexity requirements, breach detection), plus phishing-resistant MFA via FIDO2 security keys (YubiKey 5) for privileged users or Okta Verify push notifications for standard users. Service accounts authenticate via X.509 certificates or AWS IAM roles with temporary credentials obtained through STS AssumeRole."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "IA-5",
+      "responsible_role": "ISSO",
+      "parameters": {
+        "IA-5(a)": "See implementation"
+      },
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider Corporate",
+      "implementation_parts": {
+        "a": "NovaCrest manages authenticators through Okta Federal for passwords and MFA devices. Password policy enforces: minimum 12 characters, checks against NIST breach database (Have I Been Pwned API integration), no composition rules per NIST 800-63B guidance, 90-day maximum lifetime, and lockout after 5 consecutive failed attempts.",
+        "b": "NovaCrest establishes initial authenticator content through a secure enrollment process. New users receive a time-limited enrollment link via encrypted email. First login requires immediate password change and MFA device registration. Privileged users must register a FIDO2 hardware key during onboarding with the Security Engineering team."
+      },
+      "completeness": {
+        "filled_parts": 2,
+        "total_parts": 2,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "IR-4",
+      "responsible_role": "SOC Analyst",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider Corporate",
+      "implementation_parts": {
+        "a": "NovaCrest implements an incident handling capability that includes preparation, detection and analysis, containment, eradication, and recovery. The Incident Response Plan (IRP) is maintained by the ISSO and tested quarterly. The SOC team provides 24/7 monitoring through Splunk with automated alerting for security-relevant events. Incident severity levels are defined (SEV-1 through SEV-4) with escalation procedures and response timeframes for each level.",
+        "b": "NovaCrest coordinates incident handling activities with contingency planning activities through shared runbooks in Confluence. Major incidents (SEV-1, SEV-2) automatically trigger business continuity assessment procedures.",
+        "c": "NovaCrest incorporates lessons learned from ongoing incident handling activities into incident response procedures, training, and testing. Post-incident reviews are conducted within 5 business days of incident closure. Findings are documented in the Lessons Learned Register and drive updates to detection rules, response procedures, and training materials."
+      },
+      "completeness": {
+        "filled_parts": 3,
+        "total_parts": 3,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "PE-1",
+      "responsible_role": "Facilities Manager",
+      "parameters": {
+        "PE-1(a)": "annually"
+      },
+      "implementation_status": "Implementation Status: Partially Implemented",
+      "control_origination": "Control Origination: Shared (Service Provider and Customer)",
+      "implementation_parts": {
+        "a": "Physical and environmental protection is a shared responsibility. AWS provides physical security for the data center facilities (documented in the AWS FedRAMP package). NovaCrest is responsible for physical security of its corporate offices where system administration occurs. The NovaCrest Physical Security Policy addresses badge access, visitor management, CCTV monitoring, and clean desk requirements.",
+        "b": ""
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 2,
+        "complete": false
+      }
+    },
+    {
+      "control_id": "RA-5",
+      "responsible_role": "Security Engineer",
+      "parameters": {
+        "RA-5(a)": "monthly automated, quarterly manual"
+      },
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest monitors and scans for vulnerabilities in the system using: AWS Inspector for continuous EC2 and ECR vulnerability assessment, Dependabot for application dependency scanning in GitHub, Qualys Cloud Agent for infrastructure vulnerability scanning (monthly), and annual penetration testing by an independent 3PAO. Scan results are aggregated in the NovaCrest Vulnerability Dashboard.",
+        "b": "NovaCrest remediates vulnerabilities in accordance with the Vulnerability Management SOP: Critical vulnerabilities within 15 days, High within 30 days, Medium within 90 days, Low within 180 days. Vulnerabilities that cannot be remediated within the timeframe require a POA&M entry with compensating controls approved by the ISSO."
+      },
+      "completeness": {
+        "filled_parts": 2,
+        "total_parts": 2,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "SC-7",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest monitors and controls communications at the external managed interfaces to the system and at key internal managed interfaces within the system. The boundary is defined by the AWS GovCloud VPC architecture with: public subnets containing only the Application Load Balancer (ALB), private subnets for application servers and databases, isolated subnets for management traffic, and a dedicated VPN subnet for administrative access.",
+        "b": "NovaCrest implements subnetworks for publicly accessible system components that are physically and logically separated from internal organizational networks. The ALB is the only component with a public IP address. All other components reside in private subnets with no direct internet access. Outbound internet access is provided through a NAT Gateway with egress filtering.",
+        "c": "NovaCrest connects to external networks or systems only through managed interfaces consisting of boundary protection devices arranged in accordance with the organizational security architecture. All external connections are documented in the Interconnection Security Agreement (ISA) register and approved by the AO."
+      },
+      "completeness": {
+        "filled_parts": 3,
+        "total_parts": 3,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "SC-8",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest protects the confidentiality and integrity of transmitted information using TLS 1.2 or higher for all communications. Specific implementations include: ALB configured with TLS 1.2 minimum with FIPS-approved cipher suites only, internal service-to-service communication uses mutual TLS (mTLS) with certificates issued by AWS Private CA, database connections require TLS with certificate verification, API endpoints enforce HTTPS with HSTS headers (max-age=31536000, includeSubDomains), and S3 bucket policies deny all non-HTTPS requests."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "SC-13",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest implements FIPS-validated cryptographic modules for all cryptographic operations. The platform uses: AWS KMS (FIPS 140-2 Level 3 validated, certificate #4523) for key management and envelope encryption, OpenSSL FIPS Object Module (FIPS 140-2 Level 1 validated, certificate #4282) for TLS operations, AWS CloudHSM (FIPS 140-2 Level 3 validated) for PKI operations, and AES-256-GCM for all data-at-rest encryption through AWS S3 and EBS default encryption with customer-managed KMS keys."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "SC-28",
+      "responsible_role": "Security Engineer",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest protects the confidentiality and integrity of information at rest using encryption. All data storage is encrypted with customer-managed AWS KMS keys: S3 buckets use SSE-KMS with bucket keys enabled, EBS volumes use AES-256 encryption with KMS CMK, RDS PostgreSQL instances use Transparent Data Encryption with KMS CMK, DynamoDB tables use KMS encryption for session data, and CloudWatch Logs are encrypted with a dedicated KMS key. Key rotation is enabled on all KMS keys with annual automatic rotation."
+      },
+      "completeness": {
+        "filled_parts": 1,
+        "total_parts": 1,
+        "complete": true
+      }
+    },
+    {
+      "control_id": "SI-4",
+      "responsible_role": "SOC Analyst",
+      "parameters": {},
+      "implementation_status": "Implementation Status: Implemented",
+      "control_origination": "Control Origination: Service Provider System Specific",
+      "implementation_parts": {
+        "a": "NovaCrest monitors the system to detect attacks and indicators of potential attacks using: AWS GuardDuty for threat detection across all accounts, AWS Security Hub for aggregated findings and compliance scoring, Splunk Enterprise Security for SIEM with custom correlation rules, CloudWatch Alarms for infrastructure anomalies, and VPC Flow Logs analyzed by GuardDuty for network-based threat detection.",
+        "b": "NovaCrest identifies unauthorized use of the system through: anomaly detection in Splunk (unusual login times, locations, data volumes), GuardDuty findings for cryptocurrency mining, data exfiltration, and credential compromise, and AWS Config rules that detect unauthorized configuration changes.",
+        "c": "NovaCrest deploys monitoring devices strategically within the system including: CloudWatch agents on all EC2 instances, VPC Flow Logs on all VPCs and subnets, CloudTrail logging in all regions with S3 data events, ALB access logs, and RDS audit logs forwarded to Splunk.",
+        "d": "NovaCrest protects information obtained from intrusion-monitoring tools from unauthorized access, modification, and deletion. Splunk data is encrypted at rest and in transit, log storage buckets have MFA delete enabled, and audit log integrity is verified through CloudTrail log file validation."
+      },
+      "completeness": {
+        "filled_parts": 4,
+        "total_parts": 4,
+        "complete": true
+      }
+    }
+  ],
+  "statistics": {
+    "total_controls": 20,
+    "controls_with_content": 20,
+    "fully_complete": 19,
+    "empty": 0,
+    "completion_rate": "100.0%",
+    "has_system_info": true,
+    "contacts_count": 2,
+    "leveraged_services_count": 3
+  }
+}
