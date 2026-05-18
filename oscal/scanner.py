@@ -173,6 +173,11 @@ def evaluate_check(check, query_result):
             if row.get("status") == "Active":
                 failed = True
                 reason = f"active key created {row.get('create_date', 'unknown')}, verify rotation"
+
+        elif "config-enabled" in check_id:
+            if row.get("status_recording") != True:
+                failed = True
+                reason = "AWS Config recorder not actively recording"
         
         elif "config" in check_id:
             if row.get("recording") in [False, None]:
@@ -636,6 +641,11 @@ def evaluate_check(check, query_result):
             if row.get("state") == "open":
                 failed = True
                 reason = f"open critical alert #{row.get('alert_number', '?')}"
+
+        elif "config-enabled" in check_id:
+            if row.get("status_recording") != True:
+                failed = True
+                reason = "AWS Config recorder not actively recording"
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")

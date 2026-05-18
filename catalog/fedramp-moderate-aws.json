@@ -497,7 +497,7 @@
           "check_id": "cm-6-config-enabled",
           "description": "AWS Config should be enabled for configuration tracking",
           "severity": "high",
-          "query": "select name, recording, status from aws_config_configuration_recorder",
+          "query": "select name, status_recording, role_arn from aws_config_configuration_recorder",
           "resource_type": "aws_config_configuration_recorder",
           "fedramp_20x_ksi": [
             "KSI-CMT-01",
