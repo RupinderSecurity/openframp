@@ -256,7 +256,8 @@ def parse_main_ssp(docx_path):
         "leveraged_services": [],
         "ports_protocols": [],
         "separation_of_duties": [],
-        "cryptographic_modules": []
+        "cryptographic_modules": [],
+        "information_types": []
     }
     
     for i, table in enumerate(doc.tables):
@@ -287,8 +288,14 @@ def parse_main_ssp(docx_path):
                 entries = parse_ports_protocols(table)
                 result["ports_protocols"].extend(entries)
         
+        # Information types
+        elif "Information Type" in first_cell and len(table.rows[0].cells) > 5:
+            entries = parse_ports_protocols(table)
+            if entries:
+                result["information_types"] = entries
+        
         # Separation of duties
-        elif "Role" in first_cell and "Duties" in first_cell:
+        elif "Duty" in first_cell or ("Role" in first_cell and "Duties" in first_cell):
             entries = parse_ports_protocols(table)  # same row/column extraction
             result["separation_of_duties"].extend(entries)
     

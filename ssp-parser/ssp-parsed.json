@@ -35,7 +35,36 @@
   ],
   "leveraged_services": [],
   "ports_protocols": [],
-  "separation_of_duties": [],
+  "separation_of_duties": [
+    {
+      "Duty Description": "Adds/Removes Privileged Admins",
+      "Information Owner": "X",
+      "Security officer": "X"
+    },
+    {
+      "Duty Description": "Adds/Removes Non-privileged Admins",
+      "Security officer": "X",
+      "Privacy officer": "X"
+    },
+    {
+      "Duty Description": "Adds/Removes Customer Privileged Admins"
+    },
+    {
+      "Duty Description": "Adds/Removes Customer Non-privileged Admins"
+    },
+    {
+      "Duty Description": "Enforces Physical Access Authorizations"
+    },
+    {
+      "Duty Description": "Defines Least Privilege Needed to Perform Tasks"
+    },
+    {
+      "Duty Description": "Reviews/Approves Policy"
+    },
+    {
+      "Duty Description": "Enforces Policy"
+    }
+  ],
   "total_controls": 323,
   "controls": [
     {
