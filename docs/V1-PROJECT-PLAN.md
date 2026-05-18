@@ -71,10 +71,10 @@ The novel piece. Nothing else in the open-source FedRAMP space does this. This i
 - [x] Build extractor for system characteristics section
 - [x] Build extractor for control implementation statements (the longest section — 300+ controls)
 - [x] Build extractor for points of contact
-- [x] Build extractor for inventory section
-- [x] Test against a real (sanitized) FedRAMP Moderate SSP
+- [ ] Build extractor for inventory section
+- [ ] Test against a real (sanitized) FedRAMP Moderate SSP
 - [x] Output structured Python objects (intermediate representation)
-- [x] Add unit tests covering at least 3 SSP variants
+- [ ] Add unit tests covering at least 3 SSP variants
 
 **Estimate:** 25-35 hours · **Status:** completed  · **Owner:** RPS
 
