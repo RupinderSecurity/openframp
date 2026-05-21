@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install python-docx fpdf2
+
+      - name: Run SSP parser unit tests
+        run: cd ssp-parser && python -m pytest test_ssp_parser.py -v
+
+      - name: Validate catalog JSON
+        run: |
+          python3 -c "
+          import json, os
+          for f in os.listdir('catalog'):
+              if f.endswith('.json'):
+                  with open(f'catalog/{f}') as fh:
+                      cat = json.load(fh)
+                  controls = len(cat['controls'])
+                  checks = sum(len(c['checks']) for c in cat['controls'])
+                  print(f'{f}: {controls} controls, {checks} checks')
+                  for c in cat['controls']:
+                      for ch in c['checks']:
+                          assert 'check_id' in ch, f'Missing check_id in {c[\"control_id\"]}'
+                          assert 'query' in ch, f'Missing query in {ch[\"check_id\"]}'
+                          assert 'severity' in ch, f'Missing severity in {ch[\"check_id\"]}'
+                          assert 'remediation' in ch, f'Missing remediation in {ch[\"check_id\"]}'
+          print('All catalogs valid')
+          "
+
+      - name: Verify scanner imports
+        run: |
+          cd oscal
+          python3 -c "
+          import scanner
+          print('Scanner module loads successfully')
+          "
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t openframp:ci .
+
+      - name: Verify container starts
+        run: |
+          docker run --rm openframp:ci python3 -c "print('Container works')"

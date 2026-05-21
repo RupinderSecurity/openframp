@@ -1,5 +1,7 @@
 # OpenFRAMP
 
+[![CI](https://github.com/RupinderSecurity/openframp/actions/workflows/ci.yml/badge.svg)](https://github.com/RupinderSecurity/openframp/actions/workflows/ci.yml)
+
 Open-source multi-framework, multi-cloud compliance scanner that runs inside authorization boundaries where SaaS tools cannot operate.
 
 ## The Problem
