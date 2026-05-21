@@ -5,8 +5,9 @@
 > **Current week:** Week 1 of approximately 13 (week of April 27, 2026)
 > **Pace assumption:** 2 hours per night, 6 nights per week (~12 hrs/week, ~10 effective)
 >
-> **Last updated:** 2026-04-29 (Tuesday)
->
+> **Last updated:** 2026-05-17 (Sunday)
+> **Current week:** Week 4 of approximately 13
+
 > This is the source-of-truth project plan for OpenFRAMP V1. It lives in the repo because the discipline of shipping V1 is part of what OpenFRAMP is. Every visitor sees what's done, what's in flight, and what's left.
 
 ## How this document works
@@ -65,12 +66,12 @@ When all 10 are checked, V1 is shipped. Don't move the goalposts.
 
 The novel piece. Nothing else in the open-source FedRAMP space does this. This is what makes OpenFRAMP a *pipeline* and not just a scanner.
 
-- [x] Identify the canonical FedRAMP SSP docx template structure (FedRAMP PMO publishes the Word template)
-- [x] Catalog the sections that need to extract (control implementations, system info, contacts, boundary diagram references)
-- [x] Choose docx library (`python-docx` is the obvious pick)
-- [x] Build extractor for system characteristics section
+- [x] Identify the canonical FedRAMP SSP docx template structure
+- [x] Catalog the sections that need to extract
+- [x] Choose docx library (`python-docx`)
+- [ ] Build extractor for system characteristics section
 - [x] Build extractor for control implementation statements (the longest section — 300+ controls)
-- [x] Build extractor for points of contact
+- [ ] Build extractor for points of contact
 - [ ] Build extractor for inventory section
 - [ ] Test against a real (sanitized) FedRAMP Moderate SSP
 - [x] Output structured Python objects (intermediate representation)
@@ -174,7 +175,7 @@ Public repo. Free GitHub features, no excuse not to enable.
 - [x] Enable secret scanning + push protection
 - [x] Enable Dependabot for Python and JavaScript dependencies
 - [x] Add `CODEOWNERS` file
-- [x] Set up GPG signing for commits, require signed commits on main
+- [ ] Set up GPG signing for commits, require signed commits on main
 - [x] Add issue templates (bug report, feature request)
 - [x] Add PR template with checklist
 
@@ -205,13 +206,13 @@ Public repo. Free GitHub features, no excuse not to enable.
 **Goal:** The security baseline any real AWS/Azure account doing security work should have. Strengthens OpenFRAMP's claim of being FedRAMP-grade itself.
 **Target completion:** July 31, 2026 (parallel with Tier A late stage)
 
-### B1. CloudTrail + Config + GuardDuty trifecta in lab account ✅ 
+### B1. CloudTrail + Config + GuardDuty trifecta in lab account ⏳ 
 
 So OpenFRAMP development happens on a properly-monitored AWS account. Also lets IAM Access Analyzer generate a real least-privilege policy from actual scan usage.
 
 - [x] Enable CloudTrail multi-region with log file validation, KMS encryption, dedicated S3 bucket
 - [ ] Enable AWS Config recorder + delivery channel
-- [x] Enable GuardDuty in primary region (us-west-2)
+- [ ] Enable GuardDuty in primary region (us-west-2)
 - [ ] Verify trail is logging AssumeRole calls properly
 - [ ] After 30 days of usage, run IAM Access Analyzer to generate a tighter scanner policy
 

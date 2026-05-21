@@ -44,6 +44,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
           ]
+        },
+        {
+          "check_id": "ac-2-entra-guest-users",
+          "description": "Guest user accounts should be reviewed and limited",
+          "severity": "medium",
+          "query": "select display_name, user_type, account_enabled from azuread_user where user_type = 'Guest'",
+          "resource_type": "azuread_user",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -118,6 +128,16 @@
           "severity": "high",
           "query": "select role_definition_id, principal_id, member_type from azuread_directory_role_assignment",
           "resource_type": "azuread_directory_role_assignment",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
+        },
+        {
+          "check_id": "ac-6-service-principals",
+          "description": "Service principals should be inventoried and reviewed",
+          "severity": "medium",
+          "query": "select display_name, app_id, account_enabled from azuread_service_principal where app_owner_organization_id is not null",
+          "resource_type": "azuread_service_principal",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
           ]
@@ -239,6 +259,48 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01"
           ]
+        },
+        {
+          "check_id": "au-9-keyvault-logging",
+          "description": "Key Vault should have diagnostic logging enabled",
+          "severity": "high",
+          "query": "select name, diagnostic_settings from azure_key_vault",
+          "resource_type": "azure_key_vault",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        },
+        {
+          "check_id": "au-9-storage-logging",
+          "description": "Storage accounts should have diagnostic logging enabled",
+          "severity": "medium",
+          "query": "select name, blob_service_logging from azure_storage_account",
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        }
+      ]
+    },
+    {
+      "control_id": "CM-2",
+      "title": "Baseline Configuration",
+      "family": "Configuration Management",
+      "frameworks": [
+        "FedRAMP CM-2",
+        "PCI DSS 2.2",
+        "SOC 2 CC8.1"
+      ],
+      "checks": [
+        {
+          "check_id": "cm-2-vm-extensions",
+          "description": "Virtual machines should have monitoring extensions installed",
+          "severity": "medium",
+          "query": "select name, extensions from azure_compute_virtual_machine",
+          "resource_type": "azure_compute_virtual_machine",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-01"
+          ]
         }
       ]
     },
@@ -272,6 +334,28 @@
           "resource_type": "azure_security_center_auto_provisioning",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
+          ]
+        }
+      ]
+    },
+    {
+      "control_id": "CM-8",
+      "title": "System Component Inventory",
+      "family": "Configuration Management",
+      "frameworks": [
+        "FedRAMP CM-8",
+        "PCI DSS 12.5.1",
+        "SOC 2 CC8.1"
+      ],
+      "checks": [
+        {
+          "check_id": "cm-8-vm-tagged",
+          "description": "Virtual machines should have tags for inventory tracking",
+          "severity": "low",
+          "query": "select name, tags from azure_compute_virtual_machine",
+          "resource_type": "azure_compute_virtual_machine",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
           ]
         }
       ]
@@ -411,6 +495,16 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
+          ]
+        },
+        {
+          "check_id": "sc-7-vnet-ddos-protection",
+          "description": "Virtual networks should have DDoS protection enabled",
+          "severity": "medium",
+          "query": "select name, enable_ddos_protection from azure_virtual_network",
+          "resource_type": "azure_virtual_network",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
           ]
         }
       ]
@@ -564,6 +658,16 @@
           "description": "Managed disks should be encrypted",
           "severity": "high",
           "query": "select name, encryption_type from azure_compute_disk",
+          "resource_type": "azure_compute_disk",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-28-managed-disk-encryption",
+          "description": "Managed disks should be encrypted",
+          "severity": "high",
+          "query": "select name, encryption_type, disk_state from azure_compute_disk",
           "resource_type": "azure_compute_disk",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"

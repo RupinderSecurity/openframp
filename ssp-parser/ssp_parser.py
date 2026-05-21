@@ -256,7 +256,7 @@ def parse_main_ssp(docx_path):
         "leveraged_services": [],
         "ports_protocols": [],
         "separation_of_duties": [],
-        "cryptographic_modules": [],
+        "cryptographic_modules": [],    
         "information_types": []
     }
     

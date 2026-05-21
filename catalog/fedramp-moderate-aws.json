@@ -305,6 +305,16 @@
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
           ]
+        },
+        {
+          "check_id": "au-2-rds-logging-enabled",
+          "description": "RDS instances should have audit logging enabled",
+          "severity": "medium",
+          "query": "select db_instance_identifier, enabled_cloudwatch_logs_exports from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -480,6 +490,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
+        },
+        {
+          "check_id": "cm-2-ecs-container-insights",
+          "description": "ECS clusters should have Container Insights enabled",
+          "severity": "medium",
+          "query": "select cluster_name, settings from aws_ecs_cluster",
+          "resource_type": "aws_ecs_cluster",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -568,6 +588,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
+        },
+        {
+          "check_id": "cm-8-dynamodb-tagged",
+          "description": "DynamoDB tables should have tags for inventory tracking",
+          "severity": "low",
+          "query": "select name, tags from aws_dynamodb_table",
+          "resource_type": "aws_dynamodb_table",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -607,6 +637,36 @@
           "severity": "medium",
           "query": "select name, versioning_enabled from aws_s3_bucket",
           "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": [
+            "KSI-BCR-01"
+          ]
+        },
+        {
+          "check_id": "cp-9-dynamodb-pitr",
+          "description": "DynamoDB tables should have point-in-time recovery enabled",
+          "severity": "high",
+          "query": "select name, point_in_time_recovery_description from aws_dynamodb_table",
+          "resource_type": "aws_dynamodb_table",
+          "fedramp_20x_ksi": [
+            "KSI-BCR-01"
+          ]
+        },
+        {
+          "check_id": "cp-9-backup-vault-encrypted",
+          "description": "AWS Backup vaults should be encrypted with KMS",
+          "severity": "high",
+          "query": "select name, encryption_key_arn from aws_backup_vault",
+          "resource_type": "aws_backup_vault",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "cp-9-backup-plan-exists",
+          "description": "AWS Backup plans should exist for automated backup scheduling",
+          "severity": "high",
+          "query": "select name, arn from aws_backup_plan",
+          "resource_type": "aws_backup_plan",
           "fedramp_20x_ksi": [
             "KSI-BCR-01"
           ]
@@ -835,6 +895,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
           ]
+        },
+        {
+          "check_id": "sc-7-rds-no-public-access",
+          "description": "RDS instances should not be publicly accessible",
+          "severity": "critical",
+          "query": "select db_instance_identifier, publicly_accessible from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
         }
       ]
     },
@@ -877,6 +947,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
           ]
+        },
+        {
+          "check_id": "sc-8-rds-ssl-enforced",
+          "description": "RDS instances should enforce SSL/TLS connections",
+          "severity": "high",
+          "query": "select db_instance_identifier, engine, ca_cert_identifier from aws_rds_db_instance",
+          "resource_type": "aws_rds_db_instance",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -906,6 +986,26 @@
           "severity": "high",
           "query": "select id, key_state, aliases from aws_kms_key where key_state = 'PendingDeletion'",
           "resource_type": "aws_kms_key",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
+          ]
+        },
+        {
+          "check_id": "sc-12-acm-cert-expiry",
+          "description": "ACM certificates should not be expired or expiring within 30 days",
+          "severity": "critical",
+          "query": "select domain_name, not_after, status, type from aws_acm_certificate",
+          "resource_type": "aws_acm_certificate",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
+          ]
+        },
+        {
+          "check_id": "sc-12-acm-cert-renewal",
+          "description": "ACM certificates should have auto-renewal enabled",
+          "severity": "medium",
+          "query": "select domain_name, renewal_eligibility, type from aws_acm_certificate",
+          "resource_type": "aws_acm_certificate",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
           ]
@@ -1065,6 +1165,16 @@
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
           ]
+        },
+        {
+          "check_id": "sc-28-ecs-encryption-at-rest",
+          "description": "ECS clusters should use encryption for managed storage",
+          "severity": "medium",
+          "query": "select cluster_name, configuration from aws_ecs_cluster",
+          "resource_type": "aws_ecs_cluster",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -1086,6 +1196,16 @@
           "resource_type": "aws_ssm_managed_instance",
           "fedramp_20x_ksi": [
             "KSI-SVC-07"
+          ]
+        },
+        {
+          "check_id": "si-2-ssm-managed-instances",
+          "description": "EC2 instances should be managed by Systems Manager for patching",
+          "severity": "high",
+          "query": "select instance_id, ping_status, platform_type from aws_ssm_managed_instance",
+          "resource_type": "aws_ssm_managed_instance",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-02"
           ]
         }
       ]

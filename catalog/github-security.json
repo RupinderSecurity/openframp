@@ -149,6 +149,36 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
+        },
+        {
+          "check_id": "cm-2-community-profile-readme",
+          "description": "Repositories should have a README file",
+          "severity": "low",
+          "query": "select repository_full_name, readme from github_community_profile where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_community_profile",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-2-community-profile-contributing",
+          "description": "Repositories should have a CONTRIBUTING guide",
+          "severity": "low",
+          "query": "select repository_full_name, contributing from github_community_profile where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_community_profile",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-2-community-profile-code-of-conduct",
+          "description": "Repositories should have a code of conduct",
+          "severity": "low",
+          "query": "select repository_full_name, code_of_conduct from github_community_profile where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_community_profile",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -287,6 +317,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
           ]
+        },
+        {
+          "check_id": "sa-11-codeowners-exists",
+          "description": "Repositories should have a CODEOWNERS file for review accountability",
+          "severity": "medium",
+          "query": "select repository_full_name, line, pattern, users, teams from github_code_owner where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_code_owner",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -316,6 +356,16 @@
           "severity": "low",
           "query": "select repository_full_name, pattern, requires_linear_history from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
           "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
+        },
+        {
+          "check_id": "si-7-actions-workflow-success",
+          "description": "Recent GitHub Actions workflow runs should be passing",
+          "severity": "medium",
+          "query": "select name, conclusion, head_branch from github_actions_repository_workflow_run where repository_full_name = 'RupinderSecurity/openframp' order by created_at desc limit 5",
+          "resource_type": "github_actions_repository_workflow_run",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
           ]

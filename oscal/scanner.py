@@ -54,7 +54,12 @@ def evaluate_check(check, query_result):
                            "sa-11-branch-requires-code-owner-review",
                            "si-7-commit-signatures-required", "si-7-branch-linear-history", 
                            "au-12-cloudwatch-log-groups", "au-2-entra-audit-logs", 
-                           "au-2-entra-sign-in-logs"]
+                           "au-2-entra-sign-in-logs", "cp-9-backup-plan-exists",
+                           "ia-2-conditional-access-policies",
+                           "sa-11-codeowners-exists",
+                           "cm-2-community-profile-readme",
+                           "cm-2-community-profile-contributing",
+                           "cm-2-community-profile-code-of-conduct"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -646,6 +651,177 @@ def evaluate_check(check, query_result):
             if row.get("status_recording") != True:
                 failed = True
                 reason = "AWS Config recorder not actively recording"
+
+        elif "rds" in check_id and "encryption" in check_id:
+            if row.get("storage_encrypted") != True:
+                failed = True
+                reason = "RDS instance not encrypted at rest"
+        
+        elif "rds" in check_id and "ssl" in check_id:
+            cert = row.get("ca_cert_identifier", "")
+            if not cert:
+                failed = True
+                reason = "no CA certificate configured for SSL"
+        
+        elif "rds" in check_id and "backup" in check_id:
+            retention = row.get("backup_retention_period", 0)
+            if retention is None or retention < 7:
+                failed = True
+                reason = f"backup retention is {retention} days (should be >= 7)"
+        
+        elif "rds" in check_id and "multi-az" in check_id:
+            if row.get("multi_az") != True:
+                failed = True
+                reason = "not configured for Multi-AZ"
+        
+        elif "rds" in check_id and "public" in check_id:
+            if row.get("publicly_accessible") == True:
+                failed = True
+                reason = "RDS instance is publicly accessible"
+        
+        elif "rds" in check_id and "logging" in check_id:
+            logs = row.get("enabled_cloudwatch_logs_exports", [])
+            if not logs:
+                failed = True
+                reason = "no CloudWatch log exports enabled"
+        
+        elif "dynamodb" in check_id and "encryption" in check_id:
+            sse = str(row.get("sse_description", ""))
+            if "KMS" not in sse and "ENABLED" not in sse.upper():
+                failed = True
+                reason = "using default AWS-owned key, not customer KMS"
+        
+        elif "dynamodb" in check_id and "pitr" in check_id:
+            pitr = str(row.get("point_in_time_recovery_description", ""))
+            if "ENABLED" not in pitr.upper():
+                failed = True
+                reason = "point-in-time recovery not enabled"
+        
+        elif "dynamodb" in check_id and "tagged" in check_id:
+            tags = row.get("tags")
+            if not tags:
+                failed = True
+                reason = "no tags"
+        
+        elif "ecs" in check_id and "container-insights" in check_id:
+            settings = str(row.get("settings", ""))
+            if "containerInsights" not in settings or "enabled" not in settings:
+                failed = True
+                reason = "Container Insights not enabled"
+        
+        elif "acm" in check_id and "expiry" in check_id:
+            from datetime import datetime, timezone
+            not_after = row.get("not_after", "")
+            if not_after:
+                try:
+                    exp = datetime.fromisoformat(str(not_after).replace("Z", "+00:00"))
+                    days_left = (exp - datetime.now(timezone.utc)).days
+                    if days_left < 30:
+                        failed = True
+                        reason = f"certificate expires in {days_left} days"
+                except:
+                    pass
+        
+        elif "acm" in check_id and "renewal" in check_id:
+            eligibility = row.get("renewal_eligibility", "")
+            if eligibility == "INELIGIBLE":
+                failed = True
+                reason = "certificate not eligible for auto-renewal"
+        
+        elif "backup-vault" in check_id and "encrypted" in check_id:
+            key = row.get("encryption_key_arn", "")
+            if not key:
+                failed = True
+                reason = "backup vault not encrypted with KMS"
+        
+        elif "sns" in check_id and "encryption" in check_id:
+            key = row.get("kms_master_key_id", "")
+            if not key:
+                failed = True
+                reason = "SNS topic not encrypted with KMS"
+        
+        elif "sqs" in check_id and "encryption" in check_id:
+            kms = row.get("kms_master_key_id", "")
+            sse = row.get("sqs_managed_sse_enabled", False)
+            if not kms and sse != True:
+                failed = True
+                reason = "SQS queue not encrypted"
+        
+        elif "ssm" in check_id and "managed" in check_id:
+            status = row.get("ping_status", "")
+            if status != "Online":
+                failed = True
+                reason = f"SSM agent status: {status} (should be Online)"
+        
+        elif "managed-disk" in check_id and "encryption" in check_id:
+            enc_type = row.get("encryption_type", "")
+            if not enc_type:
+                failed = True
+                reason = "managed disk not encrypted"
+        
+        elif "vm-disk-encryption" in check_id:
+            enc = str(row.get("os_disk_encryption_settings", ""))
+            if not enc or enc == "None":
+                pass  # Azure encrypts by default, don't false positive
+        
+        elif "vm-extensions" in check_id:
+            pass  # informational
+        
+        elif "vm" in check_id and "tagged" in check_id:
+            tags = row.get("tags")
+            if not tags:
+                failed = True
+                reason = "no tags"
+        
+        elif "vnet" in check_id and "ddos" in check_id:
+            if row.get("enable_ddos_protection") != True:
+                failed = True
+                reason = "DDoS protection not enabled"
+        
+        elif "keyvault-logging" in check_id:
+            diag = str(row.get("diagnostic_settings", ""))
+            if not diag or diag == "None" or diag == "[]":
+                failed = True
+                reason = "no diagnostic logging configured"
+        
+        elif "storage-logging" in check_id:
+            logging = str(row.get("blob_service_logging", ""))
+            if not logging or logging == "None":
+                failed = True
+                reason = "blob service logging not configured"
+        
+        elif "guest-users" in check_id:
+            pass  # if rows exist, guests exist — informational finding
+        
+        elif "conditional-access" in check_id and "policies" in check_id:
+            pass  # if rows exist, policies exist — pass
+        
+        elif "service-principal" in check_id:
+            pass  # informational — inventory
+        
+        elif "community-profile" in check_id and "readme" in check_id:
+            if not row.get("readme"):
+                failed = True
+                reason = "no README file"
+        
+        elif "community-profile" in check_id and "contributing" in check_id:
+            if not row.get("contributing"):
+                failed = True
+                reason = "no CONTRIBUTING guide"
+        
+        elif "community-profile" in check_id and "code-of-conduct" in check_id:
+            if not row.get("code_of_conduct"):
+                failed = True
+                reason = "no code of conduct"
+        
+        elif "actions-workflow" in check_id:
+            conclusion = row.get("conclusion", "")
+            if conclusion == "failure":
+                failed = True
+                reason = f"workflow run failed on {row.get('head_branch', 'unknown')}"
+        
+        elif "codeowners" in check_id:
+            pass  # if rows exist, CODEOWNERS exists — pass
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")
