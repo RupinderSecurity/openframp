@@ -1062,7 +1062,7 @@ def build_oscal(all_results, catalog):
             r["findings"].append({
                 "uuid": str(uuid.uuid4()),
                 "title": d,
-                "description": d,
+                "description": result.get("remediation", d),
                 "target": {
                     "type": "objective-id",
                     "target-id": result["control_id"].lower(),

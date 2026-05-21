@@ -369,6 +369,15 @@ def export_report():
                 if len(safe) > 120:
                     safe = safe[:117] + "..."
                 pdf.cell(0, 6, safe, new_x="LMARGIN", new_y="NEXT")
+                desc = f.get("description", "")
+                if desc:
+                    pdf.set_font("Helvetica", "I", 8)
+                    pdf.set_text_color(34, 150, 180)
+                    safe_desc = desc.encode('latin-1', 'replace').decode('latin-1')
+                    if len(safe_desc) > 150:
+                        safe_desc = safe_desc[:147] + "..."
+                    pdf.cell(0, 5, f"  Fix: {safe_desc}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.set_text_color(60, 60, 60)
             
             pdf.ln(2)
     

@@ -22,7 +22,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "If the repo contains sensitive code, make it private: Settings \u2192 Danger Zone \u2192 Change visibility."
         },
         {
           "check_id": "ac-3-repo-forking-restricted",
@@ -32,7 +33,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Restrict forking for private repos: Settings \u2192 General \u2192 uncheck 'Allow forking' under Danger Zone."
         },
         {
           "check_id": "ac-3-branch-restricts-pushes",
@@ -42,7 +44,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Restrict who can push to matching branches'. Add specific users/teams."
         }
       ]
     },
@@ -64,7 +67,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Enable branch protection: Settings \u2192 Branches \u2192 Add branch protection rule for 'main'. Note: GitHub Rulesets (newer feature) are not detected by Steampipe."
         },
         {
           "check_id": "ac-6-branch-no-force-push",
@@ -74,7 +78,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Do not allow force pushes'."
         },
         {
           "check_id": "ac-6-branch-no-deletions",
@@ -84,7 +89,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Lock branch' to prevent deletion."
         },
         {
           "check_id": "ac-6-branch-last-push-approval",
@@ -94,7 +100,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require approval from someone other than the last pusher'."
         }
       ]
     },
@@ -116,7 +123,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable commit sign-off: Settings \u2192 General \u2192 check 'Require contributors to sign off on web-based commits'."
         }
       ]
     },
@@ -138,7 +146,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Create SECURITY.md in the repo root with vulnerability reporting instructions and contact info."
         },
         {
           "check_id": "cm-2-license-defined",
@@ -148,7 +157,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add a LICENSE file: Settings \u2192 Add a license, or create LICENSE file manually (MIT, Apache 2.0, etc.)."
         },
         {
           "check_id": "cm-2-delete-branch-on-merge",
@@ -158,7 +168,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Enable auto-delete: Settings \u2192 General \u2192 check 'Automatically delete head branches' after PR merge."
         },
         {
           "check_id": "cm-2-community-profile-readme",
@@ -168,7 +179,8 @@
           "resource_type": "github_community_profile",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add missing community files: README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md. Use GitHub's community profile checker."
         },
         {
           "check_id": "cm-2-community-profile-contributing",
@@ -178,7 +190,8 @@
           "resource_type": "github_community_profile",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add missing community files: README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md. Use GitHub's community profile checker."
         },
         {
           "check_id": "cm-2-community-profile-code-of-conduct",
@@ -188,7 +201,8 @@
           "resource_type": "github_community_profile",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add missing community files: README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md. Use GitHub's community profile checker."
         },
         {
           "check_id": "cm-2-default-branch-main",
@@ -198,7 +212,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Rename default branch: Settings \u2192 Branches \u2192 rename 'master' to 'main'."
         }
       ]
     },
@@ -220,7 +235,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require a pull request before merging' and set required approvals to 1+."
         },
         {
           "check_id": "cm-3-branch-requires-status-checks",
@@ -230,7 +246,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require status checks to pass before merging'. Add CI workflow as required check."
         },
         {
           "check_id": "cm-3-branch-requires-conversation-resolution",
@@ -240,7 +257,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require conversation resolution before merging'."
         },
         {
           "check_id": "cm-3-branch-dismisses-stale-reviews",
@@ -250,7 +268,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Dismiss stale pull request approvals when new commits are pushed'."
         },
         {
           "check_id": "cm-3-branch-allow-update",
@@ -260,7 +279,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -282,7 +302,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Disable wiki: Settings \u2192 Features \u2192 uncheck Wikis. Only needed if wiki is not actively used."
         },
         {
           "check_id": "cm-7-repo-not-archived-active",
@@ -292,7 +313,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "If the repo should be active, unarchive it: Settings \u2192 Danger Zone \u2192 Unarchive this repository."
         }
       ]
     },
@@ -314,7 +336,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add description: click the gear icon next to 'About' on the repo page and add a description."
         },
         {
           "check_id": "cm-8-repo-has-topics",
@@ -324,7 +347,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Add topics: click the gear icon next to 'About' on the repo page and add relevant topics."
         }
       ]
     },
@@ -346,7 +370,8 @@
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
-          ]
+          ],
+          "remediation": "Enable Dependabot: Settings \u2192 Code security \u2192 Enable Dependabot alerts and Dependabot security updates."
         },
         {
           "check_id": "ra-5-dependabot-critical-alerts",
@@ -356,7 +381,8 @@
           "resource_type": "github_repository_dependabot_alert",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
-          ]
+          ],
+          "remediation": "Review and resolve open Dependabot alerts: Security tab \u2192 Dependabot alerts. Update dependencies or dismiss with reason."
         }
       ]
     },
@@ -378,7 +404,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require review from Code Owners'. Ensure CODEOWNERS file exists."
         },
         {
           "check_id": "sa-11-codeowners-exists",
@@ -388,7 +415,8 @@
           "resource_type": "github_code_owner",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Create .github/CODEOWNERS file mapping paths to responsible reviewers."
         }
       ]
     },
@@ -410,7 +438,8 @@
           "resource_type": "github_actions_repository_secret",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Use environment secrets: Settings \u2192 Environments \u2192 create environments with required reviewers and secrets."
         }
       ]
     },
@@ -432,7 +461,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require signed commits'. Set up GPG signing locally."
         },
         {
           "check_id": "si-7-branch-linear-history",
@@ -442,7 +472,8 @@
           "resource_type": "github_branch_protection",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "In branch protection rules, check 'Require linear history'. This enforces squash or rebase merging."
         },
         {
           "check_id": "si-7-actions-workflow-success",
@@ -452,7 +483,8 @@
           "resource_type": "github_actions_repository_workflow_run",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Fix failing workflows: check the Actions tab for error details. Common issues: missing secrets, dependency updates, test failures."
         }
       ]
     }

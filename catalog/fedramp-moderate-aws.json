@@ -22,7 +22,8 @@
           "resource_type": "aws_iam_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-2-no-root-access-keys",
@@ -33,7 +34,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-04",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-2-unused-credentials",
@@ -43,7 +45,8 @@
           "resource_type": "aws_iam_access_key",
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-2-iam-groups-with-policies",
@@ -53,7 +56,8 @@
           "resource_type": "aws_iam_group",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-2-iam-access-key-age",
@@ -63,7 +67,8 @@
           "resource_type": "aws_iam_access_key",
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Delete or rotate access keys older than 90 days. Prefer IAM roles with temporary credentials."
         },
         {
           "check_id": "ac-2-root-account-usage-alarm",
@@ -73,7 +78,8 @@
           "resource_type": "aws_cloudwatch_alarm",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Create a CloudWatch alarm for root account usage. Root should only be used for account-level tasks."
         },
         {
           "check_id": "ac-2-iam-user-count",
@@ -83,7 +89,8 @@
           "resource_type": "aws_iam_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review all IAM users. Replace long-lived user credentials with IAM roles and temporary credentials via STS AssumeRole."
         }
       ]
     },
@@ -106,7 +113,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Run: aws s3api put-public-access-block --bucket BUCKET --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
         },
         {
           "check_id": "ac-3-s3-no-public-policy",
@@ -117,7 +125,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-3-rds-no-public-access",
@@ -127,7 +136,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Disable public access: aws rds modify-db-instance --db-instance-identifier DB_ID --no-publicly-accessible"
         },
         {
           "check_id": "ac-3-redshift-no-public",
@@ -137,7 +147,8 @@
           "resource_type": "aws_redshift_cluster",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "If not using Redshift, this is informational. If using, ensure cluster is not publicly accessible and encryption is enabled."
         },
         {
           "check_id": "ac-3-lambda-no-public-access",
@@ -147,7 +158,8 @@
           "resource_type": "aws_lambda_function",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-3-ebs-snapshot-not-public",
@@ -157,7 +169,8 @@
           "resource_type": "aws_ebs_snapshot",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -180,7 +193,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -203,7 +217,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-04",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Remove AdministratorAccess policy from IAM users. Use role-based access with least-privilege policies instead."
         },
         {
           "check_id": "ac-6-no-inline-admin-policies",
@@ -213,7 +228,8 @@
           "resource_type": "aws_iam_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Remove inline policies with full admin access. Replace with managed policies scoped to specific services."
         },
         {
           "check_id": "ac-6-no-star-policies",
@@ -223,7 +239,8 @@
           "resource_type": "aws_iam_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Replace Action:* Resource:* policies with specific actions and resources. Use IAM Access Analyzer to generate least-privilege policies."
         },
         {
           "check_id": "ac-6-no-user-attached-policies",
@@ -234,7 +251,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05",
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Detach policies from users. Attach policies to groups or roles, then add users to groups."
         },
         {
           "check_id": "ac-6-iam-policy-full-admin-count",
@@ -244,7 +262,8 @@
           "resource_type": "aws_iam_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review custom IAM policies. Remove full admin (*:*) permissions. Use service-specific policies."
         }
       ]
     },
@@ -266,7 +285,8 @@
           "resource_type": "aws_iam_account_password_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Set password policy: aws iam update-account-password-policy --minimum-password-length 14 --require-symbols --require-numbers --max-password-age 90 --password-reuse-prevention 24"
         }
       ]
     },
@@ -289,7 +309,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-17-no-rdp-from-internet",
@@ -300,7 +321,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -323,7 +345,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-MLA-07"
-          ]
+          ],
+          "remediation": "Create trail: aws cloudtrail create-trail --name TRAIL --s3-bucket-name BUCKET --is-multi-region-trail --enable-log-file-validation"
         },
         {
           "check_id": "au-2-s3-access-logging",
@@ -334,7 +357,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-02",
             "KSI-MLA-07"
-          ]
+          ],
+          "remediation": "Enable access logging: aws s3api put-bucket-logging --bucket BUCKET --bucket-logging-status '{\"LoggingEnabled\":{\"TargetBucket\":\"LOG_BUCKET\",\"TargetPrefix\":\"access-logs/\"}}'"
         },
         {
           "check_id": "au-2-cloudtrail-s3-data-events",
@@ -344,7 +368,8 @@
           "resource_type": "aws_cloudtrail_trail",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable S3 data events: aws cloudtrail put-event-selectors --trail-name TRAIL --event-selectors '[{\"ReadWriteType\":\"All\",\"DataResources\":[{\"Type\":\"AWS::S3::Object\",\"Values\":[\"arn:aws:s3\"]}]}]'"
         },
         {
           "check_id": "au-2-rds-logging-enabled",
@@ -354,7 +379,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable logging: aws rds modify-db-instance --db-instance-identifier DB_ID --cloudwatch-logs-export-configuration '{\"EnableLogTypes\":[\"audit\",\"error\",\"general\",\"slowquery\"]}'"
         }
       ]
     },
@@ -376,7 +402,8 @@
           "resource_type": "aws_cloudtrail_trail",
           "fedramp_20x_ksi": [
             "KSI-MLA-01"
-          ]
+          ],
+          "remediation": "Enable log validation: aws cloudtrail update-trail --name TRAIL --enable-log-file-validation"
         }
       ]
     },
@@ -399,7 +426,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-CNA-05"
-          ]
+          ],
+          "remediation": "Enable GuardDuty: aws guardduty create-detector --enable. GuardDuty has a 30-day free trial."
         }
       ]
     },
@@ -422,7 +450,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable KMS encryption: aws cloudtrail update-trail --name TRAIL --kms-key-id KEY_ARN"
         },
         {
           "check_id": "au-9-s3-versioning-log-buckets",
@@ -432,7 +461,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-MLA-01"
-          ]
+          ],
+          "remediation": "Enable versioning: aws s3api put-bucket-versioning --bucket BUCKET --versioning-configuration Status=Enabled"
         },
         {
           "check_id": "au-9-cloudwatch-log-encrypted",
@@ -442,7 +472,8 @@
           "resource_type": "aws_cloudwatch_log_group",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Set KMS encryption: aws logs associate-kms-key --log-group-name GROUP --kms-key-id KEY_ARN"
         },
         {
           "check_id": "au-9-cloudtrail-multi-region",
@@ -452,7 +483,8 @@
           "resource_type": "aws_cloudtrail_trail",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable multi-region: aws cloudtrail update-trail --name TRAIL --is-multi-region-trail"
         }
       ]
     },
@@ -474,7 +506,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-MLA-02"
-          ]
+          ],
+          "remediation": "Add lifecycle policy: aws s3api put-bucket-lifecycle-configuration --bucket BUCKET with rules for transition to Glacier (90 days) and expiration (365 days)."
         },
         {
           "check_id": "au-11-cloudwatch-log-retention",
@@ -484,7 +517,8 @@
           "resource_type": "aws_cloudwatch_log_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Set retention: aws logs put-retention-policy --log-group-name GROUP --retention-in-days 365"
         }
       ]
     },
@@ -506,7 +540,8 @@
           "resource_type": "aws_cloudwatch_log_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Create log groups: aws logs create-log-group --log-group-name /openframp/audit. Set retention and KMS encryption."
         }
       ]
     },
@@ -529,7 +564,8 @@
           "fedramp_20x_ksi": [
             "KSI-CMT-01",
             "KSI-CNA-04"
-          ]
+          ],
+          "remediation": "Require IMDSv2: aws ec2 modify-instance-metadata-options --instance-id INSTANCE_ID --http-tokens required --http-endpoint enabled"
         },
         {
           "check_id": "cm-2-lambda-runtime-supported",
@@ -539,7 +575,8 @@
           "resource_type": "aws_lambda_function",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cm-2-ecs-container-insights",
@@ -549,7 +586,8 @@
           "resource_type": "aws_ecs_cluster",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable Container Insights: aws ecs update-cluster-settings --cluster CLUSTER --settings name=containerInsights,value=enabled"
         }
       ]
     },
@@ -572,7 +610,8 @@
           "fedramp_20x_ksi": [
             "KSI-CMT-01",
             "KSI-PIY-01"
-          ]
+          ],
+          "remediation": "Enable AWS Config: aws configservice put-configuration-recorder and put-delivery-channel. Records all resource configurations."
         },
         {
           "check_id": "cm-6-ec2-imdsv2-required",
@@ -582,7 +621,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Require IMDSv2: aws ec2 modify-instance-metadata-options --instance-id INSTANCE_ID --http-tokens required --http-endpoint enabled"
         }
       ]
     },
@@ -605,7 +645,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -627,7 +668,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-PIY-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cm-8-s3-buckets-tagged",
@@ -637,7 +679,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-PIY-01"
-          ]
+          ],
+          "remediation": "Tag the bucket: aws s3api put-bucket-tagging --bucket BUCKET --tagging 'TagSet=[{Key=Project,Value=YourProject}]'"
         },
         {
           "check_id": "cm-8-lambda-tagged",
@@ -647,7 +690,8 @@
           "resource_type": "aws_lambda_function",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cm-8-dynamodb-tagged",
@@ -657,7 +701,8 @@
           "resource_type": "aws_dynamodb_table",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Tag table: aws dynamodb tag-resource --resource-arn TABLE_ARN --tags Key=Project,Value=YourProject"
         },
         {
           "check_id": "cm-8-ec2-tagged",
@@ -667,7 +712,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Tag instances: aws ec2 create-tags --resources INSTANCE_ID --tags Key=Project,Value=YourProject"
         }
       ]
     },
@@ -689,7 +735,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-RPL-03"
-          ]
+          ],
+          "remediation": "Set retention: aws rds modify-db-instance --db-instance-identifier DB_ID --backup-retention-period 14"
         },
         {
           "check_id": "cp-9-dynamodb-backup",
@@ -699,7 +746,8 @@
           "resource_type": "aws_dynamodb_table",
           "fedramp_20x_ksi": [
             "KSI-RPL-03"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cp-9-s3-versioning-enabled",
@@ -709,7 +757,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-BCR-01"
-          ]
+          ],
+          "remediation": "Enable versioning: aws s3api put-bucket-versioning --bucket BUCKET --versioning-configuration Status=Enabled"
         },
         {
           "check_id": "cp-9-dynamodb-pitr",
@@ -719,7 +768,8 @@
           "resource_type": "aws_dynamodb_table",
           "fedramp_20x_ksi": [
             "KSI-BCR-01"
-          ]
+          ],
+          "remediation": "Enable PITR: aws dynamodb update-continuous-backups --table-name TABLE --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true"
         },
         {
           "check_id": "cp-9-backup-vault-encrypted",
@@ -729,7 +779,8 @@
           "resource_type": "aws_backup_vault",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Create encrypted vault: aws backup create-backup-vault --backup-vault-name VAULT --encryption-key-arn KEY_ARN"
         },
         {
           "check_id": "cp-9-backup-plan-exists",
@@ -739,7 +790,8 @@
           "resource_type": "aws_backup_plan",
           "fedramp_20x_ksi": [
             "KSI-BCR-01"
-          ]
+          ],
+          "remediation": "Create backup plan: aws backup create-backup-plan --backup-plan '{\"BackupPlanName\":\"daily\",\"Rules\":[{\"RuleName\":\"daily\",\"ScheduleExpression\":\"cron(0 5 ? * * *)\",\"TargetBackupVaultName\":\"Default\"}]}'"
         }
       ]
     },
@@ -760,7 +812,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-06"
-          ]
+          ],
+          "remediation": "Enable Multi-AZ: aws rds modify-db-instance --db-instance-identifier DB_ID --multi-az"
         }
       ]
     },
@@ -782,7 +835,8 @@
           "resource_type": "aws_iam_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Enable MFA: aws iam enable-mfa-device --user-name USER --serial-number ARN --authentication-code1 CODE1 --authentication-code2 CODE2. Use hardware MFA for privileged users."
         },
         {
           "check_id": "ia-2-root-mfa",
@@ -793,7 +847,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-01",
             "KSI-IAM-04"
-          ]
+          ],
+          "remediation": "Enable MFA on root account via AWS Console: Security Credentials \u2192 Assign MFA device. Use a hardware security key."
         }
       ]
     },
@@ -815,7 +870,8 @@
           "resource_type": "aws_iam_account_password_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ia-5-password-reuse",
@@ -825,7 +881,8 @@
           "resource_type": "aws_iam_account_password_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ia-5-password-max-age",
@@ -835,7 +892,8 @@
           "resource_type": "aws_iam_account_password_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ia-5-access-keys-rotated",
@@ -846,7 +904,8 @@
           "fedramp_20x_ksi": [
             "KSI-SVC-06",
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Rotate access keys: aws iam create-access-key --user-name USER, update applications, then aws iam delete-access-key --user-name USER --access-key-id OLD_KEY."
         },
         {
           "check_id": "ia-5-secrets-rotation-enabled",
@@ -856,7 +915,8 @@
           "resource_type": "aws_secretsmanager_secret",
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Enable rotation: aws secretsmanager rotate-secret --secret-id SECRET --rotation-lambda-arn LAMBDA_ARN --rotation-rules '{\"AutomaticallyAfterDays\":90}'"
         },
         {
           "check_id": "ia-5-password-policy-length",
@@ -866,7 +926,8 @@
           "resource_type": "aws_iam_account_password_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Set password policy: aws iam update-account-password-policy --minimum-password-length 14 --require-symbols --require-numbers --max-password-age 90 --password-reuse-prevention 24"
         }
       ]
     },
@@ -888,7 +949,8 @@
           "resource_type": "aws_sns_topic",
           "fedramp_20x_ksi": [
             "KSI-INR-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -911,7 +973,8 @@
           "fedramp_20x_ksi": [
             "KSI-SVC-07",
             "KSI-TPR-04"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -934,7 +997,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Remove 0.0.0.0/0 from security group inbound rules. Restrict to specific CIDR ranges."
         },
         {
           "check_id": "sc-7-no-default-sg-traffic",
@@ -944,7 +1008,8 @@
           "resource_type": "aws_vpc_security_group",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Remove all rules from the default security group. Use custom security groups with least-privilege rules."
         },
         {
           "check_id": "sc-7-vpc-flow-logs",
@@ -954,7 +1019,8 @@
           "resource_type": "aws_vpc",
           "fedramp_20x_ksi": [
             "KSI-MLA-07"
-          ]
+          ],
+          "remediation": "Enable VPC flow logs: aws ec2 create-flow-logs --resource-type VPC --resource-ids VPC_ID --traffic-type ALL --log-destination-type s3 --log-destination BUCKET_ARN"
         },
         {
           "check_id": "sc-7-rds-snapshot-not-public",
@@ -964,7 +1030,8 @@
           "resource_type": "aws_rds_db_snapshot",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Remove public access from snapshot: aws rds modify-db-snapshot-attribute --db-snapshot-identifier SNAP_ID --attribute-name restore --values-to-remove all"
         },
         {
           "check_id": "sc-7-s3-account-public-access-block",
@@ -974,7 +1041,8 @@
           "resource_type": "aws_s3_account_settings",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Enable account-level block: aws s3control put-public-access-block --account-id ACCOUNT_ID --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
         },
         {
           "check_id": "sc-7-rds-no-public-access",
@@ -984,7 +1052,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Disable public access: aws rds modify-db-instance --db-instance-identifier DB_ID --no-publicly-accessible"
         },
         {
           "check_id": "sc-7-ec2-no-public-ip",
@@ -994,7 +1063,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Launch instances in private subnets. Use NAT Gateway for outbound and ALB for inbound. Remove public IPs: aws ec2 disassociate-address."
         },
         {
           "check_id": "sc-7-waf-web-acl-exists",
@@ -1004,7 +1074,8 @@
           "resource_type": "aws_wafv2_web_acl",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Create WAF Web ACL in the AWS Console or CLI. Associate with ALB/CloudFront for web application protection."
         },
         {
           "check_id": "sc-7-waf-logging-enabled",
@@ -1014,7 +1085,8 @@
           "resource_type": "aws_wafv2_web_acl",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable WAF logging: aws wafv2 put-logging-configuration --logging-configuration ResourceArn=ACL_ARN,LogDestinationConfigs=[LOG_ARN]"
         }
       ]
     },
@@ -1036,7 +1108,8 @@
           "resource_type": "aws_ec2_load_balancer_listener",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-8-s3-ssl-enforced",
@@ -1046,7 +1119,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Add a bucket policy with Condition: {\"Bool\":{\"aws:SecureTransport\":\"false\"}} to deny non-HTTPS access."
         },
         {
           "check_id": "sc-8-lambda-function-url-auth",
@@ -1056,7 +1130,8 @@
           "resource_type": "aws_lambda_function",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-8-rds-ssl-enforced",
@@ -1066,7 +1141,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Modify instance to use latest CA: aws rds modify-db-instance --db-instance-identifier DB_ID --ca-certificate-identifier rds-ca-rsa2048-g1"
         },
         {
           "check_id": "sc-8-s3-mfa-delete",
@@ -1076,7 +1152,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Enable MFA delete on versioned buckets: aws s3api put-bucket-versioning --bucket BUCKET --versioning-configuration Status=Enabled,MFADelete=Enabled --mfa 'SERIAL_NUMBER TOKEN'"
         }
       ]
     },
@@ -1098,7 +1175,8 @@
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-SVC-06"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-12-kms-key-not-pending-deletion",
@@ -1108,7 +1186,8 @@
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "Cancel deletion: aws kms cancel-key-deletion --key-id KEY_ID, then re-enable the key."
         },
         {
           "check_id": "sc-12-acm-cert-expiry",
@@ -1118,7 +1197,8 @@
           "resource_type": "aws_acm_certificate",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "Renew or request new certificate: aws acm request-certificate --domain-name DOMAIN. Enable auto-renewal by using DNS validation."
         },
         {
           "check_id": "sc-12-acm-cert-renewal",
@@ -1128,7 +1208,8 @@
           "resource_type": "aws_acm_certificate",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "Switch to DNS validation for auto-renewal: aws acm request-certificate --domain-name DOMAIN --validation-method DNS"
         },
         {
           "check_id": "sc-12-kms-key-rotation-enabled",
@@ -1138,7 +1219,8 @@
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "Enable rotation: aws kms enable-key-rotation --key-id KEY_ID. Rotates annually."
         },
         {
           "check_id": "sc-12-kms-key-enabled",
@@ -1148,7 +1230,8 @@
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "If key is disabled, enable it: aws kms enable-key --key-id KEY_ID. If pending deletion, cancel: aws kms cancel-key-deletion --key-id KEY_ID."
         }
       ]
     },
@@ -1170,7 +1253,8 @@
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-AFR-11"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-13-ebs-default-encryption",
@@ -1180,7 +1264,8 @@
           "resource_type": "aws_ec2_regional_settings",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Enable account-level default: aws ec2 enable-ebs-encryption-by-default --region REGION"
         }
       ]
     },
@@ -1202,7 +1287,8 @@
           "resource_type": "aws_cloudfront_distribution",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -1224,7 +1310,8 @@
           "resource_type": "aws_s3_bucket",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable SSE-KMS: aws s3api put-bucket-encryption --bucket BUCKET --server-side-encryption-configuration '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"aws:kms\"}}]}'"
         },
         {
           "check_id": "sc-28-ebs-encryption",
@@ -1234,7 +1321,8 @@
           "resource_type": "aws_ebs_volume",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-28-rds-encryption",
@@ -1244,7 +1332,8 @@
           "resource_type": "aws_rds_db_instance",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable encryption when creating the instance: --storage-encrypted --kms-key-id KEY_ID. Existing instances must be migrated via snapshot-restore."
         },
         {
           "check_id": "sc-28-dynamodb-encryption",
@@ -1254,7 +1343,8 @@
           "resource_type": "aws_dynamodb_table",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Update table encryption: aws dynamodb update-table --table-name TABLE --sse-specification Enabled=true,SSEType=KMS,KMSMasterKeyId=KEY_ID"
         },
         {
           "check_id": "sc-28-sns-encryption",
@@ -1264,7 +1354,8 @@
           "resource_type": "aws_sns_topic",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable encryption: aws sns set-topic-attributes --topic-arn TOPIC_ARN --attribute-name KmsMasterKeyId --attribute-value KEY_ID"
         },
         {
           "check_id": "sc-28-sqs-encryption",
@@ -1274,7 +1365,8 @@
           "resource_type": "aws_sqs_queue",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable encryption: aws sqs set-queue-attributes --queue-url QUEUE_URL --attributes KmsMasterKeyId=KEY_ID"
         },
         {
           "check_id": "sc-28-ebs-snapshot-encryption",
@@ -1284,7 +1376,8 @@
           "resource_type": "aws_ebs_snapshot",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Copy snapshots with encryption: aws ec2 copy-snapshot --source-snapshot-id SNAP_ID --encrypted --kms-key-id KEY_ID"
         },
         {
           "check_id": "sc-28-rds-snapshot-encryption",
@@ -1294,7 +1387,8 @@
           "resource_type": "aws_rds_db_snapshot",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Encrypt snapshots by copying: aws rds copy-db-snapshot --source-db-snapshot-identifier SNAP_ID --target-db-snapshot-identifier NEW_SNAP --kms-key-id KEY"
         },
         {
           "check_id": "sc-28-secrets-manager-encrypted",
@@ -1304,7 +1398,8 @@
           "resource_type": "aws_secretsmanager_secret",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Update encryption: aws secretsmanager update-secret --secret-id SECRET --kms-key-id KEY_ID"
         },
         {
           "check_id": "sc-28-ecs-encryption-at-rest",
@@ -1314,7 +1409,8 @@
           "resource_type": "aws_ecs_cluster",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-28-ec2-ebs-encrypted",
@@ -1324,7 +1420,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Enable EBS default encryption: aws ec2 enable-ebs-encryption-by-default. Existing volumes must be copied to encrypted versions."
         },
         {
           "check_id": "sc-28-ebs-volume-encryption",
@@ -1334,7 +1431,8 @@
           "resource_type": "aws_ebs_volume",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Encrypt existing volumes by creating an encrypted snapshot, then creating a new volume from that snapshot."
         }
       ]
     },
@@ -1356,7 +1454,8 @@
           "resource_type": "aws_ssm_managed_instance",
           "fedramp_20x_ksi": [
             "KSI-SVC-07"
-          ]
+          ],
+          "remediation": "Install SSM agent and attach AmazonSSMManagedInstanceCore policy to the instance role. Verify connectivity: aws ssm describe-instance-information"
         },
         {
           "check_id": "si-2-ssm-managed-instances",
@@ -1366,7 +1465,8 @@
           "resource_type": "aws_ssm_managed_instance",
           "fedramp_20x_ksi": [
             "KSI-VSM-02"
-          ]
+          ],
+          "remediation": "Install SSM agent and attach AmazonSSMManagedInstanceCore policy to the instance role. Verify connectivity: aws ssm describe-instance-information"
         },
         {
           "check_id": "si-2-ec2-ssm-patch-compliance",
@@ -1376,7 +1476,8 @@
           "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-VSM-02"
-          ]
+          ],
+          "remediation": "Attach an IAM instance profile with AmazonSSMManagedInstanceCore policy. Install SSM agent on the instance."
         }
       ]
     },
@@ -1398,7 +1499,8 @@
           "resource_type": "aws_guardduty_detector",
           "fedramp_20x_ksi": [
             "KSI-CNA-05"
-          ]
+          ],
+          "remediation": "Enable GuardDuty: aws guardduty create-detector --enable. GuardDuty has a 30-day free trial."
         }
       ]
     },
@@ -1420,7 +1522,8 @@
           "resource_type": "aws_securityhub_hub",
           "fedramp_20x_ksi": [
             "KSI-MLA-01"
-          ]
+          ],
+          "remediation": "Enable Security Hub: aws securityhub enable-security-hub. Import findings from GuardDuty, Inspector, and Config."
         },
         {
           "check_id": "si-4-cloudwatch-alarm-exists",
@@ -1431,7 +1534,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-INR-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -1454,7 +1558,8 @@
           "fedramp_20x_ksi": [
             "KSI-SVC-05",
             "KSI-TPR-04"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "si-7-ecr-image-scan",
@@ -1464,7 +1569,8 @@
           "resource_type": "aws_ecr_repository",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
-          ]
+          ],
+          "remediation": "Enable scan on push: aws ecr put-image-scanning-configuration --repository-name REPO --image-scanning-configuration scanOnPush=true"
         },
         {
           "check_id": "si-7-ecr-tag-immutability",
@@ -1474,7 +1580,8 @@
           "resource_type": "aws_ecr_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
-          ]
+          ],
+          "remediation": "Enable immutability: aws ecr put-image-tag-mutability --repository-name REPO --image-tag-mutability IMMUTABLE"
         }
       ]
     }

@@ -22,7 +22,8 @@
           "resource_type": "azuread_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Review disabled accounts: az ad user list --filter 'accountEnabled eq false'. Delete accounts no longer needed."
         },
         {
           "check_id": "ac-2-guest-users",
@@ -33,7 +34,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05",
             "KSI-IAM-07"
-          ]
+          ],
+          "remediation": "Review guest accounts: Azure Portal \u2192 Entra ID \u2192 Users \u2192 Filter by User type = Guest. Remove unused guest accounts."
         },
         {
           "check_id": "ac-2-entra-groups-exist",
@@ -43,7 +45,8 @@
           "resource_type": "azuread_group",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-2-entra-guest-users",
@@ -53,7 +56,8 @@
           "resource_type": "azuread_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review guest accounts: Azure Portal \u2192 Entra ID \u2192 Users \u2192 Filter by User type = Guest. Remove unused guest accounts."
         }
       ]
     },
@@ -76,7 +80,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Disable public blob access: az storage account update --name ACCOUNT --allow-blob-public-access false"
         },
         {
           "check_id": "ac-3-storage-no-public-network",
@@ -87,7 +92,8 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01",
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Restrict network access: az storage account update --name ACCOUNT --default-action Deny"
         },
         {
           "check_id": "ac-3-entra-guest-invite-restriction",
@@ -97,7 +103,8 @@
           "resource_type": "azuread_authorization_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Restrict guest invitations: Azure Portal \u2192 Entra ID \u2192 External Identities \u2192 External collaboration settings. Set to 'Admins only' or 'Specific admin roles'."
         }
       ]
     },
@@ -120,7 +127,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-04",
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Limit Global Administrator assignments to 2-4 accounts. Use PIM for just-in-time access if available (P2 license)."
         },
         {
           "check_id": "ac-6-privileged-role-assignments",
@@ -130,7 +138,8 @@
           "resource_type": "azuread_directory_role_assignment",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "ac-6-service-principals",
@@ -140,7 +149,8 @@
           "resource_type": "azuread_service_principal",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review service principals: az ad sp list --all. Remove unused ones. Rotate credentials regularly."
         },
         {
           "check_id": "ac-6-keyvault-rbac-enabled",
@@ -150,7 +160,8 @@
           "resource_type": "azure_key_vault",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Enable RBAC: az keyvault update --name VAULT --enable-rbac-authorization true. Migrate access policies to RBAC roles."
         }
       ]
     },
@@ -172,7 +183,8 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Remove or restrict SSH rule: az network nsg rule update --nsg-name NSG --name RULE --source-address-prefixes SPECIFIC_IP/32. Never use * for SSH."
         },
         {
           "check_id": "ac-17-nsg-no-rdp-from-internet",
@@ -182,7 +194,8 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Remove or restrict RDP rule: az network nsg rule update --nsg-name NSG --name RULE --source-address-prefixes SPECIFIC_IP/32. Use Azure Bastion instead."
         },
         {
           "check_id": "ac-17-external-identity-policy",
@@ -192,7 +205,8 @@
           "resource_type": "azuread_external_identity_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review external identity settings: Entra ID \u2192 External Identities. Ensure B2B collaboration policies are appropriate."
         },
         {
           "check_id": "ac-17-admin-consent-policy",
@@ -202,7 +216,8 @@
           "resource_type": "azuread_admin_consent_request_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
-          ]
+          ],
+          "remediation": "Review admin consent settings: Entra ID \u2192 Enterprise applications \u2192 Consent and permissions."
         }
       ]
     },
@@ -225,7 +240,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-MLA-07"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "au-2-diagnostic-settings",
@@ -236,7 +252,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-02",
             "KSI-MLA-07"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "au-2-entra-audit-logs",
@@ -246,7 +263,8 @@
           "resource_type": "azuread_directory_audit_report",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Audit logs are automatically generated. If not visible, check Entra ID P1/P2 license or Azure Monitor integration."
         },
         {
           "check_id": "au-2-entra-sign-in-logs",
@@ -256,7 +274,8 @@
           "resource_type": "azuread_sign_in_report",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Sign-in logs require Entra ID P1 or P2 license. Check your license tier in Azure Portal \u2192 Entra ID \u2192 Licenses."
         },
         {
           "check_id": "au-2-sql-auditing-enabled",
@@ -266,7 +285,8 @@
           "resource_type": "azure_sql_server",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable auditing: az sql server audit-policy update --server SERVER --state Enabled --storage-account ACCOUNT"
         },
         {
           "check_id": "au-2-nsg-flow-logs",
@@ -276,7 +296,8 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable NSG flow logs: az network watcher flow-log create --nsg NSG_ID --storage-account ACCOUNT --enabled true"
         }
       ]
     },
@@ -298,7 +319,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-MLA-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "au-9-keyvault-logging",
@@ -308,7 +330,8 @@
           "resource_type": "azure_key_vault",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable diagnostic logging: az monitor diagnostic-settings create --name kv-logs --resource VAULT_ID --logs '[{\"category\":\"AuditEvent\",\"enabled\":true}]'"
         },
         {
           "check_id": "au-9-storage-logging",
@@ -318,7 +341,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable diagnostic logging in Azure Portal: Storage Account \u2192 Diagnostic settings \u2192 Add diagnostic setting."
         }
       ]
     },
@@ -340,7 +364,8 @@
           "resource_type": "azure_compute_virtual_machine",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
-          ]
+          ],
+          "remediation": "Install monitoring agent: az vm extension set --resource-group RG --vm-name VM --name MicrosoftMonitoringAgent"
         }
       ]
     },
@@ -364,7 +389,8 @@
             "KSI-CMT-01",
             "KSI-MLA-01",
             "KSI-CNA-05"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cm-6-defender-auto-provisioning",
@@ -374,7 +400,8 @@
           "resource_type": "azure_security_center_auto_provisioning",
           "fedramp_20x_ksi": [
             "KSI-VSM-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -396,7 +423,8 @@
           "resource_type": "azure_compute_virtual_machine",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Tag VM: az resource tag --ids VM_ID --tags Project=YourProject"
         },
         {
           "check_id": "cm-8-entra-applications-inventory",
@@ -406,7 +434,8 @@
           "resource_type": "azuread_application",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
-          ]
+          ],
+          "remediation": "Review app registrations: az ad app list. Remove unused applications. Check for expired credentials."
         }
       ]
     },
@@ -428,7 +457,8 @@
           "resource_type": "azure_sql_database",
           "fedramp_20x_ksi": [
             "KSI-RPL-03"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "cp-9-storage-blob-versioning",
@@ -438,7 +468,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-BCR-01"
-          ]
+          ],
+          "remediation": "Enable blob versioning: az storage account blob-service-properties update --account-name ACCOUNT --enable-versioning true"
         }
       ]
     },
@@ -460,7 +491,8 @@
           "resource_type": "azuread_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Enable MFA through Entra ID \u2192 Security \u2192 MFA, or configure Conditional Access policies requiring MFA."
         },
         {
           "check_id": "ia-2-conditional-access-policies",
@@ -471,7 +503,8 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-01",
             "KSI-IAM-04"
-          ]
+          ],
+          "remediation": "Create Conditional Access policies: Entra ID \u2192 Security \u2192 Conditional Access \u2192 New policy. Require MFA for all users."
         },
         {
           "check_id": "ia-2-security-defaults-enabled",
@@ -481,7 +514,8 @@
           "resource_type": "azuread_security_defaults_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Enable security defaults: Azure Portal \u2192 Entra ID \u2192 Properties \u2192 Manage security defaults \u2192 Enable. Note: incompatible with Conditional Access."
         },
         {
           "check_id": "ia-2-conditional-access-named-locations",
@@ -491,7 +525,8 @@
           "resource_type": "azuread_conditional_access_named_location",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Create Conditional Access policies: Entra ID \u2192 Security \u2192 Conditional Access \u2192 New policy. Require MFA for all users."
         }
       ]
     },
@@ -513,7 +548,8 @@
           "resource_type": "azuread_user",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Set password policy: aws iam update-account-password-policy --minimum-password-length 14 --require-symbols --require-numbers --max-password-age 90 --password-reuse-prevention 24"
         },
         {
           "check_id": "ia-5-device-registration-policy",
@@ -523,7 +559,8 @@
           "resource_type": "azuread_device_registration_policy",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Configure device registration: Entra ID \u2192 Devices \u2192 Device settings. Restrict which users can join devices."
         },
         {
           "check_id": "ia-5-entra-mfa-registration-details",
@@ -533,7 +570,8 @@
           "resource_type": "azuread_user_registration_details_report",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
-          ]
+          ],
+          "remediation": "Enable MFA through Entra ID \u2192 Security \u2192 MFA, or configure Conditional Access policies requiring MFA."
         }
       ]
     },
@@ -555,7 +593,8 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Review all Allow rules with source * and destination port *. Restrict to specific ports and sources."
         },
         {
           "check_id": "sc-7-nsg-flow-logs",
@@ -565,7 +604,8 @@
           "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
-          ]
+          ],
+          "remediation": "Enable NSG flow logs: az network watcher flow-log create --nsg NSG_ID --storage-account ACCOUNT --enabled true"
         },
         {
           "check_id": "sc-7-vnet-ddos-protection",
@@ -575,7 +615,8 @@
           "resource_type": "azure_virtual_network",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Enable DDoS protection: az network vnet update --name VNET --ddos-protection true. Note: DDoS Protection Standard has significant cost."
         },
         {
           "check_id": "sc-7-storage-firewall-enabled",
@@ -585,7 +626,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
-          ]
+          ],
+          "remediation": "Set default deny: az storage account update --name ACCOUNT --default-action Deny. Add allowed IPs/VNets as needed."
         }
       ]
     },
@@ -607,7 +649,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enforce HTTPS: az storage account update --name ACCOUNT --https-only true"
         },
         {
           "check_id": "sc-8-storage-min-tls",
@@ -617,7 +660,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Set minimum TLS: az storage account update --name ACCOUNT --min-tls-version TLS1_2"
         },
         {
           "check_id": "sc-8-sql-tls-enforced",
@@ -627,7 +671,8 @@
           "resource_type": "azure_sql_server",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-8-app-service-https-only",
@@ -637,7 +682,8 @@
           "resource_type": "azure_app_service_web_app",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-8-app-service-min-tls",
@@ -647,7 +693,8 @@
           "resource_type": "azure_app_service_web_app",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     },
@@ -669,7 +716,8 @@
           "resource_type": "azure_key_vault",
           "fedramp_20x_ksi": [
             "KSI-SVC-06"
-          ]
+          ],
+          "remediation": "Soft delete is enabled by default on new vaults. Cannot be disabled once enabled."
         },
         {
           "check_id": "sc-12-keyvault-purge-protection",
@@ -679,7 +727,8 @@
           "resource_type": "azure_key_vault",
           "fedramp_20x_ksi": [
             "KSI-SVC-06"
-          ]
+          ],
+          "remediation": "Enable purge protection: az keyvault update --name VAULT --enable-purge-protection true. Cannot be reversed."
         },
         {
           "check_id": "sc-12-keyvault-key-expiry",
@@ -689,7 +738,8 @@
           "resource_type": "azure_key_vault_key",
           "fedramp_20x_ksi": [
             "KSI-SVC-06"
-          ]
+          ],
+          "remediation": "Set key expiration: az keyvault key set-attributes --vault-name VAULT --name KEY --expires YYYY-MM-DD"
         },
         {
           "check_id": "sc-12-keyvault-secret-expiry",
@@ -699,7 +749,8 @@
           "resource_type": "azure_key_vault_secret",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
-          ]
+          ],
+          "remediation": "Set secret expiration: az keyvault secret set-attributes --vault-name VAULT --name SECRET --expires YYYY-MM-DD"
         }
       ]
     },
@@ -721,7 +772,8 @@
           "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Azure Storage is encrypted by default with Microsoft-managed keys. For customer-managed keys: az storage account update --name ACCOUNT --encryption-key-source Microsoft.Keyvault"
         },
         {
           "check_id": "sc-28-sql-encryption",
@@ -731,7 +783,8 @@
           "resource_type": "azure_sql_database",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-28-vm-disk-encryption",
@@ -741,7 +794,8 @@
           "resource_type": "azure_compute_disk",
           "fedramp_20x_ksi": [
             "KSI-SVC-02"
-          ]
+          ],
+          "remediation": "Enable Azure Disk Encryption: az vm encryption enable --resource-group RG --name VM --disk-encryption-keyvault VAULT"
         },
         {
           "check_id": "sc-28-compute-disk-encryption",
@@ -751,7 +805,8 @@
           "resource_type": "azure_compute_disk",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "sc-28-managed-disk-encryption",
@@ -761,7 +816,8 @@
           "resource_type": "azure_compute_disk",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Azure managed disks are encrypted by default. For customer-managed keys, create a disk encryption set and associate it."
         },
         {
           "check_id": "sc-28-sql-tde-enabled",
@@ -771,7 +827,8 @@
           "resource_type": "azure_sql_database",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
-          ]
+          ],
+          "remediation": "Enable TDE: az sql db tde set --database DB --server SERVER --status Enabled"
         }
       ]
     },
@@ -793,7 +850,8 @@
           "resource_type": "azure_security_center_contact",
           "fedramp_20x_ksi": [
             "KSI-INR-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         },
         {
           "check_id": "si-4-alert-rules",
@@ -804,7 +862,8 @@
           "fedramp_20x_ksi": [
             "KSI-MLA-01",
             "KSI-INR-01"
-          ]
+          ],
+          "remediation": "Review this finding and implement appropriate controls per your organization's security policy."
         }
       ]
     }

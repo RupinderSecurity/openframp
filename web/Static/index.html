@@ -386,6 +386,7 @@ function render() {
           <div class="finding-content">
             ${p.resource ? `<div class="finding-resource">${p.resource}</div>` : ''}
             <div class="finding-detail">${p.detail}</div>
+            ${f.description ? '<div style="margin-top:4px;font-size:10px;color:#22d3ee;font-style:italic">Fix: ' + f.description + '</div>' : ''}
             <div class="finding-meta">
               ${fProv ? `<span class="provider-tag provider-tag-${fProv}">${(PROVIDER_NAMES[fProv] || fProv).toUpperCase()}</span>` : ''}
             </div>
