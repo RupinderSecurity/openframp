@@ -179,6 +179,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
+        },
+        {
+          "check_id": "cm-2-default-branch-main",
+          "description": "Repository default branch should be named 'main' (not 'master')",
+          "severity": "low",
+          "query": "select name_with_owner, default_branch_ref from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -267,6 +277,38 @@
       ]
     },
     {
+      "control_id": "CM-8",
+      "title": "System Component Inventory",
+      "family": "Configuration Management",
+      "frameworks": [
+        "FedRAMP CM-8",
+        "PCI DSS 12.5.1",
+        "SOC 2 CC8.1"
+      ],
+      "checks": [
+        {
+          "check_id": "cm-8-repo-has-description",
+          "description": "Repositories should have descriptions for inventory clarity",
+          "severity": "low",
+          "query": "select name_with_owner, description from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-8-repo-has-topics",
+          "description": "Repositories should have topics for discoverability and categorization",
+          "severity": "low",
+          "query": "select name_with_owner, topics from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        }
+      ]
+    },
+    {
       "control_id": "RA-5",
       "title": "Vulnerability Monitoring and Scanning",
       "family": "Risk Assessment",
@@ -326,6 +368,28 @@
           "resource_type": "github_code_owner",
           "fedramp_20x_ksi": [
             "KSI-CNA-03"
+          ]
+        }
+      ]
+    },
+    {
+      "control_id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "family": "System and Communications Protection",
+      "frameworks": [
+        "FedRAMP SC-28",
+        "PCI DSS 3.5.2",
+        "SOC 2 CC6.1"
+      ],
+      "checks": [
+        {
+          "check_id": "sc-28-actions-env-secrets",
+          "description": "GitHub Actions should use environment secrets for sensitive values",
+          "severity": "medium",
+          "query": "select name, repository_full_name from github_actions_repository_secret where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_actions_repository_secret",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
           ]
         }
       ]

@@ -141,6 +141,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
           ]
+        },
+        {
+          "check_id": "ac-6-keyvault-rbac-enabled",
+          "description": "Key Vault should use RBAC instead of access policies",
+          "severity": "medium",
+          "query": "select name, enable_rbac_authorization from azure_key_vault",
+          "resource_type": "azure_key_vault",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -234,6 +244,26 @@
           "severity": "medium",
           "query": "select id, user_display_name, status from azuread_sign_in_report limit 5",
           "resource_type": "azuread_sign_in_report",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        },
+        {
+          "check_id": "au-2-sql-auditing-enabled",
+          "description": "Azure SQL servers should have auditing enabled",
+          "severity": "high",
+          "query": "select name, audit_policy from azure_sql_server",
+          "resource_type": "azure_sql_server",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
+        },
+        {
+          "check_id": "au-2-nsg-flow-logs",
+          "description": "Network Security Groups should have flow logs enabled",
+          "severity": "high",
+          "query": "select name, flow_log_id from azure_network_security_group",
+          "resource_type": "azure_network_security_group",
           "fedramp_20x_ksi": [
             "KSI-LOG-01"
           ]
@@ -354,6 +384,16 @@
           "severity": "low",
           "query": "select name, tags from azure_compute_virtual_machine",
           "resource_type": "azure_compute_virtual_machine",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-8-entra-applications-inventory",
+          "description": "Entra ID application registrations should be inventoried",
+          "severity": "low",
+          "query": "select display_name, app_id, created_date_time from azuread_application",
+          "resource_type": "azuread_application",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
@@ -503,6 +543,16 @@
           "severity": "medium",
           "query": "select name, enable_ddos_protection from azure_virtual_network",
           "resource_type": "azure_virtual_network",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "sc-7-storage-firewall-enabled",
+          "description": "Storage accounts should have network firewall rules configured",
+          "severity": "medium",
+          "query": "select name, network_rule_default_action from azure_storage_account",
+          "resource_type": "azure_storage_account",
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
           ]
@@ -669,6 +719,16 @@
           "severity": "high",
           "query": "select name, encryption_type, disk_state from azure_compute_disk",
           "resource_type": "azure_compute_disk",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-28-sql-tde-enabled",
+          "description": "Azure SQL databases should have Transparent Data Encryption enabled",
+          "severity": "high",
+          "query": "select name, transparent_data_encryption from azure_sql_database",
+          "resource_type": "azure_sql_database",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
           ]

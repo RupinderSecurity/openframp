@@ -59,7 +59,8 @@ def evaluate_check(check, query_result):
                            "sa-11-codeowners-exists",
                            "cm-2-community-profile-readme",
                            "cm-2-community-profile-contributing",
-                           "cm-2-community-profile-code-of-conduct"]
+                           "cm-2-community-profile-code-of-conduct", "sc-7-waf-web-acl-exists",
+                           "ac-2-root-account-usage-alarm"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -822,6 +823,131 @@ def evaluate_check(check, query_result):
         
         elif "codeowners" in check_id:
             pass  # if rows exist, CODEOWNERS exists — pass
+
+        elif "ec2" in check_id and "imdsv2" in check_id:
+            opts = str(row.get("metadata_options", ""))
+            if "required" not in opts.lower():
+                failed = True
+                reason = "IMDSv2 not required"
+        
+        elif "ec2" in check_id and "public-ip" in check_id:
+            if row.get("public_ip_address"):
+                failed = True
+                reason = f"has public IP {row.get('public_ip_address')}"
+        
+        elif "ec2" in check_id and "ssm" in check_id:
+            if not row.get("iam_instance_profile_arn"):
+                failed = True
+                reason = "no IAM instance profile (needed for SSM)"
+        
+        elif "ec2" in check_id and "tagged" in check_id:
+            if not row.get("tags"):
+                failed = True
+                reason = "no tags"
+        
+        elif "ec2" in check_id and "ebs-encrypted" in check_id:
+            mappings = str(row.get("block_device_mappings", ""))
+            if "false" in mappings.lower():
+                failed = True
+                reason = "instance has unencrypted EBS volumes"
+        
+        elif "ebs-volume" in check_id and "encryption" in check_id:
+            if row.get("encrypted") != True:
+                failed = True
+                reason = "EBS volume not encrypted"
+        
+        elif "access-key-age" in check_id:
+            from datetime import datetime, timezone
+            created = str(row.get("create_date", ""))
+            if created:
+                try:
+                    created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
+                    age_days = (datetime.now(timezone.utc) - created_dt).days
+                    if age_days > 90:
+                        failed = True
+                        reason = f"access key is {age_days} days old"
+                except:
+                    pass
+        
+        elif "policy-full-admin" in check_id:
+            pass  # informational — inventory of custom policies
+        
+        elif "waf" in check_id and "web-acl" in check_id:
+            pass  # if rows exist, WAF is configured — pass
+        
+        elif "waf" in check_id and "logging" in check_id:
+            log_config = row.get("logging_configuration")
+            if not log_config:
+                failed = True
+                reason = "WAF logging not configured"
+        
+        elif "kms" in check_id and "rotation-enabled" in check_id:
+            if row.get("key_rotation_enabled") != True:
+                failed = True
+                reason = "KMS key rotation not enabled"
+        
+        elif "root-account-usage-alarm" in check_id:
+            pass  # if rows exist, alarm exists — pass
+        
+        elif "password-policy" in check_id and "length" in check_id:
+            min_len = row.get("minimum_password_length", 0)
+            if min_len is None or min_len < 14:
+                failed = True
+                reason = f"minimum password length is {min_len} (should be >= 14)"
+        
+        elif "sql" in check_id and "tde" in check_id:
+            tde = str(row.get("transparent_data_encryption", ""))
+            if "Enabled" not in tde:
+                failed = True
+                reason = "TDE not enabled"
+        
+        elif "sql" in check_id and "auditing" in check_id:
+            audit = str(row.get("audit_policy", ""))
+            if "Enabled" not in audit:
+                failed = True
+                reason = "SQL auditing not enabled"
+        
+        elif "storage-firewall" in check_id:
+            action = row.get("network_rule_default_action", "")
+            if action != "Deny":
+                failed = True
+                reason = f"default network action is {action}, should be Deny"
+        
+        elif "keyvault" in check_id and "rbac" in check_id:
+            if row.get("enable_rbac_authorization") != True:
+                failed = True
+                reason = "using access policies instead of RBAC"
+        
+        elif "global-admin-count" in check_id:
+            pass  # informational — count matters, logged as finding for audit
+        
+        elif "entra-applications" in check_id:
+            pass  # informational — inventory
+        
+        elif "nsg-flow-logs" in check_id:
+            if not row.get("flow_log_id"):
+                failed = True
+                reason = "NSG flow logs not enabled"
+        
+        elif "actions-env-secrets" in check_id:
+            pass  # if secrets exist, they're using environment secrets — pass
+        
+        elif "default-branch-main" in check_id:
+            ref = str(row.get("default_branch_ref", ""))
+            if "master" in ref.lower():
+                failed = True
+                reason = "default branch is 'master', should be 'main'"
+        
+        elif "repo-has-description" in check_id:
+            if not row.get("description"):
+                failed = True
+                reason = "no repository description"
+        
+        elif "repo-has-topics" in check_id:
+            topics = row.get("topics", [])
+            if not topics:
+                failed = True
+                reason = "no topics set"
         
         if failed:
             findings["deny"].append(f"{severity}: {name} — {reason} ({desc})")

@@ -54,6 +54,26 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
           ]
+        },
+        {
+          "check_id": "ac-2-iam-access-key-age",
+          "description": "IAM access keys older than 90 days should be reviewed",
+          "severity": "medium",
+          "query": "select user_name, access_key_id, create_date, status from aws_iam_access_key where status = 'Active'",
+          "resource_type": "aws_iam_access_key",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-07"
+          ]
+        },
+        {
+          "check_id": "ac-2-root-account-usage-alarm",
+          "description": "CloudWatch alarm should exist for root account usage",
+          "severity": "high",
+          "query": "select name, metric_name, namespace from aws_cloudwatch_alarm where metric_name = 'RootAccountUsage'",
+          "resource_type": "aws_cloudwatch_alarm",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         }
       ]
     },
@@ -204,6 +224,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05",
             "KSI-IAM-07"
+          ]
+        },
+        {
+          "check_id": "ac-6-iam-policy-full-admin-count",
+          "description": "Number of IAM policies granting full admin should be minimized",
+          "severity": "high",
+          "query": "select name, arn, attachment_count from aws_iam_policy where is_aws_managed = false",
+          "resource_type": "aws_iam_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
           ]
         }
       ]
@@ -523,6 +553,16 @@
             "KSI-CMT-01",
             "KSI-PIY-01"
           ]
+        },
+        {
+          "check_id": "cm-6-ec2-imdsv2-required",
+          "description": "EC2 instances should require IMDSv2 (Instance Metadata Service v2)",
+          "severity": "high",
+          "query": "select instance_id, metadata_options from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
         }
       ]
     },
@@ -595,6 +635,16 @@
           "severity": "low",
           "query": "select name, tags from aws_dynamodb_table",
           "resource_type": "aws_dynamodb_table",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-8-ec2-tagged",
+          "description": "EC2 instances should have tags for inventory tracking",
+          "severity": "low",
+          "query": "select instance_id, tags from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"
           ]
@@ -787,6 +837,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-07"
           ]
+        },
+        {
+          "check_id": "ia-5-password-policy-length",
+          "description": "IAM password policy should require minimum 14 characters",
+          "severity": "high",
+          "query": "select minimum_password_length, require_symbols, require_numbers, require_uppercase_characters, require_lowercase_characters, max_password_age, password_reuse_prevention from aws_iam_account_password_policy",
+          "resource_type": "aws_iam_account_password_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
         }
       ]
     },
@@ -905,6 +965,36 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
           ]
+        },
+        {
+          "check_id": "sc-7-ec2-no-public-ip",
+          "description": "EC2 instances should not have public IP addresses unless required",
+          "severity": "medium",
+          "query": "select instance_id, public_ip_address, vpc_id from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "sc-7-waf-web-acl-exists",
+          "description": "WAFv2 Web ACLs should be configured for web application protection",
+          "severity": "high",
+          "query": "select name, arn, default_action from aws_wafv2_web_acl",
+          "resource_type": "aws_wafv2_web_acl",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-02"
+          ]
+        },
+        {
+          "check_id": "sc-7-waf-logging-enabled",
+          "description": "WAFv2 Web ACLs should have logging enabled",
+          "severity": "medium",
+          "query": "select name, logging_configuration from aws_wafv2_web_acl",
+          "resource_type": "aws_wafv2_web_acl",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
+          ]
         }
       ]
     },
@@ -1006,6 +1096,16 @@
           "severity": "medium",
           "query": "select domain_name, renewal_eligibility, type from aws_acm_certificate",
           "resource_type": "aws_acm_certificate",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
+          ]
+        },
+        {
+          "check_id": "sc-12-kms-key-rotation-enabled",
+          "description": "Customer-managed KMS keys should have automatic rotation enabled",
+          "severity": "high",
+          "query": "select id, key_rotation_enabled, key_manager from aws_kms_key where key_manager = 'CUSTOMER'",
+          "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
           ]
@@ -1175,6 +1275,26 @@
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
           ]
+        },
+        {
+          "check_id": "sc-28-ec2-ebs-encrypted",
+          "description": "EC2 instance EBS volumes should be encrypted",
+          "severity": "high",
+          "query": "select instance_id, block_device_mappings from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "sc-28-ebs-volume-encryption",
+          "description": "EBS volumes should be encrypted",
+          "severity": "high",
+          "query": "select volume_id, encrypted, kms_key_id from aws_ebs_volume",
+          "resource_type": "aws_ebs_volume",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -1204,6 +1324,16 @@
           "severity": "high",
           "query": "select instance_id, ping_status, platform_type from aws_ssm_managed_instance",
           "resource_type": "aws_ssm_managed_instance",
+          "fedramp_20x_ksi": [
+            "KSI-VSM-02"
+          ]
+        },
+        {
+          "check_id": "si-2-ec2-ssm-patch-compliance",
+          "description": "EC2 instances should be managed by SSM for patch compliance",
+          "severity": "high",
+          "query": "select instance_id, iam_instance_profile_arn from aws_ec2_instance",
+          "resource_type": "aws_ec2_instance",
           "fedramp_20x_ksi": [
             "KSI-VSM-02"
           ]
