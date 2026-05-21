@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install python-docx fpdf2
+        run: pip install python-docx fpdf2 pytest
 
       - name: Run SSP parser unit tests
         run: cd ssp-parser && python -m pytest test_ssp_parser.py -v
