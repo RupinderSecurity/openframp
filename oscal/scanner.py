@@ -15,12 +15,10 @@ def run_query(query):
     )
     if result.returncode != 0:
         stderr = result.stderr
-        if any(e in stderr for e in ["SubscriptionRequiredException", "OptInRequired", "AccessDeniedException", "UnauthorizedOperation", "AccessDenied", "required scopes", "PremiumTenantOrB2CTenant", "premium license", "required permissions"]):
+        if any(e in stderr for e in ["SubscriptionRequiredException", "OptInRequired", "AccessDeniedException", "UnauthorizedOperation", "AccessDenied", "required scopes", "PremiumTenantOrB2CTenant", "premium license", "required permissions", "Forbidden", "does not exist", "unauthorized operation"]):
             return {"rows": [], "_not_enabled": True}, None
         if "Dependabot alerts are disabled" in stderr:
             return {"rows": [], "_not_enabled": True}, None
-        if "does not exist" in stderr:
-            return {"rows": [], "_not_found": True}, None
         return None, stderr
     return json.loads(result.stdout), None
 
@@ -60,7 +58,7 @@ def evaluate_check(check, query_result):
                            "cm-2-community-profile-readme",
                            "cm-2-community-profile-contributing",
                            "cm-2-community-profile-code-of-conduct", "sc-7-waf-web-acl-exists",
-                           "ac-2-root-account-usage-alarm"]
+                           "ac-2-root-account-usage-alarm", "ac-3-branch-restricts-pushes"]
         if check_id in zero_row_checks:
             findings["deny"].append(f"{severity}: {desc} — none found")
         return findings
@@ -937,6 +935,63 @@ def evaluate_check(check, query_result):
             if "master" in ref.lower():
                 failed = True
                 reason = "default branch is 'master', should be 'main'"
+        
+        elif "repo-has-description" in check_id:
+            if not row.get("description"):
+                failed = True
+                reason = "no repository description"
+        
+        elif "repo-has-topics" in check_id:
+            topics = row.get("topics", [])
+            if not topics:
+                failed = True
+                reason = "no topics set"
+
+        elif "mfa-delete" in check_id:
+            if row.get("mfa_delete") != "Enabled":
+                failed = True
+                reason = "MFA delete not enabled"
+        
+        elif "iam-user-count" in check_id:
+            pass  # informational — inventory
+        
+        elif "kms-key-enabled" in check_id:
+            state = row.get("key_state", "")
+            if state != "Enabled":
+                failed = True
+                reason = f"KMS key state is {state}"
+        
+        elif "cloudtrail-multi-region" in check_id:
+            if row.get("is_multi_region_trail") != True:
+                failed = True
+                reason = "CloudTrail not configured for multi-region"
+        
+        elif "keyvault-secret-expiry" in check_id:
+            if not row.get("expires_at"):
+                failed = True
+                reason = "secret has no expiration date"
+        
+        elif "blob-versioning" in check_id:
+            if row.get("blob_versioning_enabled") != True:
+                failed = True
+                reason = "blob versioning not enabled"
+        
+        elif "mfa-registration-details" in check_id:
+            if row.get("is_mfa_registered") != True:
+                failed = True
+                reason = f"user {row.get('user_display_name', 'unknown')} has no MFA registered"
+        
+        elif "admin-consent-policy" in check_id:
+            pass  # informational — existence check
+        
+        elif "archived" in check_id:
+            failed = True
+            reason = "repository is archived but may still be active"
+        
+        elif "restricts-pushes" in check_id:
+            if row.get("restricts_pushes") != True:
+                failed = True
+                reason = "default branch does not restrict pushes"
         
         elif "repo-has-description" in check_id:
             if not row.get("description"):

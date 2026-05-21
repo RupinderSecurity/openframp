@@ -33,6 +33,16 @@
           "fedramp_20x_ksi": [
             "KSI-CNA-02"
           ]
+        },
+        {
+          "check_id": "ac-3-branch-restricts-pushes",
+          "description": "Default branch should restrict who can push",
+          "severity": "high",
+          "query": "select repository_full_name, pattern, restricts_pushes from github_branch_protection where repository_full_name = 'RupinderSecurity/openframp'",
+          "resource_type": "github_branch_protection",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-03"
+          ]
         }
       ]
     },
@@ -269,6 +279,16 @@
           "description": "Repository wikis should be disabled unless actively used",
           "severity": "low",
           "query": "select name_with_owner, has_wiki_enabled from github_my_repository",
+          "resource_type": "github_my_repository",
+          "fedramp_20x_ksi": [
+            "KSI-CNA-01"
+          ]
+        },
+        {
+          "check_id": "cm-7-repo-not-archived-active",
+          "description": "Active repositories should not be archived",
+          "severity": "low",
+          "query": "select name_with_owner, is_archived from github_my_repository where is_archived = true",
           "resource_type": "github_my_repository",
           "fedramp_20x_ksi": [
             "KSI-CNA-01"

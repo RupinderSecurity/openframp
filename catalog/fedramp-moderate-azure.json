@@ -193,6 +193,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-05"
           ]
+        },
+        {
+          "check_id": "ac-17-admin-consent-policy",
+          "description": "Admin consent request policy should be reviewed",
+          "severity": "medium",
+          "query": "select is_enabled, notify_reviewers from azuread_admin_consent_request_policy",
+          "resource_type": "azuread_admin_consent_request_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -419,6 +429,16 @@
           "fedramp_20x_ksi": [
             "KSI-RPL-03"
           ]
+        },
+        {
+          "check_id": "cp-9-storage-blob-versioning",
+          "description": "Storage accounts should have blob versioning enabled",
+          "severity": "medium",
+          "query": "select name, blob_versioning_enabled from azure_storage_account",
+          "resource_type": "azure_storage_account",
+          "fedramp_20x_ksi": [
+            "KSI-BCR-01"
+          ]
         }
       ]
     },
@@ -501,6 +521,16 @@
           "severity": "medium",
           "query": "select azure_ad_join, azure_ad_registration from azuread_device_registration_policy",
           "resource_type": "azuread_device_registration_policy",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-01"
+          ]
+        },
+        {
+          "check_id": "ia-5-entra-mfa-registration-details",
+          "description": "All Entra ID users should have MFA methods registered",
+          "severity": "critical",
+          "query": "select user_display_name, user_principal_name, is_mfa_registered from azuread_user_registration_details_report",
+          "resource_type": "azuread_user_registration_details_report",
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
           ]
@@ -659,6 +689,16 @@
           "resource_type": "azure_key_vault_key",
           "fedramp_20x_ksi": [
             "KSI-SVC-06"
+          ]
+        },
+        {
+          "check_id": "sc-12-keyvault-secret-expiry",
+          "description": "Key Vault secrets should have expiration dates",
+          "severity": "medium",
+          "query": "select name, expires_at, enabled from azure_key_vault_secret",
+          "resource_type": "azure_key_vault_secret",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
           ]
         }
       ]

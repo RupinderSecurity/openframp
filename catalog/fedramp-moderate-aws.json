@@ -74,6 +74,16 @@
           "fedramp_20x_ksi": [
             "KSI-IAM-01"
           ]
+        },
+        {
+          "check_id": "ac-2-iam-user-count",
+          "description": "IAM users should be reviewed (minimize human users, prefer roles)",
+          "severity": "low",
+          "query": "select name, password_enabled, mfa_active from aws_iam_user",
+          "resource_type": "aws_iam_user",
+          "fedramp_20x_ksi": [
+            "KSI-IAM-05"
+          ]
         }
       ]
     },
@@ -432,6 +442,16 @@
           "resource_type": "aws_cloudwatch_log_group",
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
+          ]
+        },
+        {
+          "check_id": "au-9-cloudtrail-multi-region",
+          "description": "CloudTrail should be configured for multi-region logging",
+          "severity": "high",
+          "query": "select name, is_multi_region_trail from aws_cloudtrail_trail",
+          "resource_type": "aws_cloudtrail_trail",
+          "fedramp_20x_ksi": [
+            "KSI-LOG-01"
           ]
         }
       ]
@@ -1047,6 +1067,16 @@
           "fedramp_20x_ksi": [
             "KSI-CRY-01"
           ]
+        },
+        {
+          "check_id": "sc-8-s3-mfa-delete",
+          "description": "S3 buckets with sensitive data should have MFA delete enabled",
+          "severity": "medium",
+          "query": "select name, mfa_delete from aws_s3_bucket",
+          "resource_type": "aws_s3_bucket",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-01"
+          ]
         }
       ]
     },
@@ -1105,6 +1135,16 @@
           "description": "Customer-managed KMS keys should have automatic rotation enabled",
           "severity": "high",
           "query": "select id, key_rotation_enabled, key_manager from aws_kms_key where key_manager = 'CUSTOMER'",
+          "resource_type": "aws_kms_key",
+          "fedramp_20x_ksi": [
+            "KSI-CRY-02"
+          ]
+        },
+        {
+          "check_id": "sc-12-kms-key-enabled",
+          "description": "Customer-managed KMS keys should be in Enabled state",
+          "severity": "high",
+          "query": "select id, key_state, key_manager from aws_kms_key where key_manager = 'CUSTOMER'",
           "resource_type": "aws_kms_key",
           "fedramp_20x_ksi": [
             "KSI-CRY-02"
