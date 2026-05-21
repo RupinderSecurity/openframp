@@ -12,7 +12,7 @@ FedRAMP Government Cloud environments are strict authorization boundaries. Comme
 
 OpenFRAMP is a self-contained compliance pipeline that runs entirely inside your boundary. No external SaaS dependencies. No data leaves the environment.
 
-- **140 compliance checks** across 3 cloud providers
+- **198 compliance checks** across 3 cloud providers
 - **3 frameworks simultaneously** — FedRAMP Moderate, PCI DSS 4.0.1, SOC 2
 - **SSP parser** — converts FedRAMP SSP Appendix A Word docs to OSCAL JSON
 - **Web dashboard** with provider tabs, scan trigger, SSP upload, and PDF export
@@ -60,7 +60,7 @@ See [INSTALL.md](INSTALL.md) for full setup instructions.
 
 ## Coverage
 
-### AWS — 32 controls, 78 checks
+### AWS — 32 controls, 94 checks
 
 | Family | Controls |
 | --- | --- |
@@ -76,7 +76,7 @@ See [INSTALL.md](INSTALL.md) for full setup instructions.
 
 Checks include: S3 public access/encryption/versioning/logging, IAM MFA/least privilege/key rotation, CloudTrail logging/encryption, security groups, VPC flow logs, KMS key management, GuardDuty, SecurityHub, Secrets Manager, Lambda, EBS, RDS, ECR, CloudWatch logs, and more.
 
-### Azure + Entra ID — 15 controls, 41 checks
+### Azure + Entra ID — 17 controls, 53 checks
 
 | Family | Controls |
 | --- | --- |
@@ -90,7 +90,7 @@ Checks include: S3 public access/encryption/versioning/logging, IAM MFA/least pr
 
 Checks include: Storage account encryption/TLS/public access, Key Vault soft delete/purge protection/key expiry, NSG rules (SSH/RDP open to internet), Entra ID users/groups/roles, conditional access, security defaults, audit logs, sign-in reports, guest invite policies.
 
-### GitHub — 9 controls, 21 checks
+### GitHub — 9 controls, 32 checks
 
 | Family | Controls |
 | --- | --- |
@@ -122,9 +122,9 @@ The dashboard at `localhost:4000` provides:
 ```
 openframp/
 ├── catalog/                             # Control definitions (add checks here)
-│   ├── fedramp-moderate-aws.json        #   AWS: 32 controls, 78 checks
-│   ├── fedramp-moderate-azure.json      #   Azure + Entra ID: 15 controls, 41 checks
-│   └── github-security.json             #   GitHub: 9 controls, 21 checks
+│   ├── fedramp-moderate-aws.json        #   AWS: 32 controls, 94 checks
+│   ├── fedramp-moderate-azure.json      #   Azure + Entra ID: 17 controls, 53 checks
+│   └── github-security.json             #   GitHub: 9 controls, 32 checks
 ├── oscal/
 │   ├── scanner.py                       #   Catalog-driven scan engine
 │   └── assessment-results-*.json        #   Generated OSCAL output (per provider)
@@ -162,9 +162,9 @@ New cloud provider = new catalog file, same engine.
 ## Roadmap
 
 ### Completed
-- [x] AWS: 32 controls, 78 checks across 10 control families
-- [x] Azure + Entra ID: 15 controls, 41 checks
-- [x] GitHub: 9 controls, 21 checks
+- [x] AWS: 32 controls, 94 checks across 10 control families
+- [x] Azure + Entra ID: 17 controls, 53 checks
+- [x] GitHub: 9 controls, 32 checks
 - [x] Multi-framework mapping (FedRAMP + PCI DSS + SOC 2)
 - [x] FedRAMP 20x KSI coverage (28/61 Moderate KSIs)
 - [x] SSP docx parser (323 FedRAMP Moderate controls)
