@@ -195,6 +195,7 @@ async function loadResults() {
     render();
   } catch(e) { showEmpty(); }
   loadSSP();
+  loadHistory();
 }
 
 async function runScan() {
@@ -623,6 +624,79 @@ function showSSPTab(sspData) {
   
   document.getElementById('content').innerHTML = html;
   window._sspData = sspData;
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history');
+    if (!res.ok) return;
+    const history = await res.json();
+    if (history.length < 2) return; // need at least 2 points
+    
+    // Group by timestamp (combine providers from same scan run)
+    const runs = {};
+    history.forEach(h => {
+      const key = h.timestamp;
+      if (!runs[key]) runs[key] = {timestamp: key, passed: 0, failed: 0, checks: 0};
+      runs[key].passed += h.passed;
+      runs[key].failed += h.failed;
+      runs[key].checks += h.checks;
+    });
+    
+    const points = Object.values(runs).map(r => ({
+      ...r,
+      pass_rate: Math.round(r.passed / (r.passed + r.failed) * 100)
+    })).slice(-20); // last 20 runs
+    
+    if (points.length < 2) return;
+    
+    const max = 100;
+    const width = 1100;
+    const height = 120;
+    const padding = 40;
+    const graphWidth = width - padding * 2;
+    const graphHeight = height - 30;
+    const stepX = graphWidth / (points.length - 1);
+    
+    let pathD = '';
+    let dots = '';
+    points.forEach((p, i) => {
+      const x = padding + i * stepX;
+      const y = 15 + graphHeight - (p.pass_rate / max * graphHeight);
+      if (i === 0) pathD += `M${x},${y}`;
+      else pathD += ` L${x},${y}`;
+      const color = p.pass_rate >= 80 ? '#34d399' : p.pass_rate >= 50 ? '#fbbf24' : '#f87171';
+      dots += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="#0c0e15" stroke-width="2"/>`;
+      // Label every other point
+      if (i === 0 || i === points.length - 1 || i % Math.ceil(points.length / 5) === 0) {
+        const date = new Date(p.timestamp).toLocaleDateString('en-US', {month:'short', day:'numeric'});
+        dots += `<text x="${x}" y="${height - 2}" fill="#475569" font-size="9" text-anchor="middle" font-family="DM Sans">${date}</text>`;
+        dots += `<text x="${x}" y="${y - 8}" fill="${color}" font-size="9" text-anchor="middle" font-family="JetBrains Mono">${p.pass_rate}%</text>`;
+      }
+    });
+    
+    const trendHtml = `
+      <div style="margin-bottom:24px">
+        <div class="section-title">Compliance Trend</div>
+        <div style="background:#0c0e15;border:1px solid #151a28;border-radius:10px;padding:12px;overflow-x:auto">
+          <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}">
+            <line x1="${padding}" y1="${15 + graphHeight - (80/100*graphHeight)}" x2="${width-padding}" y2="${15 + graphHeight - (80/100*graphHeight)}" stroke="#1e3a2e" stroke-width="1" stroke-dasharray="4"/>
+            <text x="${padding - 4}" y="${15 + graphHeight - (80/100*graphHeight) + 3}" fill="#34d399" font-size="8" text-anchor="end" font-family="DM Sans">80%</text>
+            <line x1="${padding}" y1="${15 + graphHeight - (50/100*graphHeight)}" x2="${width-padding}" y2="${15 + graphHeight - (50/100*graphHeight)}" stroke="#3a2e1e" stroke-width="1" stroke-dasharray="4"/>
+            <text x="${padding - 4}" y="${15 + graphHeight - (50/100*graphHeight) + 3}" fill="#fbbf24" font-size="8" text-anchor="end" font-family="DM Sans">50%</text>
+            <path d="${pathD}" fill="none" stroke="#22d3ee" stroke-width="2"/>
+            ${dots}
+          </svg>
+        </div>
+      </div>`;
+    
+    // Insert after the progress bar
+    const content = document.getElementById('content');
+    const progressBar = content.querySelector('.progress-bar');
+    if (progressBar && progressBar.nextElementSibling) {
+      progressBar.nextElementSibling.insertAdjacentHTML('afterend', trendHtml);
+    }
+  } catch(e) { console.error('History load error:', e); }
 }
 
 </script>

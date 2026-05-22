@@ -1,0 +1,62 @@
+[
+  {
+    "timestamp": "2026-05-22T00:03:48Z",
+    "provider": "aws",
+    "checks": 107,
+    "passed": 45,
+    "failed": 39,
+    "errors": 0,
+    "pass_rate": 54,
+    "ksi_coverage": 29
+  },
+  {
+    "timestamp": "2026-05-22T00:04:22Z",
+    "provider": "azure",
+    "checks": 59,
+    "passed": 77,
+    "failed": 26,
+    "errors": 0,
+    "pass_rate": 75,
+    "ksi_coverage": 20
+  },
+  {
+    "timestamp": "2026-05-22T00:04:37Z",
+    "provider": "github",
+    "checks": 32,
+    "passed": 42,
+    "failed": 35,
+    "errors": 0,
+    "pass_rate": 55,
+    "ksi_coverage": 7
+  },
+  {
+    "timestamp": "2026-05-22T00:05:18Z",
+    "provider": "aws",
+    "checks": 107,
+    "passed": 45,
+    "failed": 39,
+    "errors": 0,
+    "pass_rate": 54,
+    "ksi_coverage": 29
+  },
+  {
+    "timestamp": "2026-05-22T00:05:29Z",
+    "provider": "azure",
+    "checks": 59,
+    "passed": 77,
+    "failed": 26,
+    "errors": 0,
+    "pass_rate": 75,
+    "ksi_coverage": 20
+  },
+  {
+    "timestamp": "2026-05-22T00:05:32Z",
+    "provider": "github",
+    "checks": 32,
+    "passed": 42,
+    "failed": 35,
+    "errors": 0,
+    "pass_rate": 55,
+    "ksi_coverage": 7
+  }
+]

@@ -443,6 +443,13 @@ def export_report():
     return send_from_directory(os.path.dirname(output_path), os.path.basename(output_path),
                               as_attachment=True, download_name=f'openframp-report-{provider}-{datetime.now().strftime("%Y%m%d")}.pdf')
     
-    
+@app.route('/api/history')
+def scan_history():
+    history_path = os.path.join(PROJECT_ROOT, 'oscal', 'scan-history.json')
+    if not os.path.exists(history_path):
+        return jsonify([])
+    with open(history_path) as f:
+        return jsonify(json.load(f))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)

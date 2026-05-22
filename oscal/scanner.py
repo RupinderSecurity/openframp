@@ -1,6 +1,7 @@
 import json
 import subprocess
 import sys
+import os
 from datetime import datetime, timezone
 import uuid
 
@@ -1169,6 +1170,30 @@ def main():
                 for ksi in check.get("fedramp_20x_ksi", []):
                     ksi_covered.add(ksi)
         ksi_total = 61  # FedRAMP 20x Moderate total
+
+        # Save to scan history
+        history_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scan-history.json")
+        history = []
+        if os.path.exists(history_path):
+            try:
+                with open(history_path) as hf:
+                    history = json.load(hf)
+            except:
+                history = []
+        
+        history.append({
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "provider": provider,
+            "checks": total_checks,
+            "passed": total_pass,
+            "failed": total_fail,
+            "errors": total_errors,
+            "pass_rate": round(total_pass / (total_pass + total_fail) * 100) if (total_pass + total_fail) > 0 else 0,
+            "ksi_coverage": len(ksi_covered)
+        })
+        
+        with open(history_path, "w") as hf:
+            json.dump(history, hf, indent=2)
 
         print(f"Controls scanned: {controls_checked}")
         print(f"Individual checks: {total_checks} ({total_errors} errors)")
