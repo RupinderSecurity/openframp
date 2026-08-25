@@ -58,5 +58,15 @@
     "errors": 0,
     "pass_rate": 55,
     "ksi_coverage": 7
+  },
+  {
+    "timestamp": "2026-08-24T20:00:30Z",
+    "provider": "aws",
+    "checks": 107,
+    "passed": 0,
+    "failed": 11,
+    "errors": 96,
+    "pass_rate": 0,
+    "ksi_coverage": 29
   }
 ]

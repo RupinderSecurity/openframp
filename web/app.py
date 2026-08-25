@@ -6,14 +6,14 @@ import os
 from fpdf import FPDF
 from datetime import datetime
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='Static')
 
 RESULTS_PATH = os.environ.get('RESULTS_PATH', '/data/assessment-results.json')
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/api/results')
 def get_results():

@@ -140,6 +140,9 @@ For Docker, add `GITHUB_TOKEN=ghp_your_token_here` to `.env`.
 ```
 
 #### Start the web dashboard
+```this line is to run the GUI under a virtual environment.
+~/openframp/.venv/bin/python3 ~/openframp/web/app.py
+```
 
 ```bash
 cd web
